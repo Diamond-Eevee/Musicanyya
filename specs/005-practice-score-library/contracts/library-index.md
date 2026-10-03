@@ -1,6 +1,6 @@
 # Contract: library content formats (`item.json` + generated `index.json`)
 
-**Version**: `1.4.2` (1.4.2, 2026-10-01, feature 019 T099/T100 (owner decision), PATCH: `maxSpanSemitones` and `maxArpeggiatedSpanSemitones` measure only notes struck together - a note continued by a tie and a grace note are left out; no item's facts or level change; 1.4.1, 2026-10-01, feature 019 OD-3 (owner decision), PATCH: the quoted criterion 16 limit at Advanced is 16 semitones (a tenth) for an unrolled chord, as data-model.md now says; no format change; 1.4.0, 2026-10-01, feature 019 (owner decision, research R-19), MINOR: `downloaded` items may be
+**Version**: `1.5.0` (1.5.0, 2026-10-03, feature 022-library-basics-chords-songs, MINOR: optional authored `simplifies` (the item this one is a simplified version of; same section, higher level, checked by `pnpm library:index`); seven new skill tags (`note-values`, `rests`, `articulation`, `time-signatures`, `reading`, `inversions`, `seventh-chords`); optional facts `hasPickup`, `hasDottedRhythm`, `hasShortNotes`; the level check retires criteria 5, 6, 8-13 and 20-25 and adds criterion 29 "one focus" (Introduction only; 005 data-model.md §4); sections `basics` (top level, order 1) and `learning/chord-lessons` with three children; `stepOrder` up to 999 (was 99); `departures` is shown with the item. Change request: `specs/022-library-basics-chords-songs/contracts/library-index-1.5.md`; 1.4.2, 2026-10-01, feature 019 T099/T100 (owner decision), PATCH: `maxSpanSemitones` and `maxArpeggiatedSpanSemitones` measure only notes struck together - a note continued by a tie and a grace note are left out; no item's facts or level change; 1.4.1, 2026-10-01, feature 019 OD-3 (owner decision), PATCH: the quoted criterion 16 limit at Advanced is 16 semitones (a tenth) for an unrolled chord, as data-model.md now says; no format change; 1.4.0, 2026-10-01, feature 019 (owner decision, research R-19), MINOR: `downloaded` items may be
 under CC BY or CC BY-SA 2.0/2.5/3.0/4.0 (SPDX ids); for those `credit` and `unmodified` are required and `sourcePath`
 names a source with the same licence; authored items stay CC0. Full text: [019 data-model.md](../../019-metronome-orchestra-volume/data-model.md)
 section 6.3a; 1.3.0, 2026-10-01, feature 019-metronome-orchestra-volume, MINOR: optional fact `orchestra`, the
@@ -49,8 +49,8 @@ Everything a human decides. Never generated, never rewritten by a tool.
       "description": "the step of a key or key-change folder this item belongs to (feature 011 FR-003)"
     },
     "stepOrder": {
-      "type": "integer", "minimum": 0, "maximum": 99,
-      "description": "position inside its step; 0 = the step's main exercise, 10+ = more practice at the same step"
+      "type": "integer", "minimum": 0, "maximum": 999,
+      "description": "position inside its step (or, outside learning/keys and learning/key-changes, inside its section); 0 = the step's main exercise, 10+ = more practice at the same step; maximum 999 since 1.5.0 (was 99)"
     },
     "supersedes": {
       "type": "array", "minItems": 1, "maxItems": 8,
@@ -62,6 +62,10 @@ Everything a human decides. Never generated, never rewritten by a tool.
         }
       },
       "description": "former library items this item replaces: old id and the SHA-256 of the old file (feature 011 FR-020)"
+    },
+    "simplifies": {
+      "type": "string", "pattern": "^[a-z0-9-]+(/[a-z0-9-]+)*$",
+      "description": "the id of the item this one is a simplified version of (1.5.0, feature 022)"
     },
     "tags":      { "type": "array", "items": { "$ref": "#/$defs/skillTag" }, "minItems": 1, "maxItems": 8 },
     "trains":    { "type": "string", "maxLength": 300 },
@@ -87,7 +91,8 @@ Everything a human decides. Never generated, never rewritten by a tool.
     "skillTag": {
       "enum": ["chords", "chord-changes", "scales", "arpeggios", "five-finger", "hands-together",
                "hands-separate", "steady-eighths", "dotted-rhythm", "triplets", "ties", "repeats",
-               "pedal", "octave-shift", "ornaments", "sight-reading", "dynamics", "phrasing", "key-changes"]
+               "pedal", "octave-shift", "ornaments", "sight-reading", "dynamics", "phrasing", "key-changes",
+               "note-values", "rests", "articulation", "time-signatures", "reading", "inversions", "seventh-chords"]
     },
     "provenance": {
       "oneOf": [
@@ -153,7 +158,7 @@ Everything a human decides. Never generated, never rewritten by a tool.
 - `hands` is authored, not derived: which hands the learner is *meant* to use can differ from which staves carry notes (an exercise may rest one hand deliberately).
 - `arrangement: true` **requires** `departures` (FR-010). `arrangement: false` (or absent) **forbids** it.
 - `departures` never describes added material as the composer's (FR-012); it says whose it is ("our own continuation").
-- `src/core/library/index-model.ts` accepts the field, validates length and type, and copies it into the item's `meta`. The app does not display it in this feature (spec: UI changes out of scope).
+- `src/core/library/index-model.ts` accepts the field, validates length and type, and copies it into the item's `meta`. Since 1.5.0 (feature 022 T079, spec US3 scenario 2) the app shows it with the item: the lines that say where a Score came from (the browser's detail pane and *About this score*, `src/ui/format/score-source-text.ts`) end with "Changes from the source:" and the departures (sentences joined by a space), before its `limitations`. Nothing in the file changes.
 - Every item under `learning/keys/` or `learning/key-changes/` **requires** `step`. Items elsewhere **forbid** it (1.2.0).
 - For a main item (`stepOrder` 0), `step` = `introduction` requires `level` = `introduction`; `beginner`, `intermediate`,
   `advanced` require the level of the same name. An extra (`stepOrder` 10+, an existing drill kept at that step) keeps its own
@@ -165,6 +170,15 @@ Everything a human decides. Never generated, never rewritten by a tool.
   (the successor table of feature 011, `tools/library/successors.ts`, is the single source) (1.2.0).
 - The skill tag `key-changes` (1.2.0): the item practises moving between two keys. Required on every item under
   `learning/key-changes/`.
+- `simplifies` (1.5.0): `tools/library/build-index.ts` fails the build unless the named item exists, is in the same
+  section and has a higher level than this one. `src/core/library/index-model.ts` ignores the field (it is not copied
+  into the app model).
+- Skill tags added in 1.5.0 (feature 022, English labels in `src/ui/i18n/en.ts`): `note-values`, `rests`,
+  `articulation`, `time-signatures`, `reading` (the Basics lessons), `inversions`, `seventh-chords` (the chord
+  lessons). An older app skips an item with a tag it does not know (existing rule) - the index and the app ship
+  together.
+- `stepOrder` accepts `0..999` (1.5.0): the Basics lessons are ordered 10, 20, ... 240 and transposed chord lessons add
+  their index (022 data-model §4). A value outside the range still skips the item.
 - Rejected items are recorded in `public/library/README.md` in the format `| <item id> (<title>) | <reason, source searched, date> |`.
 
 ## 2. Generated index (`index.json`)
@@ -191,7 +205,7 @@ Everything a human decides. Never generated, never rewritten by a tool.
           "description": { "type": "string" },
           "path":     { "type": "string" },
           "parent":   { "type": ["string", "null"] },
-          "order":    { "type": "integer", "description": "position among siblings (same parent); unique per parent (1.2.0)" },
+          "order":    { "type": "integer", "description": "position among siblings (same parent); unique per parent (1.2.0). Since 1.5.0 the top level is basics 1, learning 2, repertoire 3, and learning/chord-lessons (title \"Chords\") has three children - 022 data-model §2" },
           "formerIds": {
             "type": "array", "items": { "type": "string" }, "minItems": 1,
             "description": "section ids this section replaces; a persisted filter naming one is moved here (1.2.0, feature 011 FR-020)"
@@ -251,6 +265,9 @@ Everything a human decides. Never generated, never rewritten by a tool.
         "hasOctaveShift":  { "type": "boolean" },
         "hasRepeats":      { "type": "boolean" },
         "hasPedal":        { "type": "boolean" },
+        "hasPickup":       { "type": "boolean", "description": "the first measure is implicit and shorter than the metre (1.5.0, feature 022); optional for readers" },
+        "hasDottedRhythm": { "type": "boolean", "description": "a dotted value shorter than a dotted half in a simple metre, grace notes excluded (1.5.0); optional for readers" },
+        "hasShortNotes":   { "type": "boolean", "description": "a value shorter than a quarter, not counting the eighth completing a dotted-quarter beat in a simple metre, nor eighths in a compound metre (1.5.0); optional for readers" },
         "fingeringCoverage": { "type": "number", "minimum": 0, "maximum": 1 },
         "notices":         { "type": "array", "items": { "type": "string" } }
       }
@@ -261,7 +278,7 @@ Everything a human decides. Never generated, never rewritten by a tool.
       "properties": {
         "level":  { "enum": ["introduction", "beginner", "intermediate", "advanced"] },
         "pass":   { "type": "boolean" },
-        "failed": { "type": "array", "items": { "type": "string" }, "description": "criterion ids that failed" }
+        "failed": { "type": "array", "items": { "type": "string" }, "description": "criterion ids that failed; since 1.5.0 it may list 29 (Introduction \"one focus\") and never lists a retired criterion (5, 6, 8-13, 20-25) - 005 data-model.md §4" }
       }
     }
   }

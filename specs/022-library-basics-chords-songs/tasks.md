@@ -364,14 +364,14 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
 
 **Model**: light (gemini-3.7-flash or claude-haiku-4-5)
 
-- [ ] T067 [P] Fold `contracts/library-index-1.5.md` into `specs/005-practice-score-library/contracts/library-index.md`
+- [x] T067 [P] Fold `contracts/library-index-1.5.md` into `specs/005-practice-score-library/contracts/library-index.md`
   (version line 1.5.0 with date and feature) and the criteria change (data-model §1) into
   `specs/005-practice-score-library/data-model.md` §4.
-- [ ] T068 [P] Fold `contracts/song-definition-1.2.md` into `specs/011-learning-by-key/contracts/song-definition.md`
+- [x] T068 [P] Fold `contracts/song-definition-1.2.md` into `specs/011-learning-by-key/contracts/song-definition.md`
   (version 1.2.0).
-- [ ] T069 [P] Fold `contracts/audit-record-1.5.md` and `contracts/source-manifest-1.4.md` into
+- [x] T069 [P] Fold `contracts/audit-record-1.5.md` and `contracts/source-manifest-1.4.md` into
   `specs/007-library-fidelity-audit/contracts/audit-record.md` (1.5.0) and `source-manifest.md` (1.4.0).
-- [ ] T070 [P] Update `content/library/sources/README.md` (multiPart in step 3 "Manifest"), `content/library/audit/README.md`
+- [x] T070 [P] Update `content/library/sources/README.md` (multiPart in step 3 "Manifest"), `content/library/audit/README.md`
   (new rule sets) and `docs/agents/reference.md` toolchain (`pnpm library:lessons`).
 - [ ] T071 [standard] Run `quickstart.md` end to end (all stories and the level-rule checks); fix what fails.
 - [ ] T072 [deep] Constitution audit of the branch diff with the `constitution-auditor` sub-agent; fix findings;

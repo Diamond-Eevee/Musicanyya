@@ -93,30 +93,31 @@ assigned level:
 | 2 | Absolute pitch bounds (MIDI) | 36–84 (exercises 35–85) | 36–84 (exercises 35–85) | 28–96 | 21–108 |
 | 3 | Hand independence: fraction of measures where both staves have onsets and neither onset set is a subset of the other (B1, feature 011) | 0 | ≤ 0.35 | ≤ 1.0 | ≤ 1.0 |
 | 4 | Voices per staff | 1 | 1 | ≤ 2 | ≤ 4 |
-| 5 | Shortest sounding duration, in beats (`PLAY_BEAT_UNIT_SOURCE`) | ≥ 1 | ≥ 0.5 | ≥ 0.25 | ≥ 0.125 |
-| 6 | Longest unbroken run of shortest-value notes in one hand | ≤ 4 | ≤ 4 | ≤ 32 | unlimited |
+| 5 | Shortest sounding duration, in beats (`PLAY_BEAT_UNIT_SOURCE`) - **retired by feature 022** (not checked) | ≥ 1 | ≥ 0.5 | ≥ 0.25 | ≥ 0.125 |
+| 6 | Longest unbroken run of shortest-value notes in one hand - **retired by feature 022** (not checked) | ≤ 4 | ≤ 4 | ≤ 32 | unlimited |
 | 7 | Tempo, quarter-equivalent BPM | 50–72 | 50–100 | 40–152 | 30–208 |
-| 8 | Tempo changes | 0 | 0 | ≤ 2 | unlimited |
-| 9 | Key signature, max \|fifths\| | ≤ 1 | ≤ 2 | ≤ 4 | ≤ 7 |
-| 10 | Key changes | 0 (key-change exercises ≤ 1) | 0 | ≤ 2 | unlimited |
-| 11 | Accidentals outside the key signature, per 16 measures | ≤ 2 (exercise 6th/7th degree of a minor key not counted) | ≤ 2 | ≤ 12 | unlimited |
-| 12 | Metre | 4/4, 3/4 | 4/4, 3/4, 2/4 | + 6/8, 3/8, 2/2, 12/8 | any, incl. `senza-misura` |
-| 13 | Metre changes | 0 | 0 | ≤ 1 | unlimited |
+| 8 | Tempo changes - **retired by feature 022** (not checked) | 0 | 0 | ≤ 2 | unlimited |
+| 9 | Key signature, max \|fifths\| - **retired by feature 022** (not checked) | ≤ 1 | ≤ 2 | ≤ 4 | ≤ 7 |
+| 10 | Key changes - **retired by feature 022** (not checked) | 0 (key-change exercises ≤ 1) | 0 | ≤ 2 | unlimited |
+| 11 | Accidentals outside the key signature, per 16 measures - **retired by feature 022** (not checked) | ≤ 2 (exercise 6th/7th degree of a minor key not counted) | ≤ 2 | ≤ 12 | unlimited |
+| 12 | Metre - **retired by feature 022** (not checked) | 4/4, 3/4 | 4/4, 3/4, 2/4 | + 6/8, 3/8, 2/2, 12/8 | any, incl. `senza-misura` |
+| 13 | Metre changes - **retired by feature 022** (not checked) | 0 | 0 | ≤ 1 | unlimited |
 | 14 | Measures (written) | 8–16 | 8–32 | 16–96 | ≤ 250 |
 | 15 | Duration after repeat expansion | ≤ 60 s | ≤ 90 s | ≤ 240 s | ≤ 480 s |
 | 16 | Largest interval in one hand between notes struck together - not a note held on by a tie, not a grace note (019 T100) (semitones) | ≤ 7 | ≤ 9 | ≤ 12 | ≤ 16 (a tenth; 14 before feature 019 OD-3, 2026-10-01), wider only under `<arpeggiate>` |
 | 17 | Largest leap in one hand between consecutive onsets | ≤ 12 (exercises 19, B8) | ≤ 12 (exercises 19) | ≤ 24 | unlimited |
 | 18 | Mean note density (notes/s) | ≤ 1.5 | ≤ 2.5 | ≤ 6 | ≤ 12 |
 | 19 | Peak note density (max notes/s in any 2 s window) | ≤ 3 | ≤ 5 | ≤ 12 | ≤ 24 |
-| 20 | Ties | none | within a bar or across one barline, chain ≤ 2 | any | any |
-| 21 | Tuplets | none | none | 3:2 only | any ratio that divides `<divisions>` evenly |
-| 22 | Grace notes | none | none | ≤ 1 per 4 measures | unlimited |
-| 23 | Ornaments (trill / turn / mordent / tremolo) | none | none | ≤ 1 per 4 measures | unlimited |
-| 24 | Repeat structure | none | none, or one backward repeat | + voltas | + D.C./D.S./To Coda/Fine |
-| 25 | Written `<pedal>` | forbidden | forbidden | allowed, recorded as a limitation | allowed, recorded |
+| 20 | Ties - **retired by feature 022** (not checked) | none | within a bar or across one barline, chain ≤ 2 | any | any |
+| 21 | Tuplets - **retired by feature 022** (not checked) | none | none | 3:2 only | any ratio that divides `<divisions>` evenly |
+| 22 | Grace notes - **retired by feature 022** (not checked) | none | none | ≤ 1 per 4 measures | unlimited |
+| 23 | Ornaments (trill / turn / mordent / tremolo) - **retired by feature 022** (not checked) | none | none | ≤ 1 per 4 measures | unlimited |
+| 24 | Repeat structure - **retired by feature 022** (not checked) | none | none, or one backward repeat | + voltas | + D.C./D.S./To Coda/Fine |
+| 25 | Written `<pedal>` - **retired by feature 022** (not checked) | forbidden | forbidden | allowed, recorded as a limitation | allowed, recorded |
 | 26 | `<octave-shift>` | allowed | allowed (see correction B) | allowed | allowed |
 | 27 | Parts / staves | 1 part, 2 staves | 1 part, 2 staves | 1 part, 2 staves | 1 part, 2 staves |
 | 28 | Load report | same | no warnings; notices only if recorded in `meta.expected.notices`, and an **authored** item must have none | same | same |
+| 29 | One focus: harder notation features present (feature 022, list below) | ≤ 1 (`INTRODUCTION_FOCUS_FEATURES_MAX`) | not checked | not checked | not checked |
 
 **Correction A (`<harmony>`)**: verified in `src/core/musicxml/build.ts` - the unsupported-element
 check runs over the **direct children of `<measure>`**, and neither `harmony` nor `figured-bass` is in
@@ -184,6 +185,37 @@ piece, which every criterion above still gates normally.
   last note to a chord whose top is T+19.
 - **Introduction level** (new): the first column of the table above; every threshold constant lives in
   `src/core/defaults.ts` as a `LEVEL_*` record with an `introduction` entry.
+
+**Feature 022 changes (owner decision OD-1, 2026-10-03; `specs/022-library-basics-chords-songs/research.md` R1)**: no
+level bans any notation. A level is decided by **reach** (criteria 1, 2, 16, 17) and **pace** (3, 4, 7, 14, 15, 18,
+19), plus the shape every library item has (27) and no unexpected notices (28); 26 was already allowed everywhere.
+
+- **Retired**: criteria 5, 6, 8, 9, 10, 11, 12, 13, 20, 21, 22, 23, 24, 25 (marked in the table). Their facts are still
+  computed and written to the index (display, filters, step order); `levelCheck.failed` never lists them
+  (library-index 1.5.0). Corrections C2, C4 and C6 and the 011 changes B5 and B6 therefore no longer apply. Their
+  constants were removed from `src/core/defaults.ts` (a constant still imported elsewhere stays, its comment saying it no
+  longer gates levels).
+- **Criterion 29 - one focus (Introduction only)**: count the features present; fail when the count exceeds
+  `INTRODUCTION_FOCUS_FEATURES_MAX` (1). The ordered ids are `INTRODUCTION_FOCUS_FEATURES` in `src/core/defaults.ts`:
+
+  | Feature id | Present when (facts) |
+  |---|---|
+  | `short-notes` | `hasShortNotes` (a value shorter than a quarter, **not** counting the eighth that completes a dotted-quarter beat in a simple metre - part of `dotted-rhythm` - nor eighths in a compound metre 6/8, 9/8, 12/8 - part of `metre`) |
+  | `dotted-rhythm` | `hasDottedRhythm` (a dotted value shorter than a dotted half in a simple metre; a dotted quarter in a compound metre is its beat and belongs to `metre`) |
+  | `ties` | `hasTies` |
+  | `repeats` | `repeatKind !== 'none'` |
+  | `pickup` | `hasPickup` (the first measure is `implicit` and shorter than the metre) |
+  | `metre` | any of `metres` outside `INTRODUCTION_SIMPLE_METRES` (`2/4`, `3/4`, `4/4`) |
+  | `tuplets` | `hasTuplets` |
+  | `grace-ornaments` | `graceNoteCount + ornamentCount > 0` |
+  | `accidentals` | `accidentalMarkCount - minorScaleAccidentalCount > 0` **and** `keys.length === 1`; the minor-scale count is subtracted only when the key is minor (a G♯ in C major is chromatic) |
+  | `pedal` | `hasPedal` |
+  | `changes` | `keys.length > 1` or `metres.length > 1` or `tempoChanges > 0` |
+
+  So a dotted quarter + eighth is one feature (`dotted-rhythm`), and 6/8 with dotted quarters and eighths is one
+  feature (`metre`).
+- **Existing items** (022 FR-006): assigned levels never change; every item whose computed level now falls below its
+  assigned level carries `raisedBecause`.
 
 ### 4.1 What the check deliberately cannot see
 

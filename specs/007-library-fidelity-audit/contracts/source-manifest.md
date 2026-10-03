@@ -1,6 +1,6 @@
 # Contract: authoritative source manifest (`content/library/sources/<source-id>/source.json`)
 
-**Version**: `1.3.0` (1.3.0, 2026-10-01, feature 019 (owner decision, research R-19), MINOR: `licence` also accepts
+**Version**: `1.4.0` (1.4.0, 2026-10-03, feature 022-library-basics-chords-songs (spec FR-034, SC-007), MINOR: optional manifest field `multiPart` - whether a multi-part (ensemble / SATB / orchestral) version of the work exists, for a later Orchestra feature; change request `specs/022-library-basics-chords-songs/contracts/source-manifest-1.4.md`; 1.3.0, 2026-10-01, feature 019 (owner decision, research R-19), MINOR: `licence` also accepts
 CC BY and CC BY-SA 2.0/2.5/3.0/4.0 as SPDX ids; `credit` is required for them; 1.0.0 new; 1.1.0, 2026-09-24: optional `score` and `archive` on a file, task T095; 1.2.0, 2026-10-01,
 feature 019-metronome-orchestra-volume, MINOR: optional manifest field `origin`, `"downloaded"` (default) or
 `"transcription"` - our own CC0 reading of a public-domain print, whose `url` is that print; used for the second,
@@ -47,6 +47,16 @@ Files are committed **unchanged** (hash-checked). A scan (PDF) is **not** commit
     "obtained":  { "type": "string", "format": "date" },
     "approvedByOwner": { "type": "string", "format": "date" },
     "origin":    { "enum": ["downloaded", "transcription"], "default": "downloaded", "description": "1.2.0: transcription = our own CC0 reading of the print at url" },
+    "multiPart": {
+      "type": "object", "additionalProperties": false, "required": ["available"],
+      "description": "1.4.0: whether a multi-part version of the work exists (feature 022 FR-034)",
+      "properties": {
+        "available": { "type": "boolean" },
+        "where":     { "type": "string", "format": "uri", "description": "URL of the multi-part (ensemble / SATB / orchestral) version" },
+        "licence":   { "type": "string", "maxLength": 100, "description": "SPDX id or public-domain, as that page states it" },
+        "note":      { "type": "string", "maxLength": 300, "description": "instrumentation, and anything a later Orchestra feature needs" }
+      }
+    },
     "files": {
       "type": "array", "minItems": 1,
       "items": {
@@ -89,6 +99,10 @@ Files are committed **unchanged** (hash-checked). A scan (PDF) is **not** commit
 - `score` names the `\score` (1-based) the source is, when the `.ly` holds one per movement; the readers pass it on.
 - `approvedByOwner` is the date the owner approved this source (spec assumption; AGENTS.md section 6). A source
   without it may be downloaded to the agent's scratch space for inspection, but may not be committed or cited.
+- `multiPart` (1.4.0): `tools/library/fidelity/sources.ts` rejects a manifest whose `multiPart` has an unknown field, a
+  non-boolean `available`, a `where` that is not a URL, or a `licence` / `note` that is not text of the allowed length.
+  `tests/library/fidelity.test.ts` requires it on every source used by a song definition created in feature 022. The
+  source itself may be the multi-part version (then `where` is its own `url`). Nothing is downloaded for it.
 - Every source that an item's MusicXML was **converted from** also appears in `THIRD_PARTY_NOTICES.md` (FR-023).
   A source used only for comparison is listed there too, under a "Reference sources" heading, so every committed
   third-party file is accounted for.
