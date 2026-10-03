@@ -19,6 +19,9 @@ const WORD = /[A-Za-z\u0080-￿]/;
 /** Commands whose braced block is lyric text: syllables, hyphens and punctuation that are no music, so the block is skipped
  *  whole and the parser sees an empty pair of braces. Lyrics carry no note, so nothing the reader compares is lost. */
 const LYRIC_COMMANDS = new Set(['\\lyricmode', '\\addlyrics', '\\lyrics']);
+/** Commands whose braced block is chord-name text (c:m7, bes:m/+des), skipped the same way (022 T076): chord names print
+ *  above the staff and are no notes, so nothing the reader compares is lost either. */
+const CHORD_NAME_COMMANDS = new Set(['\\chordmode', '\\chords']);
 
 export function lexLilyPond(source: string): LyToken[] {
   const tokens: LyToken[] = [];
@@ -73,7 +76,8 @@ export function lexLilyPond(source: string): LyToken[] {
           advance();
         }
         push('command', name, l, c);
-        if (LYRIC_COMMANDS.has(name)) skipLyricBlock();
+        if (LYRIC_COMMANDS.has(name)) skipTextBlock('lyrics block');
+        else if (CHORD_NAME_COMMANDS.has(name)) skipTextBlock('chord-name block');
       } else if ('\\()<>![]'.includes(next) && next !== '') {
         advance(2);
         push('command', `\\${next}`, l, c);
@@ -140,8 +144,8 @@ export function lexLilyPond(source: string): LyToken[] {
   tokens.push({ type: 'eof', value: '', line, column, spaced: true });
   return tokens;
 
-  /** After a lyric command: the `{ ... }` block that follows it, replaced by an empty pair of brace tokens. */
-  function skipLyricBlock(): void {
+  /** After a lyric or chord-name command: the `{ ... }` block that follows it, replaced by an empty pair of brace tokens. */
+  function skipTextBlock(what: string): void {
     while (i < source.length && /\s/.test(source[i] as string)) advance();
     if (source[i] !== '{') return;
     const l = line;
@@ -151,7 +155,7 @@ export function lexLilyPond(source: string): LyToken[] {
     let depth = 1;
     while (depth > 0) {
       const x = source[i];
-      if (x === undefined) throw new LyUnsupportedError(l, c, 'unterminated lyrics block');
+      if (x === undefined) throw new LyUnsupportedError(l, c, `unterminated ${what}`);
       if (x === '"') {
         advance();
         while (i < source.length && source[i] !== '"') advance(source[i] === '\\' ? 2 : 1);

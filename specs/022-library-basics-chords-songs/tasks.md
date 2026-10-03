@@ -301,12 +301,16 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
   `tools/library/build-songs.ts` (patterns, `simplifies`, pair ordering). T052 green.
 - [x] T056 [US3] Implement `song-chords-v2` in `tools/library/fidelity/song-chords.ts` (option `ruleSet`) and register it
   in `records.ts`. T053 green.
-- [~] T057 [US3] [standard] Download the approved sources 1-5 (research R13) unchanged into
+- [x] T057 [US3] [standard] Download the approved sources 1-5 (research R13) unchanged into
   `content/library/sources/mutopia-<id>-<slug>/`, write `source.json` (source-manifest 1.4.0 with `multiPart`:
   available, `where` = its own page, licence, "SATB, tune in the Soprano"), hashes, `approvedByOwner` date; inspect each
   MIDI with `pnpm library:fidelity --inspect-midi <path>` and record `midiOrder`, `midiNoteTracks`, `midiArticulate`;
-  add each to `THIRD_PARTY_NOTICES.md`. (claimed: claude-opus-5.5 2026-10-04)
-- [~] T058 [P] [US3] [standard] Same as T057 for approved sources 6-10. (claimed: claude-opus-5.5 2026-10-04)
+  add each to `THIRD_PARTY_NOTICES.md`.
+- [x] T058 [P] [US3] [standard] Same as T057 for approved sources 6-10.
+- [x] T076 [US3] [standard] Read chord-name lines (owner 2026-10-03, Leoni's slot, research R13): `tools/library/lilypond/lex.ts`
+  skips a `\chordmode` / `\chords` block like lyrics, `parse.ts` accepts the `ChordNames` context and a `\header` field
+  naming an earlier one (`mutopiatitle = \title`), `read.ts` reads no note from a `ChordNames` context; tests first in
+  `tests/tools/lilypond/read.test.ts`. Then download Leoni (Mutopia 525) again as in T058.
 - [ ] T059 [US3] Author the full and simplified song definitions for tunes 1-5 in `content/library/songs/` (melody
   staff/voice/bars, transposition onto a key shelf where it helps - listed as a departure -, intermediate chords with a
   `leftHand.pattern`, beginner block chords, `trains`, `composer`, `departures`, `reviewedBy`, and

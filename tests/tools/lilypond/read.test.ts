@@ -653,3 +653,37 @@ describe('lyrics and a final repeat sign (feature 011, Mutopia 905 and 644)', ()
     expect(() => fromLilyPond(readLilyPond('\\relative c\' { c4 d e f \\bar ":|" | g1 }'))).toThrow(/before the end/);
   });
 });
+
+describe('chord-name lines (feature 022 T076, Mutopia 525 Leoni)', () => {
+  const notesOf = (text: string) => fromLilyPond(readLilyPond(text)).notes;
+  const STAFF = "\\new Staff { \\relative c' { c4 d e f | g1 } }";
+  /** The same music without its chord-name line: what the reader must read with it. */
+  const WITHOUT = `<< ${STAFF} >>`;
+
+  it('a \\chordmode variable shown by \\context ChordNames is skipped, whatever its chord syntax (:m, :7, /+des)', () => {
+    const text = `guitar = \\chordmode { f4:m c:sus4 bes:m/+des es:7/+des | as1/+c }
+      \\score { \\transpose f e << \\context ChordNames \\guitar ${STAFF} >> }`;
+    const read = notesOf(text);
+    expect(read).toHaveLength(5);
+    expect(read).toEqual(notesOf(`\\score { \\transpose f e << ${STAFF} >> }`));
+  });
+
+  it('\\new ChordNames with an inline \\chordmode block, and the \\chords shorthand, are skipped', () => {
+    expect(notesOf(`<< \\new ChordNames \\chordmode { c1:m7 g1 } ${STAFF} >>`)).toEqual(notesOf(WITHOUT));
+    expect(notesOf(`<< \\chords { c2:m g:7/+b | c1 } ${STAFF} >>`)).toEqual(notesOf(WITHOUT));
+  });
+
+  it('notes written straight into a ChordNames context are chord names, not printed notes: none is read', () => {
+    expect(notesOf(`<< \\new ChordNames { <c e g>1 <g b d>1 } ${STAFF} >>`)).toEqual(notesOf(WITHOUT));
+  });
+
+  it('a \\chordmode block that never closes is refused', () => {
+    expect(() => readLilyPond("{ c'4 } x = \\chordmode { c1:m never closed")).toThrow(/chord-name block/);
+  });
+
+  it('a \\header field naming an earlier field takes its value (Leoni: mutopiatitle = \\title); an unknown one is refused', () => {
+    const r = readLilyPond('\\header { title = "Leoni" mutopiatitle = \\title }\n{ c\'4 }');
+    expect(r.header).toEqual({ title: 'Leoni', mutopiatitle: 'Leoni' });
+    expect(() => readLilyPond("\\header { mutopiatitle = \\title }\n{ c'4 }")).toThrow(/header value for mutopiatitle/);
+  });
+});

@@ -226,6 +226,15 @@ St. Anne (1290) reads and replaces 856 (slug `o-god-our-help-in-ages-past`). Aam
 either (`\new ChordNames`, a start-repeat bar outside `\repeat`), so Leoni's place is **open**: with Passion Chorale
 the only minor tune left, FR-030's "two minor songs" needs one more minor source - needs owner (see the log).
 
+**Leoni kept (owner, 2026-10-03: "extend reader")** - Decision: the LilyPond reader skips chord-name lines
+(`\chordmode` / `\chords` blocks like lyrics; a `ChordNames` context gives no note) and lets a `\header` field name an
+earlier one (`mutopiatitle = \title`); Leoni (525) is downloaded again unchanged (T076). Rationale: chord names print
+above the staff and are no notes, so nothing the fidelity check compares is lost, and the owner-approved minor tune
+stays. Alternatives: another minor source (a new approval and search), amending FR-030 (spec change). Found on
+download: the file is written in F minor but wrapped in `\transpose f e`, so it **sounds E minor** (row 7 above is
+the written key); its MIDI plays the chord names as track 1, so `midiNoteTracks` is `[2, 3]`. All 10 sources'
+MIDI agree with the reading of their notation (0 differences each, 2026-10-03).
+
 Reserves: St. Louis / O Little Town of Bethlehem (1292), Aamulla varhain (1020, minor, voice and piano - no multi-part),
 Old Hundredth (194), St. Anne (1290). Variety (FR-030): keys D, F, G, B-flat major and D, G, F minor; three minor;
 five in 3/4 or 6/8. A song may be transposed onto a key shelf with fewer accidentals (listed as a departure), as

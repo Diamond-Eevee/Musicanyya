@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "id": "mutopia-525-leoni",
+  "work": "Leoni (hymntune from a synagogue melody for the Yigdal, transcribed by M. Lyon and adapted by T. Olivers: The God of Abraham Praise), SATB, sounding E minor; the tune is in the Soprano",
+  "edition": "Australian Hymn Book, number 53",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=525",
+  "identifier": "Mutopia-2016/11/01-525",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond by Peter Chubb for the Mutopia Project from the Australian Hymn Book (number 53), and placed in the public domain by the typesetter. The piece page states \"Public Domain\" (checked 2026-10-03).",
+  "obtained": "2026-10-03",
+  "approvedByOwner": "2026-10-03",
+  "multiPart": {
+    "available": true,
+    "where": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=525",
+    "licence": "public-domain",
+    "note": "SATB, the tune in the Soprano: the other voices are a ready multi-part version for a later Orchestra."
+  },
+  "files": [
+    {
+      "role": "notation",
+      "path": "Leoni.ly",
+      "url": "https://www.mutopiaproject.org/ftp/Anonymous/Leoni/Leoni.ly",
+      "sha256": "65ddcdddde7301c0b6a96960fdaf7c8b332ca7bdaca782f9cdbfdbe33d37aa6e",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "Leoni.mid",
+      "url": "https://www.mutopiaproject.org/ftp/Anonymous/Leoni/Leoni.mid",
+      "sha256": "1e26985b247fd74a581d0a5a72e33bced0975bd2c5f6913eecef09fdfeb4970f",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [2, 3],
+      "midiArticulate": false
+    }
+  ]
+}
