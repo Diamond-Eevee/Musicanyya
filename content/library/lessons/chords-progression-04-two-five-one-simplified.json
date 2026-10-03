@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "id": "learning/chord-lessons/progressions/two-five-one-simplified-in-{key}",
+  "title": "ii-V-I in {keyName} (simplified)",
+  "section": "learning/chord-lessons/progressions",
+  "stepOrder": 40,
+  "level": "beginner",
+  "hands": "both",
+  "tags": ["chords", "chord-changes"],
+  "trains": "The ii-V-I as three-note chords, one a bar: Dm, G, C. D stays from Dm to G and G stays from G to C; the left hand plays each root. A simpler version of the next lesson, which adds the sevenths.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "commonTones": [
+      {
+        "bar": 2,
+        "beat": 1,
+        "pitch": "D4"
+      },
+      {
+        "bar": 3,
+        "beat": 1,
+        "pitch": "G4"
+      },
+      {
+        "bar": 6,
+        "beat": 1,
+        "pitch": "D4"
+      },
+      {
+        "bar": 7,
+        "beat": 1,
+        "pitch": "G4"
+      }
+    ]
+  },
+  "simplifies": "learning/chord-lessons/progressions/two-five-one-in-{key}",
+  "departures": ["Three-note chords (Dm, G, C) instead of seventh chords.", "One chord a bar, held."],
+  "transpositions": [
+    {
+      "slug": "c-major",
+      "tonic": "C",
+      "mode": "major",
+      "fifths": 0,
+      "interval": "+P1"
+    },
+    {
+      "slug": "f-major",
+      "tonic": "F",
+      "mode": "major",
+      "fifths": -1,
+      "interval": "+P4"
+    },
+    {
+      "slug": "b-flat-major",
+      "tonic": "Bb",
+      "mode": "major",
+      "fifths": -2,
+      "interval": "-M2"
+    }
+  ],
+  "bars": [
+    {
+      "rh": "{Dm}<D4 F4 A4>:w@1-3-5",
+      "lh": "D3:w@5"
+    },
+    {
+      "rh": "{G}<D4 G4 B4>:w@1-3-5",
+      "lh": "G2:w@5"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w@5"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{Dm}<D4 F4 A4>:w@1-3-5",
+      "lh": "D3:w"
+    },
+    {
+      "rh": "{G}<D4 G4 B4>:w@1-3-5",
+      "lh": "G2:w"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

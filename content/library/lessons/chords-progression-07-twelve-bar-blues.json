@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "id": "learning/chord-lessons/progressions/twelve-bar-blues-in-{key}",
+  "title": "Twelve-bar blues in {keyName}",
+  "section": "learning/chord-lessons/progressions",
+  "stepOrder": 70,
+  "level": "intermediate",
+  "raisedBecause": "Seventh chords shared by both hands in the twelve-bar form: both hands change shape on every chord; the notes alone measure Beginner.",
+  "hands": "both",
+  "tags": ["chords", "chord-changes", "seventh-chords"],
+  "trains": "The twelve-bar blues with seventh chords, struck twice a bar: the left hand plays root and fifth, the right hand only the third and seventh. From C7 to F7 both right-hand notes fall a half step; to G7 they rise.",
+  "metre": "4/4",
+  "tempoBpm": 72,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {},
+  "transpositions": [
+    {
+      "slug": "c-major",
+      "tonic": "C",
+      "mode": "major",
+      "fifths": 0,
+      "interval": "+P1"
+    },
+    {
+      "slug": "g-major",
+      "tonic": "G",
+      "mode": "major",
+      "fifths": 1,
+      "interval": "-P4"
+    }
+  ],
+  "bars": [
+    {
+      "rh": "{C7}<E4 Bb4>:h@1-4 <E4 Bb4>:h@1-4",
+      "lh": "<C3 G3>:h@5-1 <C3 G3>:h@5-1"
+    },
+    {
+      "rh": "{C7}<E4 Bb4>:h@1-4 <E4 Bb4>:h@1-4",
+      "lh": "<C3 G3>:h@5-1 <C3 G3>:h@5-1"
+    },
+    {
+      "rh": "{C7}<E4 Bb4>:h@1-4 <E4 Bb4>:h@1-4",
+      "lh": "<C3 G3>:h@5-1 <C3 G3>:h@5-1"
+    },
+    {
+      "rh": "{C7}<E4 Bb4>:h@1-4 <E4 Bb4>:h@1-4",
+      "lh": "<C3 G3>:h@5-1 <C3 G3>:h@5-1"
+    },
+    {
+      "rh": "{F7}<Eb4 A4>:h@1-4 <Eb4 A4>:h@1-4",
+      "lh": "<F2 C3>:h@5-1 <F2 C3>:h@5-1"
+    },
+    {
+      "rh": "{F7}<Eb4 A4>:h@1-4 <Eb4 A4>:h@1-4",
+      "lh": "<F2 C3>:h@5-1 <F2 C3>:h@5-1"
+    },
+    {
+      "rh": "{C7}<E4 Bb4>:h@1-4 <E4 Bb4>:h@1-4",
+      "lh": "<C3 G3>:h@5-1 <C3 G3>:h@5-1"
+    },
+    {
+      "rh": "{C7}<E4 Bb4>:h@1-4 <E4 Bb4>:h@1-4",
+      "lh": "<C3 G3>:h@5-1 <C3 G3>:h@5-1"
+    },
+    {
+      "rh": "{G7}<F4 B4>:h@1-4 <F4 B4>:h@1-4",
+      "lh": "<G2 D3>:h@5-1 <G2 D3>:h@5-1"
+    },
+    {
+      "rh": "{F7}<Eb4 A4>:h@1-4 <Eb4 A4>:h@1-4",
+      "lh": "<F2 C3>:h@5-1 <F2 C3>:h@5-1"
+    },
+    {
+      "rh": "{C7}<E4 Bb4>:h@1-4 <E4 Bb4>:h@1-4",
+      "lh": "<C3 G3>:h@5-1 <C3 G3>:h@5-1"
+    },
+    {
+      "rh": "{C7}<E4 Bb4>:h@1-4 <E4 Bb4>:h@1-4",
+      "lh": "<C3 G3>:h@5-1 <C3 G3>:h@5-1"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

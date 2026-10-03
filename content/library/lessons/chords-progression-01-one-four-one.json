@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "id": "learning/chord-lessons/progressions/one-four-one-in-{key}",
+  "title": "I-IV-I in {keyName}",
+  "section": "learning/chord-lessons/progressions",
+  "stepOrder": 10,
+  "level": "beginner",
+  "hands": "both",
+  "tags": ["chords", "chord-changes", "inversions"],
+  "trains": "Home, away and home: I, IV, I. The thumb keeps C all the way while fingers move up a step to F and A and back. The left hand holds the root of the key under every chord.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "commonTones": [
+      {
+        "bar": 1,
+        "beat": 3,
+        "pitch": "C4"
+      },
+      {
+        "bar": 2,
+        "beat": 1,
+        "pitch": "C4"
+      },
+      {
+        "bar": 3,
+        "beat": 3,
+        "pitch": "C4"
+      },
+      {
+        "bar": 4,
+        "beat": 1,
+        "pitch": "C4"
+      },
+      {
+        "bar": 5,
+        "beat": 1,
+        "pitch": "C4"
+      },
+      {
+        "bar": 6,
+        "beat": 1,
+        "pitch": "C4"
+      },
+      {
+        "bar": 7,
+        "beat": 3,
+        "pitch": "C4"
+      },
+      {
+        "bar": 8,
+        "beat": 1,
+        "pitch": "C4"
+      }
+    ]
+  },
+  "transpositions": [
+    {
+      "slug": "c-major",
+      "tonic": "C",
+      "mode": "major",
+      "fifths": 0,
+      "interval": "+P1"
+    },
+    {
+      "slug": "g-major",
+      "tonic": "G",
+      "mode": "major",
+      "fifths": 1,
+      "interval": "+P5"
+    },
+    {
+      "slug": "f-major",
+      "tonic": "F",
+      "mode": "major",
+      "fifths": -1,
+      "interval": "+P4"
+    }
+  ],
+  "bars": [
+    {
+      "rh": "{C}<C4 E4 G4>:h@1-3-5 {F/C}<C4 F4 A4>:h@1-4-5",
+      "lh": "C3:w@5"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:h@1-3-5 {F/C}<C4 F4 A4>:h@1-4-5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{F/C}<C4 F4 A4>:w@1-4-5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:h@1-3-5 {F/C}<C4 F4 A4>:h@1-4-5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

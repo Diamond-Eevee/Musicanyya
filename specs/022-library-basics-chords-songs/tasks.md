@@ -222,37 +222,37 @@ waits for each whole chord; a wrong note in a chord is marked wrong pitch.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T040 [P] [US2] Write failing tests `tests/tools/fidelity/chord-lessons.test.ts` with planted fixtures for every
+- [x] T040 [P] [US2] Write failing tests `tests/tools/fidelity/chord-lessons.test.ts` with planted fixtures for every
   difference of `chord-lessons-v1` (`chord-tones` incl. a split seventh read across both staves and a declared
   `omit`, `bass` for a slash chord, `common-tone`, `stray-note`) and every name form of research R4 (`m`, `°`, `+`,
   `sus2`, `sus4`, `maj7`, `7`, `m7`, `ø7`, `/bass`, sharps and flats); one clean lesson gives 0 differences. The
   fixtures' file header names their origin (authored for the test, CC0).
-- [ ] T041 [P] [US2] [standard] Write `tests/library/chord-lessons.test.ts`: section `learning/chord-lessons` (title
+- [x] T041 [P] [US2] [standard] Write `tests/library/chord-lessons.test.ts`: section `learning/chord-lessons` (title
   "Chords", order 3 under `learning`) with children `single-chords`, `switches`, `progressions` in that order
   (data-model §2); the three folders hold 9, 15 and 20 items
   with the ids and levels of data-model §5; every chord onset has a symbol above staff 1 (FR-023); each simplified item
   has `simplifies` pointing at the full item of the same key with a strictly higher level (and that full item's
   level check passes, with `raisedBecause` where its measured level is lower) and " (simplified)" in its title;
   no hand ever strikes more than three keys (FR-041, via the playability facts). Fails now.
-- [ ] T042 [P] [US2] [standard] Extend `tests/e2e/library.spec.ts` (chromium): Learning lists Keys, Key changes, Chords
+- [x] T042 [P] [US2] [standard] Extend `tests/e2e/library.spec.ts` (chromium): Learning lists Keys, Key changes, Chords
   in that order; Chords lists One chord, Chord switches, Progressions; opening "Major to minor" in C shows the chord
   names C and Cm in the score SVG. Fails now.
 
 ### Implementation
 
-- [ ] T043 [US2] Implement `tools/library/fidelity/chord-lessons.ts` and register `chord-lessons-v1` in
+- [x] T043 [US2] Implement `tools/library/fidelity/chord-lessons.ts` and register `chord-lessons-v1` in
   `tools/library/fidelity/records.ts` / `cli.ts` (record `claims.commonTones`, `omit`). T040 green.
-- [ ] T044 [US2] Author the 9 One-chord definitions in `content/library/lessons/chords-single-*.json` (data-model §5,
+- [x] T044 [US2] Author the 9 One-chord definitions in `content/library/lessons/chords-single-*.json` (data-model §5,
   split sevenths per research R5, voicing note in `trains`, fingering, simplified versions with `simplifies` and
   `departures`).
-- [ ] T045 [US2] Author the 5 Chord-switch families (`content/library/lessons/chords-switch-*.json`, 3 transpositions
+- [x] T045 [US2] Author the 5 Chord-switch families (`content/library/lessons/chords-switch-*.json`, 3 transpositions
   each), with `claims.commonTones` for every kept tone.
-- [ ] T046 [US2] Author the 7 Progression families (`content/library/lessons/chords-progression-*.json`; ii-V-I and the
+- [x] T046 [US2] Author the 7 Progression families (`content/library/lessons/chords-progression-*.json`; ii-V-I and the
   twelve-bar blues with their simplified families). In T044-T046, a lesson assigned above its measured level (reach
   and pace only, research R1) gets a `raisedBecause` naming why (e.g. "seventh chords split between the hands").
-- [ ] T047 [US2] [light] Run `pnpm library:lessons`, `pnpm library:index`; record 44 items written and every level
+- [x] T047 [US2] [light] Run `pnpm library:lessons`, `pnpm library:index`; record 44 items written and every level
   check passing.
-- [ ] T048 [US2] [standard] Write the 44 audit records under `content/library/audit/learning/chord-lessons/`
+- [x] T048 [US2] [standard] Write the 44 audit records under `content/library/audit/learning/chord-lessons/`
   (`theory` / `chord-lessons-v1`, `expectedDifferences: 0`); run `pnpm library:fidelity`; 0 differences.
 - [ ] T049 [US2] Music review of all chord lessons with the `music-domain-expert` sub-agent (spelling, voice leading,
   common tones, comfortable reach, symbol style, simplified versions really simpler); fix, regenerate, summarise in log.

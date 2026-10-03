@@ -523,7 +523,9 @@ describe('key-change melody sweep (FR-001, FR-002, US1)', () => {
 
 // ---- SC-001 over the whole Learning section (T052) ----
 describe('no doubled block chords in the Learning section (SC-001)', () => {
-  const learningItems = (indexJson.items as LibraryItem[]).filter((i) => i.id.startsWith('learning/'));
+  // Feature 022: Learning > Chords holds chord drills whose right hand plays the chords on purpose; they are checked by
+  // chord-lessons-v1 instead. The sweep keeps to the Keys and Key-changes shelves of feature 014, songs included.
+  const learningItems = (indexJson.items as LibraryItem[]).filter((i) => /^learning\/(keys|key-changes)\//.test(i.id));
 
   /** The key per bar range: the claim table for exercises, the folder's key for songs (`checkSong` does the same). */
   function learningKeys(item: LibraryItem): MelodyCheckInput['keys'] {

@@ -6,13 +6,13 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 | Outcome | Items |
 |---|---|
-| verified | 194 |
+| verified | 238 |
 | verified (visual) | 3 |
 | fixed | 7 |
 | replaced | 4 |
 | relabelled | 2 |
 | removed | 1 |
-| Total | 211 |
+| Total | 255 |
 
 ## Level counts after the audit
 
@@ -241,6 +241,50 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | A major to A minor - introduction<br>`learning/key-changes/a-major-to-a-minor/introduction` | exercise | exercise-theory-v3 | theory | 0 | verified | 2026-09-28 |
 | A major to A minor - beginner<br>`learning/key-changes/a-major-to-a-minor/beginner` | exercise | exercise-theory-v3 | theory | 0 | verified | 2026-09-28 |
 | A major to A minor - intermediate<br>`learning/key-changes/a-major-to-a-minor/intermediate` | exercise | exercise-theory-v3 | theory | 0 | verified | 2026-09-28 |
+| Major chords<br>`learning/chord-lessons/single-chords/major-triads` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Minor chords<br>`learning/chord-lessons/single-chords/minor-triads` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Major chords upside down<br>`learning/chord-lessons/single-chords/major-chord-inversions` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Minor chords upside down<br>`learning/chord-lessons/single-chords/minor-chord-inversions` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Suspended chords<br>`learning/chord-lessons/single-chords/suspended-chords` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Diminished and augmented (simplified)<br>`learning/chord-lessons/single-chords/diminished-and-augmented-simplified` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Diminished and augmented<br>`learning/chord-lessons/single-chords/diminished-and-augmented` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Seventh chords (simplified)<br>`learning/chord-lessons/single-chords/seventh-chords-simplified` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Seventh chords<br>`learning/chord-lessons/single-chords/seventh-chords` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Major to minor in C major<br>`learning/chord-lessons/switches/major-to-minor-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Major to minor in G major<br>`learning/chord-lessons/switches/major-to-minor-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Major to minor in D major<br>`learning/chord-lessons/switches/major-to-minor-in-d-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Minor to major, a step down in C major<br>`learning/chord-lessons/switches/minor-to-major-step-down-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Minor to major, a step down in F major<br>`learning/chord-lessons/switches/minor-to-major-step-down-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Minor to major, a step down in G major<br>`learning/chord-lessons/switches/minor-to-major-step-down-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I to IV in C major<br>`learning/chord-lessons/switches/one-to-four-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I to IV in G major<br>`learning/chord-lessons/switches/one-to-four-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I to IV in F major<br>`learning/chord-lessons/switches/one-to-four-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I to V in C major<br>`learning/chord-lessons/switches/one-to-five-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I to V in G major<br>`learning/chord-lessons/switches/one-to-five-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I to V in F major<br>`learning/chord-lessons/switches/one-to-five-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| i to V in minor, A minor<br>`learning/chord-lessons/switches/minor-one-to-five-in-a-minor` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| i to V in minor, E minor<br>`learning/chord-lessons/switches/minor-one-to-five-in-e-minor` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| i to V in minor, D minor<br>`learning/chord-lessons/switches/minor-one-to-five-in-d-minor` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-IV-I in C major<br>`learning/chord-lessons/progressions/one-four-one-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-IV-I in G major<br>`learning/chord-lessons/progressions/one-four-one-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-IV-I in F major<br>`learning/chord-lessons/progressions/one-four-one-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-V-I in C major<br>`learning/chord-lessons/progressions/one-five-one-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-V-I in G major<br>`learning/chord-lessons/progressions/one-five-one-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-V-I in F major<br>`learning/chord-lessons/progressions/one-five-one-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-IV-V-I in C major<br>`learning/chord-lessons/progressions/one-four-five-one-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-IV-V-I in G major<br>`learning/chord-lessons/progressions/one-four-five-one-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-IV-V-I in F major<br>`learning/chord-lessons/progressions/one-four-five-one-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-IV-V-I in D major<br>`learning/chord-lessons/progressions/one-four-five-one-in-d-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii-V-I in C major (simplified)<br>`learning/chord-lessons/progressions/two-five-one-simplified-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii-V-I in F major (simplified)<br>`learning/chord-lessons/progressions/two-five-one-simplified-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii-V-I in B♭ major (simplified)<br>`learning/chord-lessons/progressions/two-five-one-simplified-in-b-flat-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii-V-I in C major<br>`learning/chord-lessons/progressions/two-five-one-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii-V-I in F major<br>`learning/chord-lessons/progressions/two-five-one-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii-V-I in B♭ major<br>`learning/chord-lessons/progressions/two-five-one-in-b-flat-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Twelve-bar blues in C major (simplified)<br>`learning/chord-lessons/progressions/twelve-bar-blues-simplified-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Twelve-bar blues in G major (simplified)<br>`learning/chord-lessons/progressions/twelve-bar-blues-simplified-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Twelve-bar blues in C major<br>`learning/chord-lessons/progressions/twelve-bar-blues-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Twelve-bar blues in G major<br>`learning/chord-lessons/progressions/twelve-bar-blues-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
 
 ## Removed
 

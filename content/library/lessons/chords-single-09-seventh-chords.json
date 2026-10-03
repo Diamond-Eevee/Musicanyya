@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "id": "learning/chord-lessons/single-chords/seventh-chords",
+  "title": "Seventh chords",
+  "section": "learning/chord-lessons/single-chords",
+  "stepOrder": 90,
+  "level": "intermediate",
+  "raisedBecause": "Four-note chords split between the hands: the left hand plays the root while the right hand holds three keys, and both must land together; the notes alone measure Beginner.",
+  "hands": "both",
+  "tags": ["chords", "seventh-chords"],
+  "trains": "Four-note chords split between the hands: the left hand plays the root, the right hand the third, fifth and seventh. Cmaj7 (C E G B), C7 (B♭ instead of B), Cm7 (E♭ and B♭) and Bø7 (B D F A, half-diminished).",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {},
+  "bars": [
+    {
+      "rh": "{Cmaj7}<E4 G4 B4>:h@1-3-5 <E4 G4 B4>:h@1-3-5",
+      "lh": "C3:w@5"
+    },
+    {
+      "rh": "{C7}<E4 G4 Bb4>:h@1-3-5 <E4 G4 Bb4>:h@1-3-5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{Cm7}<Eb4 G4 Bb4>:h@1-3-5 <Eb4 G4 Bb4>:h@1-3-5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{Cmaj7}<E4 G4 B4>:w@1-3-5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{Bø7}<D4 F4 A4>:h@1-3-5 <D4 F4 A4>:h@1-3-5",
+      "lh": "B2:w@5"
+    },
+    {
+      "rh": "{Cm7}<Eb4 G4 Bb4>:w@1-3-5",
+      "lh": "C3:w@5"
+    },
+    {
+      "rh": "{C7}<E4 G4 Bb4>:h@1-3-5 {Bø7}<D4 F4 A4>:h@1-3-5",
+      "lh": "C3:h B2:h@5"
+    },
+    {
+      "rh": "{Cmaj7}<E4 G4 B4>:w@1-3-5",
+      "lh": "C3:w@5"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}
