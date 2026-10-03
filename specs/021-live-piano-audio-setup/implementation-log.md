@@ -366,3 +366,29 @@
   `live-piano`, `midi-topbar`, `us2-panels`, `latency-setup`, `theme-a11y`, `pressed-keys` `111 passed, 1 failed` (a Firefox `pressed-keys` Play test that passed twice
   on rerun).
 - Still open: T070 / T066 (Electron project on a healthy MIDI service; now only the one Connect test touches real MIDI), the Firefox calibration bias, T067.
+
+## 2026-10-03 10:40 - claude-sonnet-5.5 (continue: full gate, not green)
+- Model fit: task tier standard, claude-sonnet-5.5 fits; no question needed.
+- Gate evidence: `pnpm lint` exit 0 (314 warnings, 14 infos, none new); `pnpm typecheck` exit 0; `pnpm test` `Tests  7318 passed (7318)`;
+  `pnpm test:e2e:smoke` `9 passed`. The first `pnpm test:e2e` hung (a WebKit worker idle for 20 minutes on `lookahead.spec.ts` (c), zero CPU; killed, not counted).
+  Second run, browsers: `2 failed, 741 skipped, 895 passed (10.4m)`; Electron (`pnpm test:e2e:electron`, vite electron build first): `1 failed, 112 skipped, 433 passed (26.8m)`
+  with the MIDI service healthy; the real-MIDI "MIDI is connected by hand only" test and `electron-audio-output` / `electron-live-piano` / `electron-playback` all passed.
+- Failures, three kinds:
+  1. **WebKit `score-browser-tree.spec.ts` "a file opened with Open file... ... after a reload" (US3 #5): fixed in the test.** Failed 1 of 3 repeats on a quiet machine. Cause: `fileLoaded`
+     (`session.ts`, fire and forget) writes the *My files* entry after the Score is drawn, and the test reloaded as soon as the SVG showed. The test now waits for the
+     `userFiles` entry in IndexedDB before the reload; every assertion is unchanged. After: `--repeat-each=10` `10 passed`. Not a 021 change (that code is not in the diff).
+  2. **Electron `electron-smoke.spec.ts` "the packaged shelf opens ..." : not fixed, not caused by 021.** Fails every time when the file runs in order (`23.0s`, 5 passed 1 failed;
+     `dialog.browser` never visible, "waiting for navigation to finish"), passes alone (`-g`, 8 of 8). It follows the test that sets `location.href = 'https://example.com'`
+     (a denied/external navigation), and **the identical failure occurs on `main`** (worktree of `main`, built, same file: `5 passed, 1 failed`). So it is older than 021;
+     it was seen as a "passes on rerun" flake in earlier gates because those reruns used `-g`. Needs a decision or a fix task (e.g. a fresh window or app per test, or
+     `shell.openExternal` kept out of the test).
+  3. **Firefox `latency-setup.spec.ts` "Calibrate ... 30 ms (+-5)": cause found, needs an owner decision.** 2 of 6 repeats fail (measured 22 and 24 ms). Measured in Firefox and
+     Chromium for 6 s with `getOutputTimestamp()` sampled every 7 ms: the offset `performanceTime - contextTime*1000` has a range of **12.7 ms (sd 3.4 ms) in Firefox**
+     against **0.7 ms (sd 0.15 ms) in Chromium**. Calibration (and a Play run) anchors the beat on one such pair (`anchorRunStart`) and maps every tap with a fresh one, so
+     in Firefox the calibration carries a random error of several ms and the +-5 ms bound fails about every other run. The same uncertainty reaches Play-mode grading
+     on Firefox. It is the browser's clock report, not the test.
+- Decisions I did not take (AGENTS.md 7: behaviour, no weakening tests): either (a) smooth the clock pair in the clock map (e.g. the median offset of the last N pairs,
+  with tests and an RT review; a new task, improves Firefox grading too), or (b) keep the code and widen the Firefox bound / skip it on Firefox with this finding as the stated reason.
+- Not ticked: T066 (gate not green), T070 (the electron project is green except finding 2), T067 (waits for T066).
+- Handoff: next = owner answers (Firefox calibration: a or b; electron-smoke order flake: fix task or accept), then T066 rerun of the affected specs plus `@smoke` (the full
+  gate need not repeat if `src/` is unchanged; option (a) changes `src/` and needs the full gate again), then T067. Tree clean at the commit after this entry.

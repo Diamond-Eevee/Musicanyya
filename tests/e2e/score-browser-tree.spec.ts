@@ -184,6 +184,31 @@ test.describe('Score browser: back to the last selected item without loading it 
     await expect(folder(page, C_MAJOR_FOLDER)).toHaveAttribute('aria-selected', 'true');
     await openBrowserFile(page, path.join(__dirname, '../fixtures/musicxml/minimal-single-note.musicxml'));
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    // The entry is written after the Score is drawn (`fileLoaded`, fire and forget): a reload that beats the write
+    // finds no row. Wait for the stored entry, as a person's reload always would.
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            new Promise<number>((resolve) => {
+              const open = indexedDB.open('musicanyya');
+              open.onerror = () => resolve(0);
+              open.onsuccess = () => {
+                const db = open.result;
+                const count = db.transaction('userFiles', 'readonly').objectStore('userFiles').count();
+                count.onsuccess = () => {
+                  db.close();
+                  resolve(count.result);
+                };
+                count.onerror = () => {
+                  db.close();
+                  resolve(0);
+                };
+              };
+            }),
+        ),
+      )
+      .toBeGreaterThan(0);
 
     await page.reload();
     await expect(browserDialog(page)).toBeVisible();
