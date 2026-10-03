@@ -25,7 +25,12 @@ import { type ReferenceBar, type ReferenceNote, type Spelling, spellingMidi } fr
 import { loadSources, type SourceManifest, sourceFile } from './fidelity/sources.js';
 import { add, cmp, type QuarterTime, q, show, sub } from './fidelity/time.js';
 import { readLilyPond, readWritten } from './lilypond/read.js';
-import { type SongChordEntry, type SongDefinition, validateSongDefinition } from './songs/definition.js';
+import {
+  type LeftHandPattern,
+  type SongChordEntry,
+  type SongDefinition,
+  validateSongDefinition,
+} from './songs/definition.js';
 import { keepStamps } from './stamps.js';
 
 export interface BuildSongOptions {
@@ -44,6 +49,18 @@ export interface BuiltSong {
 }
 
 const LEFT_HAND_DEPARTURE = 'Left-hand block chords are our own (CC0).';
+/** song-definition 1.2.0: what a moving left hand says about itself (departures, subtitle). */
+const PATTERN_WORDS: Record<Exclude<LeftHandPattern, 'block'>, string> = {
+  waltz: 'waltz accompaniment (bass, then chord, chord)',
+  repeated: 'repeated chords on every beat',
+  broken: 'broken chords (root, fifth, third, fifth)',
+};
+/** The verb the departure "The left-hand <pattern words> ... our own" takes: one accompaniment, or several chords. */
+const PATTERN_VERB: Record<Exclude<LeftHandPattern, 'block'>, 'is' | 'are'> = {
+  waltz: 'is',
+  repeated: 'are',
+  broken: 'are',
+};
 const ARRANGER = 'Musicanyya practice material';
 /** The library guard (FR-007) wants the word "arrangement" in the title or subtitle of an arrangement. */
 const SUBTITLE = 'Arrangement: the tune with left-hand block chords';
@@ -288,14 +305,77 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
   const firstBar = selected[0];
   if (!firstBar) throw new Error(`${id}: melody.bars "${definition.melody.bars}" holds no bar of the source`);
   const firstNumber = Number(firstBar.number);
+  const lengthOf = (group: ReferenceBar[]) => group.reduce((sum, b) => add(sum, b.length), q(0));
+  // song-definition 1.2.0 joinShortBars (022 T077): a short bar inside the piece (a phrase line printed inside a bar)
+  // takes the bars after it until they make one bar of the metre; never the pickup, across a repeat sign or an ending
+  const groups: ReferenceBar[][] = [];
+  for (const source of selected) {
+    const open = groups.length > 1 ? groups[groups.length - 1] : undefined;
+    const last = open?.[open.length - 1];
+    if (
+      definition.melody.joinShortBars &&
+      open &&
+      last &&
+      cmp(lengthOf(open), fullBar) < 0 &&
+      cmp(add(lengthOf(open), source.length), fullBar) <= 0 &&
+      !last.repeatEnd &&
+      !source.repeatStart &&
+      last.endings.length === 0 &&
+      source.endings.length === 0
+    )
+      open.push(source);
+    else groups.push([source]);
+  }
+  let joined = groups.map((group): ReferenceBar => {
+    const head = group[0] as ReferenceBar;
+    const tail = group[group.length - 1] as ReferenceBar;
+    if (group.length === 1) return head;
+    const { repeatTimes: _times, ...rest } = head;
+    return {
+      ...rest,
+      length: lengthOf(group),
+      repeatEnd: tail.repeatEnd,
+      ...(tail.repeatTimes !== undefined ? { repeatTimes: tail.repeatTimes } : {}),
+    };
+  });
+  // song-definition 1.2.0 pickupBeats (022 T078): a source barred from beat 1 is cut again with a pickup, as the
+  // familiar print bars the tune; the notes keep their onsets, only the bar lines move
+  const pickupBeats = definition.melody.pickupBeats;
+  if (pickupBeats !== undefined) {
+    const pickup = timesBeat(pickupBeats + 1, beat);
+    const total = lengthOf(joined);
+    const fullBars = (total.num * fullBar.den) / (total.den * fullBar.num);
+    if (cmp(joined[0]?.length ?? q(0), fullBar) !== 0)
+      throw new Error(`${id}: melody.pickupBeats needs a source that starts on a full bar`);
+    if (joined.some((b) => b.repeatStart || b.repeatEnd || b.endings.length > 0))
+      throw new Error(`${id}: melody.pickupBeats cannot re-bar a source with repeats or endings`);
+    if (cmp(pickup, fullBar) >= 0 || !Number.isInteger(fullBars))
+      throw new Error(`${id}: melody.pickupBeats must be shorter than a bar of a source made of whole bars`);
+    const head = joined[0] as ReferenceBar;
+    const cuts = [q(0), pickup];
+    while (cmp(add(cuts[cuts.length - 1] as QuarterTime, fullBar), total) < 0)
+      cuts.push(add(cuts[cuts.length - 1] as QuarterTime, fullBar));
+    cuts.push(total);
+    joined = cuts.slice(0, -1).map((cut, i) => ({
+      index: head.index + i,
+      number: String(i),
+      start: add(head.start, cut),
+      length: sub(cuts[i + 1] as QuarterTime, cut),
+      repeatStart: false,
+      repeatEnd: false,
+      endings: [],
+    }));
+  }
+  const fromZero = firstNumber === 0 || pickupBeats !== undefined;
   const bars: ItemBar[] = [];
   let cursor = q(0);
-  selected.forEach((source, i) => {
+  joined.forEach((source, i) => {
     const irregular = cmp(source.length, fullBar) !== 0;
     // only a pickup (first bar) and its matching short last bar may be shorter than the metre
-    if (cmp(source.length, fullBar) > 0 || (irregular && i > 0 && i < selected.length - 1))
+    if (cmp(source.length, fullBar) > 0 || (irregular && i > 0 && i < joined.length - 1))
       throw new Error(`${id}: source bar ${source.number} is not a full bar`);
-    const number = firstNumber === 0 ? Number(source.number) : Number(source.number) - firstNumber + 1;
+    // the item's bars in order from 1, or from 0 after a pickup
+    const number = fromZero ? i : i + 1;
     bars.push({ number: String(number), start: cursor, length: source.length, source });
     cursor = add(cursor, source.length);
   });
@@ -330,13 +410,21 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
 
   // the melody: the named voice, one note per onset (with topVoice the highest note of each chord in that voice)
   const interval = intervalOf(definition);
-  const inSelection = new Map(selected.map((b, i) => [b.index, bars[i] as ItemBar]));
+  // a note keeps its offset from the start of the selection; its item bar is the one it starts in
+  const inSelection = new Set(selected.map((b) => b.index));
+  const origin = firstBar.start;
+  const barAt = (at: QuarterTime) =>
+    bars.find((b) => cmp(b.start, at) <= 0 && cmp(at, add(b.start, b.length)) < 0) as ItemBar;
   const byOnset = new Map<string, { note: ReferenceNote; bar: ItemBar }[]>();
   for (const note of reading.notes) {
-    const bar = inSelection.get(note.bar);
-    if (!bar || (note.staff ?? 1) !== definition.melody.staff || note.voice !== definition.melody.voice) continue;
+    if (
+      !inSelection.has(note.bar) ||
+      (note.staff ?? 1) !== definition.melody.staff ||
+      note.voice !== definition.melody.voice
+    )
+      continue;
     const key = show(note.onset);
-    byOnset.set(key, [...(byOnset.get(key) ?? []), { note, bar }]);
+    byOnset.set(key, [...(byOnset.get(key) ?? []), { note, bar: barAt(sub(note.onset, origin)) }]);
   }
   const melody = [...byOnset.values()]
     .map((group) => {
@@ -344,10 +432,10 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
         throw new Error(`${id}: the melody voice has a chord at bar ${group[0]?.bar.number}; use topVoice`);
       return group.reduce((a, b) => (b.note.midi > a.note.midi ? b : a));
     })
-    .map(({ note, bar }) => {
+    .map(({ note }) => {
       if (!note.spelling) throw new Error(`${id}: a melody note has no spelling`);
       const spelling = interval ? transposeSpelling(note.spelling, interval) : note.spelling;
-      return { start: add(bar.start, sub(note.onset, bar.source.start)), length: note.duration, spelling };
+      return { start: sub(note.onset, origin), length: note.duration, spelling };
     })
     .sort((a, b) => cmp(a.start, b.start));
   melody.forEach((m, i) => {
@@ -380,6 +468,8 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
   if (cmp(at, end) < 0) rightAtoms.push(...atomsFor(at, end, barCuts, undefined, `${id}: a rest`));
 
   const key: ExerciseKey = { tonic: definition.key.tonic, mode: definition.key.mode, fifths: definition.key.fifths };
+  const pattern: LeftHandPattern = definition.leftHand?.pattern ?? 'block';
+  const compound = beat.num === 3 && beat.den === 2;
   const leftAtoms: Atom[] = [];
   const names = new Map<string, string>();
   let previousMean: number | undefined;
@@ -394,7 +484,40 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
       throw new Error(`${id}: no voicing of the chord at bar ${c.entry.bar} keeps the left hand off the melody's keys`);
     previousMean = voiced.notes.reduce((sum, n) => sum + n.midi, 0) / voiced.notes.length;
     names.set(show(c.start), voiced.name);
-    leftAtoms.push(...atomsFor(c.start, c.end, barCuts, voiced.notes, `${id}: a chord`));
+    if (pattern === 'block') leftAtoms.push(...atomsFor(c.start, c.end, barCuts, voiced.notes, `${id}: a chord`));
+    else {
+      // broken chords run root-fifth-third-fifth from the root-position triad, an octave lower if it would meet the melody
+      let broken = voiced;
+      if (pattern === 'broken') {
+        broken = voiceChord(key, c.entry, 0, false);
+        if (broken.notes.some((n) => sounding.includes(n.midi))) broken = voiceChord(key, c.entry, 0, true);
+        if (broken.notes.some((n) => sounding.includes(n.midi)))
+          throw new Error(`${id}: no broken chord at bar ${c.entry.bar} keeps the left hand off the melody's keys`);
+      }
+      const slot = pattern === 'broken' ? q(1, 2) : beat;
+      const cycle = compound ? [0, 2, 1] : [0, 2, 1, 2];
+      let t = c.start;
+      let k = 0;
+      while (cmp(t, c.end) < 0) {
+        const barStart = [...barCuts].reverse().find((b) => cmp(b, t) <= 0) ?? q(0);
+        const nextBar = barCuts.find((b) => cmp(b, t) > 0) ?? end;
+        let next = add(t, slot);
+        if (cmp(next, c.end) > 0) next = c.end;
+        if (cmp(next, nextBar) > 0) next = nextBar;
+        let notes: Voicing['notes'];
+        if (pattern === 'repeated') notes = voiced.notes;
+        else if (pattern === 'waltz') {
+          const first = cmp(t, barStart) === 0 || cmp(t, c.start) === 0;
+          notes = first ? voiced.notes.slice(0, 1) : voiced.notes.slice(1);
+        } else {
+          if (cmp(t, barStart) === 0) k = 0;
+          notes = [broken.notes[cycle[k % cycle.length] as number] as Voicing['notes'][number]];
+          k++;
+        }
+        leftAtoms.push(...atomsFor(t, next, barCuts, notes, `${id}: a left-hand strike`));
+        t = next;
+      }
+    }
     at = c.end;
   }
   if (cmp(at, end) < 0) leftAtoms.push(...atomsFor(at, end, barCuts, undefined, `${id}: a left-hand rest`));
@@ -510,15 +633,20 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
   const plan = planEngraving(doc, 'library');
   const xml = plan.inserts.length > 0 ? applyInserts(raw, plan.inserts) : raw;
 
-  const departures = [LEFT_HAND_DEPARTURE, ...(definition.meta.departures ?? [])];
+  const leftHandDeparture =
+    pattern === 'block'
+      ? LEFT_HAND_DEPARTURE
+      : `The left-hand ${PATTERN_WORDS[pattern]} ${PATTERN_VERB[pattern]} our own (CC0).`;
+  const departures = [leftHandDeparture, ...(definition.meta.departures ?? [])];
   const sidecar: Record<string, unknown> = {
     version: 1,
     title: definition.title,
     ...(definition.meta.composer ? { composer: definition.meta.composer } : {}),
-    subtitle: SUBTITLE,
+    subtitle: pattern === 'block' ? SUBTITLE : `Arrangement: the tune with left-hand ${PATTERN_WORDS[pattern]}`,
     arranger: ARRANGER,
     kind: 'piece',
     level: definition.meta.level,
+    ...(definition.meta.raisedBecause ? { raisedBecause: definition.meta.raisedBecause } : {}),
     arrangement: true,
     tags: ['chords', 'hands-together'],
     trains: definition.meta.trains,
@@ -536,6 +664,7 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
     reviewedOn: definition.meta.reviewedOn,
     step: 'song',
     stepOrder: options.stepOrder,
+    ...(definition.simplifies !== undefined ? { simplifies: definition.simplifies } : {}),
   };
   return { id, xml, sidecar };
 }
@@ -561,14 +690,32 @@ export async function buildSongs(
     .sort()
     .map((f) => validateSongDefinition(JSON.parse(readFileSync(join(contentDir, f), 'utf8')), ids));
 
-  // stepOrder: 10 x the position in the folder, beginner songs first, then intermediate, each by title
+  // a simplified song names a song of its folder at a higher level (song-definition 1.2.0)
+  const byId = new Map(definitions.map((d) => [d.id, d]));
+  for (const d of definitions) {
+    if (d.simplifies === undefined) continue;
+    const target = byId.get(d.simplifies);
+    if (!target) throw new Error(`${d.id}: simplifies ${d.simplifies}, which no song definition writes`);
+    if (!(d.meta.level === 'beginner' && target.meta.level === 'intermediate'))
+      throw new Error(`${d.id}: simplifies ${d.simplifies}, which must be intermediate while this song is beginner`);
+  }
+
+  // stepOrder: 10 x the position in the folder. Unpaired songs first, beginner then intermediate, each by title; then each
+  // pair (a simplified song and the song it simplifies), simplified first, the pairs by the full song's title
   const byFolder = new Map<string, SongDefinition[]>();
   for (const d of definitions) byFolder.set(dirname(d.id), [...(byFolder.get(dirname(d.id)) ?? []), d]);
+  const targets = new Set(definitions.flatMap((d) => (d.simplifies !== undefined ? [d.simplifies] : [])));
   const stepOrders = new Map<string, number>();
   for (const list of byFolder.values()) {
     const rank = (d: SongDefinition) => (d.meta.level === 'beginner' ? 0 : 1);
-    const ordered = [...list].sort((a, b) => rank(a) - rank(b) || a.title.localeCompare(b.title));
-    ordered.forEach((d, i) => {
+    const unpaired = list
+      .filter((d) => d.simplifies === undefined && !targets.has(d.id))
+      .sort((a, b) => rank(a) - rank(b) || a.title.localeCompare(b.title));
+    const pairs = list
+      .filter((d) => targets.has(d.id))
+      .sort((a, b) => a.title.localeCompare(b.title))
+      .flatMap((full) => [...list.filter((d) => d.simplifies === full.id), full]);
+    [...unpaired, ...pairs].forEach((d, i) => {
       stepOrders.set(d.id, (i + 1) * 10);
     });
   }

@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "id": "learning/chord-lessons/switches/one-to-five-in-{key}",
+  "title": "I to V in {keyName}",
+  "section": "learning/chord-lessons/switches",
+  "stepOrder": 40,
+  "level": "beginner",
+  "hands": "both",
+  "tags": ["chords", "chord-changes", "inversions"],
+  "trains": "From the home chord (I) to the chord on the fifth note (V) with the least movement: finger 5 keeps the top note and the other two move down a step (fingers 1 and 2), so V stands on its third (in C: G stays, C to B, E to D: G/B). The left hand steps down a half step too.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "commonTones": [
+      {
+        "bar": 1,
+        "beat": 3,
+        "pitch": "G4"
+      },
+      {
+        "bar": 2,
+        "beat": 1,
+        "pitch": "G4"
+      },
+      {
+        "bar": 3,
+        "beat": 1,
+        "pitch": "G4"
+      },
+      {
+        "bar": 3,
+        "beat": 3,
+        "pitch": "G4"
+      },
+      {
+        "bar": 4,
+        "beat": 1,
+        "pitch": "G4"
+      },
+      {
+        "bar": 5,
+        "beat": 1,
+        "pitch": "G4"
+      },
+      {
+        "bar": 5,
+        "beat": 3,
+        "pitch": "G4"
+      },
+      {
+        "bar": 6,
+        "beat": 1,
+        "pitch": "G4"
+      },
+      {
+        "bar": 6,
+        "beat": 3,
+        "pitch": "G4"
+      },
+      {
+        "bar": 7,
+        "beat": 1,
+        "pitch": "G4"
+      },
+      {
+        "bar": 8,
+        "beat": 1,
+        "pitch": "G4"
+      }
+    ]
+  },
+  "transpositions": [
+    {
+      "slug": "c-major",
+      "tonic": "C",
+      "mode": "major",
+      "fifths": 0,
+      "interval": "+P1"
+    },
+    {
+      "slug": "g-major",
+      "tonic": "G",
+      "mode": "major",
+      "fifths": 1,
+      "interval": "+P5"
+    },
+    {
+      "slug": "f-major",
+      "tonic": "F",
+      "mode": "major",
+      "fifths": -1,
+      "interval": "+P4"
+    }
+  ],
+  "bars": [
+    {
+      "rh": "{C}<C4 E4 G4>:h@1-3-5 {G/B}<B3 D4 G4>:h@1-2-5",
+      "lh": "C3:h@4 B2:h@5"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w@4"
+    },
+    {
+      "rh": "{G/B}<B3 D4 G4>:h@1-2-5 {C}<C4 E4 G4>:h@1-3-5",
+      "lh": "B2:h@5 C3:h@4"
+    },
+    {
+      "rh": "{G/B}<B3 D4 G4>:w@1-2-5",
+      "lh": "B2:w"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:h@1-3-5 {G/B}<B3 D4 G4>:h@1-2-5",
+      "lh": "C3:h B2:h"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:h@1-3-5 {G/B}<B3 D4 G4>:h@1-2-5",
+      "lh": "C3:h B2:h"
+    },
+    {
+      "rh": "{G/B}<B3 D4 G4>:w@1-2-5",
+      "lh": "B2:w"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

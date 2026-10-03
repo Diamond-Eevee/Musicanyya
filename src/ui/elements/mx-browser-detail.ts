@@ -249,6 +249,11 @@ export class MxBrowserDetail extends HTMLElement {
         <p class="browser-detail-level">${escapeHtml(s.levels[item.meta.level])}</p>
         <p class="browser-detail-facts">${this.factsText(item)}</p>
         ${
+          item.meta.trains
+            ? `<p class="browser-detail-trains"><span class="browser-detail-label">${escapeHtml(s.detail.trains)}:</span> ${escapeHtml(item.meta.trains)}</p>`
+            : ''
+        }
+        ${
           row.orchestra.length > 0
             ? `<p class="browser-detail-orchestra">${escapeHtml(en.browser.orchestraLine.replace('{instruments}', row.orchestra.join(', ')))}</p>`
             : ''

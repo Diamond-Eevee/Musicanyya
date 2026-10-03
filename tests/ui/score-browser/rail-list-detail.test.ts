@@ -350,4 +350,46 @@ describe('the old panel presentation, carried over (T098-T100)', () => {
     expect(meta).not.toContain('Hands:');
     expect(meta).toContain('Measures: 16');
   });
+
+  // Feature 022 T075 (FR-013): a lesson's explanation is its `trains` text, readable before a session starts
+  it("T075: the detail pane shows an item's trains text, labelled, and nothing when it has none", () => {
+    const base = libraryItem('repertoire/beginner/ode-to-joy');
+    const withText = libraryItem('repertoire/beginner/ode-to-joy', {
+      meta: { ...base.meta, trains: 'A tied note is played once and held for both values.' },
+    });
+    const without = libraryItem('repertoire/beginner/au-clair');
+    loadIndex([withText, without]);
+    browserState.setView({ selected: { kind: 'library', id: withText.id } });
+    const el = document.createElement('mx-browser-detail');
+    document.body.appendChild(el);
+    expect(el.querySelector('.browser-detail-trains')?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+      'Trains: A tied note is played once and held for both values.',
+    );
+
+    browserState.setView({ selected: { kind: 'library', id: without.id } });
+    expect(el.querySelector('.browser-detail-title')?.textContent).toBe('Ode to Joy');
+    expect(el.querySelector('.browser-detail-trains')).toBeNull();
+  });
+
+  // Feature 022 T079 (spec US3 scenario 2, FR-032): an arrangement's details list every departure from its source
+  it("T079: the source lines list an item's departures, labelled, and none when it has none", () => {
+    const base = libraryItem('repertoire/beginner/ode-to-joy');
+    const changed = libraryItem('repertoire/beginner/ode-to-joy', {
+      meta: { ...base.meta, departures: ['Left-hand block chords are our own (CC0).', 'Slower: 72 instead of 88.'] },
+    });
+    const plain = libraryItem('repertoire/beginner/au-clair', {
+      meta: { ...libraryItem('repertoire/beginner/au-clair').meta, departures: undefined },
+    });
+    loadIndex([changed, plain]);
+    browserState.setView({ selected: { kind: 'library', id: changed.id } });
+    const el = document.createElement('mx-browser-detail');
+    document.body.appendChild(el);
+    const lines = () => [...el.querySelectorAll('.score-source-line')].map((p) => p.textContent ?? '');
+    expect(lines()).toContain(
+      'Changes from the source: Left-hand block chords are our own (CC0). Slower: 72 instead of 88.',
+    );
+
+    browserState.setView({ selected: { kind: 'library', id: plain.id } });
+    expect(lines().some((l) => l.startsWith('Changes from the source'))).toBe(false);
+  });
 });

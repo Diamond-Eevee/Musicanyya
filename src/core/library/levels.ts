@@ -1,82 +1,71 @@
 import {
-  LEVEL_ACCIDENTALS_PER_16_MEASURES_MAX,
-  LEVEL_BACKWARD_REPEATS_MAX,
+  INTRODUCTION_FOCUS_FEATURES,
+  INTRODUCTION_FOCUS_FEATURES_MAX,
+  INTRODUCTION_SHORT_NOTE_BELOW_QUARTERS,
+  INTRODUCTION_SIMPLE_METRES,
+  type IntroductionFocusFeature,
   LEVEL_DURATION_SECONDS_MAX,
   LEVEL_EXERCISE_MAX_LEAP_SEMITONES,
   LEVEL_EXERCISE_PITCH_BOUNDS_MIDI,
   LEVEL_EXERCISE_PITCH_SPAN_SEMITONES_MAX,
-  LEVEL_GRACE_NOTES_PER_4_MEASURES_MAX,
   LEVEL_HAND_INDEPENDENCE_FRACTION_MAX,
-  LEVEL_KEY_CHANGE_EXERCISE_MAX,
-  LEVEL_KEY_CHANGES_MAX,
-  LEVEL_KEY_FIFTHS_MAX,
-  LEVEL_LONGEST_RUN_MAX,
   LEVEL_MAX_INTERVAL_SEMITONES,
   LEVEL_MAX_LEAP_SEMITONES,
   LEVEL_MEAN_DENSITY_MAX,
   LEVEL_MEASURES_RANGE,
-  LEVEL_METRE_CHANGES_MAX,
-  LEVEL_METRES,
-  LEVEL_ORNAMENTS_PER_4_MEASURES_MAX,
   LEVEL_PEAK_DENSITY_MAX,
-  LEVEL_PEDAL,
   LEVEL_PITCH_BOUNDS_MIDI,
   LEVEL_PITCH_SPAN_SEMITONES_MAX,
-  LEVEL_REPEAT_KINDS,
   LEVEL_REQUIRED_PARTS,
   LEVEL_REQUIRED_STAVES,
-  LEVEL_SHORTEST_VALUE_BEATS_MIN,
-  LEVEL_TEMPO_CHANGES_MAX,
   LEVEL_TEMPO_QPM_RANGE,
-  LEVEL_TIE_BARLINES_MAX,
-  LEVEL_TIE_CHAIN_NOTES_MAX,
-  LEVEL_TUPLETS,
   LEVEL_VOICES_PER_STAFF_MAX,
 } from '../defaults.js';
-import type { ItemFacts, Level, LevelCheck, SkillTag } from './types.js';
+import type { ItemFacts, Level, LevelCheck } from './types.js';
 
 /** Nested-cap order (data-model.md §4: Introduction ⊂ Beginner ⊂ Intermediate ⊂ Advanced). */
 const LEVELS_ORDER: readonly Level[] = ['introduction', 'beginner', 'intermediate', 'advanced'];
 
-function shortestValueBeats(shortestDivision: number): number {
-  return shortestDivision > 0 ? 4 / shortestDivision : Number.POSITIVE_INFINITY;
+/** The harder notation features `facts` contains, in `INTRODUCTION_FOCUS_FEATURES` order (criterion 29, feature 022
+ *  data-model §1). The raised 6th and 7th of a minor key are the key, not accidentals; in an item with a key change the
+ *  accidentals belong to the change (the new key's notes and the courtesy naturals), so they are not counted again.
+ *  An older index without the 022 rhythm facts reads "shorter than a quarter" from `shortestDivision`. */
+export function introductionFocusFeatures(facts: ItemFacts): IntroductionFocusFeature[] {
+  const hasMinorKey = facts.keys.some((k) => k.endsWith(' minor'));
+  const minorScale = hasMinorKey ? (facts.minorScaleAccidentalCount ?? 0) : 0;
+  const present: Record<IntroductionFocusFeature, boolean> = {
+    // shortestDivision counts per whole note (4 = a quarter), so a value shorter than the limit divides it more finely
+    'short-notes': facts.hasShortNotes ?? facts.shortestDivision > 4 / INTRODUCTION_SHORT_NOTE_BELOW_QUARTERS,
+    'dotted-rhythm': facts.hasDottedRhythm ?? false,
+    ties: facts.hasTies ?? false,
+    repeats: (facts.repeatKind ?? 'none') !== 'none',
+    pickup: facts.hasPickup ?? false,
+    metre: facts.metres.some((m) => !INTRODUCTION_SIMPLE_METRES.includes(m)),
+    tuplets: facts.hasTuplets ?? false,
+    'grace-ornaments': (facts.graceNoteCount ?? 0) + (facts.ornamentCount ?? 0) > 0,
+    accidentals: facts.keys.length === 1 && (facts.accidentalMarkCount ?? 0) - minorScale > 0,
+    pedal: facts.hasPedal ?? false,
+    changes: facts.keys.length > 1 || facts.metres.length > 1 || (facts.tempoChanges ?? 0) > 0,
+  };
+  return INTRODUCTION_FOCUS_FEATURES.filter((feature) => present[feature]);
 }
 
-/** "≤ N per 4 measures" as a rate over the piece's actual length, rounding the measure count up to
- *  the next multiple of 4 so a short piece is not penalised for the rounding (data-model.md §4
- *  criteria 22, 23 - the exact per-passage placement is not something `ItemFacts` records). */
-function ratePer4Measures(count: number, measures: number): number {
-  const units = Math.max(1, Math.ceil(measures / 4));
-  return count / units;
-}
-
-/** "≤ N per 16 measures" (criterion 11), same reasoning as `ratePer4Measures`. */
-function ratePer16Measures(count: number, measures: number): number {
-  const units = Math.max(1, Math.ceil(measures / 16));
-  return count / units;
-}
-
-/** Every data-model.md §4 criterion id that fails `facts` against `level`'s thresholds. Criterion 26
- *  (`<octave-shift>`) is allowed at every level (correction B) and never appears here. `kind` and
- *  `arrangement` gate three criteria (correction C, points 4-6): a shape/pattern exercise does not
- *  carry a piece's key-signature sight-reading burden (9), minimum length (14) or tied-note
- *  independence (20) - FR-005 requires the same drill to be equally playable in all 24 keys, every
- *  exercise family spells its accidentals explicitly, and a chord-change drill's tie is "don't lift
- *  the finger that didn't move", not a piece's held-note coordination challenge. An `arrangement`
- *  (a deliberately short excerpt, data-model.md §5.3) is exempt from criterion 14's *minimum* only -
- *  its maximum, and every other criterion, still applies in full.
+/** Every data-model.md §4 criterion id that fails `facts` against `level`'s thresholds. Feature 022 (owner decision
+ *  OD-1): no level bans any notation - a level is decided by **reach** (criteria 1, 2, 16, 17) and **pace** (3, 4, 7,
+ *  14, 15, 18, 19), plus the shape every library item has (27) and no unexpected notices (28). Criteria 5, 6, 8-13 and
+ *  20-25 are retired (their facts are still measured for display, filters and step order); 26 was always allowed.
+ *  Introduction adds criterion 29, "one focus": at most `INTRODUCTION_FOCUS_FEATURES_MAX` harder notation features.
  *
- *  Feature 011 (owner decision D-2) adds four exercise-only variants: criteria 1-2 allow 38 semitones within
- *  MIDI 35-85 at Introduction and Beginner (B7); criterion 10 allows one key change in an exercise tagged
- *  `key-changes` (B6); criterion 11 does not count the 6th and 7th degree accidentals of a minor key (B5); criterion 17
- *  allows a 19-semitone leap at Introduction and Beginner, where the hands swap (B8). */
+ *  `kind` and `arrangement` gate criterion 14's *minimum* (correction C): an exercise or a deliberately short excerpt
+ *  (data-model.md §5.3) may be shorter; its maximum, and every other criterion, still applies in full. Feature 011
+ *  (owner decision D-2) adds two exercise-only variants that stay: criteria 1-2 allow 38 semitones within MIDI 35-85 at
+ *  Introduction and Beginner (B7); criterion 17 allows a 19-semitone leap there, where the hands swap (B8). */
 function failingCriteria(
   facts: ItemFacts,
   level: Level,
   expectedNotices: readonly string[],
   kind: 'exercise' | 'piece' = 'piece',
   arrangement = false,
-  tags: readonly SkillTag[] = [],
 ): string[] {
   const failed: string[] = [];
 
@@ -94,42 +83,14 @@ function failingCriteria(
 
   if ((facts.voicesPerStaff ?? 1) > LEVEL_VOICES_PER_STAFF_MAX[level]) failed.push('4');
 
-  // Criterion 5: shortest sounding duration, in beats. Criterion 7 (tempo): a missing tempo fails
-  // rather than assuming one (data-model.md §4.1 item 4) - `tempoDefaulted` means the file itself
-  // stated none, and this schema has no metadata tempo field to fall back to either.
-  if (shortestValueBeats(facts.shortestDivision) < LEVEL_SHORTEST_VALUE_BEATS_MIN[level]) failed.push('5');
+  // Criterion 7 (tempo): a missing tempo fails rather than assuming one (data-model.md §4.1 item 4) - `tempoDefaulted`
+  // means the file itself stated none, and this schema has no metadata tempo field to fall back to either.
   if (facts.tempoBpm === null || facts.tempoDefaulted) {
     failed.push('7');
   } else {
     const tempo = LEVEL_TEMPO_QPM_RANGE[level];
     if (facts.tempoBpm < tempo.min || facts.tempoBpm > tempo.max) failed.push('7');
   }
-
-  if ((facts.longestRunAtShortestValue ?? 0) > LEVEL_LONGEST_RUN_MAX[level]) failed.push('6');
-
-  if ((facts.tempoChanges ?? 0) > LEVEL_TEMPO_CHANGES_MAX[level]) failed.push('8');
-
-  if (kind === 'piece' && facts.accidentals > LEVEL_KEY_FIFTHS_MAX[level]) failed.push('9');
-
-  const keyChanges = Math.max(0, facts.keys.length - 1);
-  const keyChangesMax =
-    kind === 'exercise' && tags.includes('key-changes') && LEVEL_KEY_CHANGES_MAX[level] < LEVEL_KEY_CHANGE_EXERCISE_MAX
-      ? LEVEL_KEY_CHANGE_EXERCISE_MAX
-      : LEVEL_KEY_CHANGES_MAX[level];
-  if (keyChanges > keyChangesMax) failed.push('10');
-
-  // The 6th and 7th degree accidentals of a minor key are the scale, not chromaticism (D-2 B5); only exercises
-  // are exempt, and only when the score really is in a minor key.
-  const hasMinorKey = facts.keys.some((k) => k.endsWith(' minor'));
-  const exempted = kind === 'exercise' && hasMinorKey ? (facts.minorScaleAccidentalCount ?? 0) : 0;
-  const accidentalRate = ratePer16Measures(Math.max(0, (facts.accidentalMarkCount ?? 0) - exempted), facts.measures);
-  if (accidentalRate > LEVEL_ACCIDENTALS_PER_16_MEASURES_MAX[level]) failed.push('11');
-
-  const allowedMetres = LEVEL_METRES[level];
-  if (allowedMetres.length > 0 && !facts.metres.every((m) => allowedMetres.includes(m))) failed.push('12');
-
-  const metreChanges = Math.max(0, facts.metres.length - 1);
-  if (metreChanges > LEVEL_METRE_CHANGES_MAX[level]) failed.push('13');
 
   const measuresRange = LEVEL_MEASURES_RANGE[level];
   const belowMinimum = facts.measures < measuresRange.min && kind !== 'exercise' && !arrangement;
@@ -153,41 +114,14 @@ function failingCriteria(
 
   if ((facts.peakNotesPerSecond ?? 0) > LEVEL_PEAK_DENSITY_MAX[level]) failed.push('19');
 
-  if (kind !== 'exercise') {
-    const tieChainTooLong = (facts.maxTieChainNotes ?? 0) > LEVEL_TIE_CHAIN_NOTES_MAX[level];
-    const tieSpansTooMuch = (facts.maxTieBarlinesCrossed ?? 0) > LEVEL_TIE_BARLINES_MAX[level];
-    if (tieChainTooLong || tieSpansTooMuch) failed.push('20');
-  }
-
-  const tuplets = LEVEL_TUPLETS[level];
-  if (tuplets === 'none' && facts.hasTuplets) failed.push('21');
-  else if (tuplets === 'simple' && facts.hasNonSimpleTuplet) failed.push('21');
-
-  const graceCap = LEVEL_GRACE_NOTES_PER_4_MEASURES_MAX[level];
-  const graceFails =
-    graceCap === 0
-      ? (facts.graceNoteCount ?? 0) > 0
-      : ratePer4Measures(facts.graceNoteCount ?? 0, facts.measures) > graceCap;
-  if (graceFails) failed.push('22');
-
-  const ornamentCap = LEVEL_ORNAMENTS_PER_4_MEASURES_MAX[level];
-  const ornamentFails =
-    ornamentCap === 0
-      ? (facts.ornamentCount ?? 0) > 0
-      : ratePer4Measures(facts.ornamentCount ?? 0, facts.measures) > ornamentCap;
-  if (ornamentFails) failed.push('23');
-
-  const allowedRepeatKinds = LEVEL_REPEAT_KINDS[level];
-  const repeatKind = facts.repeatKind ?? 'none';
-  const tooManyBackwardRepeats = (facts.backwardRepeatCount ?? 0) > LEVEL_BACKWARD_REPEATS_MAX[level];
-  if (!allowedRepeatKinds.includes(repeatKind) || tooManyBackwardRepeats) failed.push('24');
-
-  if (LEVEL_PEDAL[level] === 'forbidden' && facts.hasPedal) failed.push('25');
-
   if ((facts.parts ?? 1) !== LEVEL_REQUIRED_PARTS || facts.staves !== LEVEL_REQUIRED_STAVES) failed.push('27');
 
   const unexpectedNotices = facts.notices.filter((n) => !expectedNotices.includes(n));
   if (unexpectedNotices.length > 0) failed.push('28');
+
+  if (level === 'introduction' && introductionFocusFeatures(facts).length > INTRODUCTION_FOCUS_FEATURES_MAX) {
+    failed.push('29');
+  }
 
   return failed;
 }
@@ -200,10 +134,9 @@ export function computeLevel(
   expectedNotices: readonly string[] = [],
   kind: 'exercise' | 'piece' = 'piece',
   arrangement = false,
-  tags: readonly SkillTag[] = [],
 ): Level {
   for (const level of LEVELS_ORDER) {
-    if (failingCriteria(facts, level, expectedNotices, kind, arrangement, tags).length === 0) return level;
+    if (failingCriteria(facts, level, expectedNotices, kind, arrangement).length === 0) return level;
   }
   return 'advanced';
 }
@@ -213,12 +146,10 @@ export interface CheckLevelOptions {
   raisedBecause?: string;
   /** Load notices this item is known to produce (contracts/library-index.md, FR-023). */
   expectedNotices?: readonly string[];
-  /** `'exercise'` exempts criteria 9, 14's minimum and 20 (correction C). Defaults to `'piece'`. */
+  /** `'exercise'` exempts criterion 14's minimum (correction C) and uses the B7/B8 reach variants. Defaults to `'piece'`. */
   kind?: 'exercise' | 'piece';
   /** A deliberately short excerpt (data-model.md §5.3): exempts criterion 14's minimum only. */
   arrangement?: boolean;
-  /** The item's skill tags; `key-changes` lets an exercise contain one key change (D-2 B6). */
-  tags?: readonly SkillTag[];
 }
 
 /** Compares `assignedLevel` against the level `facts` actually computes to (data-model.md §4):
@@ -231,8 +162,7 @@ export function checkLevel(facts: ItemFacts, assignedLevel: Level, options: Chec
   const expectedNotices = options.expectedNotices ?? [];
   const kind = options.kind ?? 'piece';
   const arrangement = options.arrangement ?? false;
-  const tags = options.tags ?? [];
-  const ownFailed = failingCriteria(facts, assignedLevel, expectedNotices, kind, arrangement, tags);
+  const ownFailed = failingCriteria(facts, assignedLevel, expectedNotices, kind, arrangement);
   if (ownFailed.length > 0) {
     return { level: assignedLevel, pass: false, failed: ownFailed };
   }
@@ -241,7 +171,7 @@ export function checkLevel(facts: ItemFacts, assignedLevel: Level, options: Chec
   // than the Introduction caps, so a Beginner item needs no `raisedBecause` for that.
   const assignedRank = LEVELS_ORDER.indexOf(assignedLevel);
   const introductionRank = LEVELS_ORDER.indexOf('introduction');
-  const computed = computeLevel(facts, expectedNotices, kind, arrangement, tags);
+  const computed = computeLevel(facts, expectedNotices, kind, arrangement);
   const computedRank =
     assignedLevel === 'introduction'
       ? LEVELS_ORDER.indexOf(computed)

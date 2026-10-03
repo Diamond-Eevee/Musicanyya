@@ -86,7 +86,7 @@ function Get-FeatureState([string]$dir) {
     elseif (-not (Test-Path $tasks)) { $step = 'tasks' }
     elseif ($total -eq 0) { $step = 'tasks (tasks.md has no T### items)' }
     elseif ($done -lt $total) { $step = 'implement' }
-    else { $step = 'done (run full quality gate, then merge)' }
+    else { $step = 'done (merge review; the full gate is the last task - never rerun it whole)' }
     # Spec Kit steps have fixed tiers (reference R11).
     if ($step -match '^tasks') { $resumeTier = 'standard' }
     elseif ($step -match '^(specify|clarify|plan)') { $resumeTier = 'deep' }

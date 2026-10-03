@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "title": "Song - The God of Abraham Praise (simplified)",
+  "composer": "Traditional (Hebrew melody for the Yigdal, transcribed by Meyer Lyon; tune \"Leoni\")",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "The God of Abraham Praise (tune \"Leoni\") in E minor, with a one-beat pickup, over one held block chord a bar in the left (Em, D, Bm, B, Am).",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5.5",
+    "created": "2026-10-03",
+    "basedOn": "mutopia-525-leoni: Leoni (hymntune from a synagogue melody for the Yigdal, transcribed by M. Lyon and adapted by T. Olivers: The God of Abraham Praise), SATB, sounding E minor; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=525)",
+    "note": "Melody from Australian Hymn Book, number 53 (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=525), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": [
+    "Left-hand block chords are our own (CC0).",
+    "Simplified: one block chord a bar, held, with the chords of a beginner minor song only (Em, D, Bm, B, Am), instead of the full version's moving left hand.",
+    "Slower: 72 instead of 88 quarter notes a minute.",
+    "The double bar lines the source prints inside the bars at the ends of phrases are left out: the music is written in whole 4/4 bars.",
+    "Written in E minor, the key the source sounds in (the source writes it in F minor and transposes it down a semitone)."
+  ],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03",
+  "step": "song",
+  "stepOrder": 20,
+  "simplifies": "learning/keys/e-minor/song-leoni"
+}

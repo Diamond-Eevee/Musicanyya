@@ -158,6 +158,30 @@ function stepRuleProblems(items: readonly LibraryItem[]): string[] {
   return problems;
 }
 
+const LEVEL_RANK: Readonly<Record<string, number>> = { introduction: 0, beginner: 1, intermediate: 2, advanced: 3 };
+
+/** library-index 1.5.0 item 1 (feature 022): a simplified version names the item it simplifies, which must exist, sit in
+ *  the same section and have a higher level. Each failure names both ids. */
+function simplifiesProblems(items: readonly LibraryItem[], simplifiesById: ReadonlyMap<string, string>): string[] {
+  const problems: string[] = [];
+  const byId = new Map(items.map((item) => [item.id, item]));
+  for (const [id, targetId] of simplifiesById) {
+    const item = byId.get(id);
+    const target = byId.get(targetId);
+    if (!item) continue;
+    if (!target) {
+      problems.push(`${id}: simplifies ${targetId}, which does not exist`);
+    } else if (target.section !== item.section) {
+      problems.push(`${id}: simplifies ${targetId}, which is in another section (${target.section})`);
+    } else if ((LEVEL_RANK[target.meta.level] ?? 0) <= (LEVEL_RANK[item.meta.level] ?? 0)) {
+      problems.push(
+        `${id}: simplifies ${targetId}, which is ${target.meta.level} - it needs a higher level than ${item.meta.level}`,
+      );
+    }
+  }
+  return problems;
+}
+
 /** Walks `libraryRoot`, validates every sidecar, loads every score through the app's own `readXml` +
  *  `buildScore` (never a second, looser parser) and derives its facts, then produces the index the
  *  app reads (contracts/library-index.md §2, §4). Importable so `tests/library/*.test.ts` can call it
@@ -171,6 +195,7 @@ export async function buildLibraryIndex(
 ): Promise<BuildLibraryIndexResult> {
   const problems: string[] = [];
   const items: LibraryItem[] = [];
+  const simplifiesById = new Map<string, string>();
 
   for (const relFile of walkScoreFiles(libraryRoot)) {
     const sidecarRelPath = relFile.replace(/\.(musicxml|mxl)$/i, '.json');
@@ -283,7 +308,6 @@ export async function buildLibraryIndex(
       ...(meta.raisedBecause !== undefined ? { raisedBecause: meta.raisedBecause } : {}),
       expectedNotices: meta.expected?.notices ?? [],
       kind: meta.kind,
-      tags: meta.tags,
       ...(meta.arrangement !== undefined ? { arrangement: meta.arrangement } : {}),
     });
     if (!levelCheck.pass) {
@@ -295,9 +319,14 @@ export async function buildLibraryIndex(
     const hash = await hashFile(rawBytes.slice(0));
     const id = relFile.replace(/\.(musicxml|mxl)$/i, '');
     items.push({ id, section: sectionId, file: relFile, bytes: fileBuffer.byteLength, hash, meta, facts, levelCheck });
+    // library-index 1.5.0: read here only - the app ignores it, so the item model does not carry it
+    const simplifies = (rawMeta as { simplifies?: unknown }).simplifies;
+    if (typeof simplifies === 'string') simplifiesById.set(id, simplifies);
+    else if (simplifies !== undefined) problems.push(`${sidecarRelPath}: simplifies must be an item id`);
   }
 
   problems.push(...stepRuleProblems(items));
+  problems.push(...simplifiesProblems(items, simplifiesById));
 
   // A section is listed when it holds items or is an ancestor of one that does: readers build the tree from
   // `parent` + `order` (contract library-index 1.2.0 §2), so a folder with no items of its own but with children stays.

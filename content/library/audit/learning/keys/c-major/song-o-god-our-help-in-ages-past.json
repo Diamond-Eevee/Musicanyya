@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "itemId": "learning/keys/c-major/song-o-god-our-help-in-ages-past",
+  "claim": "arrangement",
+  "claimText": "O God, Our Help in Ages Past (arranged for two hands): the melody of Mutopia source mutopia-1290-st-anne, right hand; a repeated left hand our own (CC0), left hand",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-1290-st-anne",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": ["melody", "spelling"],
+      "alignment": {
+        "itemBars": "all",
+        "sourceBars": "all",
+        "staff": 1,
+        "sourceStaff": 1,
+        "sourceVoice": "staff1.1"
+      },
+      "melodyRhythm": "compared",
+      "expectedDifferences": 0
+    },
+    {
+      "method": "theory",
+      "ruleSet": "song-chords-v2",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).",
+  "checkedBy": "claude-opus-5.5",
+  "date": "2026-10-03"
+}

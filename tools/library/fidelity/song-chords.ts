@@ -27,6 +27,10 @@ export interface SongChordsOptions {
   level: SongLevel;
   /** The shelf key the song is written in (after any transposition). */
   key: KeyClaim;
+  /** song-chords-v1 (default) reads every left-hand attack as a chord; song-chords-v2 (feature 022, audit-record 1.5.0)
+   *  reads every left-hand note under a chord name as part of that chord, so a waltz, repeated or broken left hand is
+   *  checked note by note, and Beginner minor songs may also use v and VII (research R8). */
+  ruleSet?: 'song-chords-v1' | 'song-chords-v2';
 }
 
 const CHORD_NAME = /^([A-G])([♯♭#b]?)(m|°|\+)?$/;
@@ -45,6 +49,11 @@ const NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
 const ALLOWED: Record<SongLevel, Record<Mode, readonly string[]>> = {
   beginner: { major: ['I', 'IV', 'V'], minor: ['i', 'iv', 'V'] },
   intermediate: { major: ['I', 'ii', 'IV', 'V', 'vi'], minor: ['i', 'III', 'iv', 'V', 'VI', 'VII'] },
+};
+/** song-chords-v2: Beginner minor songs may also use the natural minor's v and VII (research R8). */
+const ALLOWED_V2: Record<SongLevel, Record<Mode, readonly string[]>> = {
+  beginner: { major: ['I', 'IV', 'V'], minor: ['i', 'iv', 'v', 'V', 'VII'] },
+  intermediate: ALLOWED.intermediate,
 };
 /** Chords struck in one bar, at most. */
 const MAX_CHORDS_PER_BAR: Record<SongLevel, number> = { beginner: 1, intermediate: 2 };
@@ -75,21 +84,55 @@ function leftAttacks(notes: readonly WrittenNote[]): Attack[] {
 const listOf = (items: readonly string[]): string =>
   items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} or ${items[items.length - 1]}`;
 
+/** song-chords-v2: the left-hand attacks under each chord name, as one group per name (the notes of a moving left hand
+ *  under one name are that chord, struck in turn); attacks before the first name come first, with no name. */
+function namedGroups(reading: ReturnType<typeof readScore>): { name?: string; attack: Attack }[] {
+  const names = reading.words
+    .map((w) => ({ onset: w.onset, text: w.text.trim() }))
+    .filter((w) => CHORD_NAME.test(w.text))
+    .sort((a, b) => cmp(a.onset, b.onset));
+  const groups: { name?: string; at?: (typeof names)[number]; attack: Attack }[] = [];
+  for (const attack of leftAttacks(reading.notes)) {
+    const at = [...names].reverse().find((n) => cmp(n.onset, attack.onset) <= 0);
+    const last = groups[groups.length - 1];
+    if (last && at !== undefined && last.at === at) last.attack.notes.push(...attack.notes);
+    else groups.push({ ...(at ? { name: at.text, at } : {}), attack: { ...attack, notes: [...attack.notes] } });
+  }
+  return groups.map(({ name, attack }) => ({ ...(name !== undefined ? { name } : {}), attack }));
+}
+
+/** One note per pitch class (the lowest), so a group's repeated strikes do not count as extra notes. */
+function distinctTones(notes: readonly WrittenNote[]): WrittenNote[] {
+  const byPc = new Map<number, WrittenNote>();
+  for (const n of [...notes].sort((a, b) => a.midi - b.midi)) if (!byPc.has(mod(n.midi))) byPc.set(mod(n.midi), n);
+  return [...byPc.values()];
+}
+
 export function checkSongChords(xml: string, options: SongChordsOptions): TheoryDifference[] {
   const reading = readScore(xml);
   const out: TheoryDifference[] = [];
   const tonicPc = mod(NATURAL_SEMITONES[options.key.tonicLetter] + options.key.tonicAlter);
-  const allowed = ALLOWED[options.level][options.key.mode];
+  const v2 = options.ruleSet === 'song-chords-v2';
+  const allowed = (v2 ? ALLOWED_V2 : ALLOWED)[options.level][options.key.mode];
   const perBar = new Map<string, number>();
   const reported = new Set<string>();
   let previousName: string | undefined;
 
-  leftAttacks(reading.notes).forEach((attack, chordIndex) => {
+  const attacks: { attack: Attack; words?: string }[] = v2
+    ? namedGroups(reading).map((g) => ({
+        attack: { ...g.attack, notes: distinctTones(g.attack.notes) },
+        ...(g.name !== undefined ? { words: g.name } : {}),
+      }))
+    : leftAttacks(reading.notes).map((attack) => {
+        const words = reading.words
+          .filter((w) => cmp(w.onset, attack.onset) === 0)
+          .map((w) => w.text.trim())
+          .find((text) => CHORD_NAME.test(text));
+        return { attack, ...(words !== undefined ? { words } : {}) };
+      });
+
+  attacks.forEach(({ attack, words }, chordIndex) => {
     const base = { kind: 'theory' as const, chordIndex, bar: attack.bar };
-    const words = reading.words
-      .filter((w) => cmp(w.onset, attack.onset) === 0)
-      .map((w) => w.text.trim())
-      .find((text) => CHORD_NAME.test(text));
     if (words === undefined) {
       out.push({ ...base, hand: 'left', rule: 'label', expected: 'a chord name above the chord', found: NONE });
       return;
@@ -150,7 +193,12 @@ export function songKeyOfItemId(itemId: string): KeyClaim {
 }
 
 /** The whole song check the audit record runs: the key signature is the folder's key, then the chords (`checkSongChords`). */
-export function checkSong(xml: string, itemId: string, level: SongLevel): TheoryDifference[] {
+export function checkSong(
+  xml: string,
+  itemId: string,
+  level: SongLevel,
+  ruleSet: SongChordsOptions['ruleSet'] = 'song-chords-v1',
+): TheoryDifference[] {
   const key = songKeyOfItemId(itemId);
   const reading = readScore(xml);
   const out: TheoryDifference[] = [];
@@ -175,5 +223,5 @@ export function checkSong(xml: string, itemId: string, level: SongLevel): Theory
       expected: key.mode,
       found: reading.mode,
     });
-  return [...out, ...checkSongChords(xml, { level, key })];
+  return [...out, ...checkSongChords(xml, { level, key, ruleSet })];
 }

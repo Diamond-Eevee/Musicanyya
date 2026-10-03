@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "id": "learning/chord-lessons/single-chords/seventh-chords-simplified",
+  "title": "Seventh chords (simplified)",
+  "section": "learning/chord-lessons/single-chords",
+  "stepOrder": 80,
+  "level": "beginner",
+  "hands": "both",
+  "tags": ["chords", "seventh-chords"],
+  "trains": "A seventh chord has four notes, so it is shared between the hands: the left hand plays the root, the right hand the third and the seventh. The fifth is left out, except in Bø7, whose lowered fifth (F) the left hand adds. Each chord is held two bars. A simpler version of the next lesson.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "omit": [
+      {
+        "bar": 1,
+        "beat": 1,
+        "tones": ["5"]
+      },
+      {
+        "bar": 3,
+        "beat": 1,
+        "tones": ["5"]
+      },
+      {
+        "bar": 5,
+        "beat": 1,
+        "tones": ["5"]
+      },
+      {
+        "bar": 9,
+        "beat": 1,
+        "tones": ["5"]
+      }
+    ]
+  },
+  "simplifies": "learning/chord-lessons/single-chords/seventh-chords",
+  "departures": [
+    "The fifth of every chord except Bø7 is left out: the right hand plays only the third and the seventh; for Bø7 the left hand adds the lowered fifth (F).",
+    "Each chord is held for two bars."
+  ],
+  "bars": [
+    {
+      "rh": "{Cmaj7}<E4 B4>:w~@1-5",
+      "lh": "C3:w~@5"
+    },
+    {
+      "rh": "<E4 B4>:w",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{C7}<E4 Bb4>:w~@1-4",
+      "lh": "C3:w~"
+    },
+    {
+      "rh": "<E4 Bb4>:w",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{Cm7}<Eb4 Bb4>:w~@1-5",
+      "lh": "C3:w~"
+    },
+    {
+      "rh": "<Eb4 Bb4>:w",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{Bø7}<D4 A4>:w~@1-5",
+      "lh": "<B2 F3>:w~@5-1"
+    },
+    {
+      "rh": "<D4 A4>:w",
+      "lh": "<B2 F3>:w"
+    },
+    {
+      "rh": "{Cmaj7}<E4 B4>:w~@1-5",
+      "lh": "C3:w~"
+    },
+    {
+      "rh": "<E4 B4>:w",
+      "lh": "C3:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

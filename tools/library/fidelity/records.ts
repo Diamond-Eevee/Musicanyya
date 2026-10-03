@@ -5,9 +5,11 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fromLilyPond, readLilyPond } from '../lilypond/read';
 import { parseDefinition } from '../orchestra/definition';
+import { type ChordLessonClaims, checkChordLesson } from './chord-lessons';
 import { type Alignment, type Aspect, compare, compareMelody, compareSound, type Difference } from './compare';
 import { ClaimError, claimForItem } from './exercise-claims';
 import { fromMusicXml } from './from-musicxml';
+import { checkLessonClaims, type LessonClaimRecord } from './lesson-claims';
 import { checkMelodyRules } from './melody-rules';
 import { fromMidi, readMidi } from './midi';
 import { checkOrchestra } from './orchestra';
@@ -39,6 +41,11 @@ export const THEORY_RULE_SETS = [
   'song-chords-v1',
   'exercise-theory-v3',
   'orchestra-v1',
+  // feature 022 (audit-record 1.5.0): a Basics lesson's claims; a chord lesson's named chords
+  'lesson-claims-v1',
+  'chord-lessons-v1',
+  // feature 022: a song whose left hand moves (waltz, repeated, broken) is read by the chord names (song-chords-v2)
+  'song-chords-v2',
 ] as const;
 export type TheoryRuleSet = (typeof THEORY_RULE_SETS)[number];
 
@@ -46,6 +53,10 @@ export interface TheoryCheck {
   method: 'theory';
   ruleSet: TheoryRuleSet;
   expectedDifferences: 0;
+  /** lesson-claims-v1 and chord-lessons-v1: what the lesson claims (feature 022, audit-record 1.5.0). */
+  claims?: LessonClaimRecord['claims'] & ChordLessonClaims;
+  /** lesson-claims-v1: the lesson's place in the teaching order (its stepOrder). */
+  teachingOrder?: number;
 }
 export interface VisualCheck {
   method: 'visual';
@@ -84,6 +95,8 @@ export interface RunContext {
   libraryRoot: string;
   /** Run the item's checks against this MusicXML file instead of the shelf file (planted-error checks). */
   itemFile?: string;
+  /** Every audit record: lesson-claims-v1 reads the earlier Basics lessons' claims from them (feature 022). */
+  records?: readonly AuditRecord[];
 }
 
 export interface CheckResult {
@@ -219,9 +232,49 @@ function validateCheck(json: unknown, at: string, fail: (d: string) => never): v
       for (const n of c.differenceNotes as unknown[]) string(n, `${at}.differenceNotes`, fail, 300);
     }
   } else if (c.method === 'theory') {
-    only(c, ['method', 'ruleSet', 'expectedDifferences'], at, fail);
+    only(c, ['method', 'ruleSet', 'expectedDifferences', 'claims', 'teachingOrder'], at, fail);
     oneOf(c.ruleSet, THEORY_RULE_SETS, `${at}.ruleSet`, fail);
     if (c.expectedDifferences !== 0) fail(`${at}: a theory check's expectedDifferences must be 0`);
+    if (c.ruleSet === 'lesson-claims-v1') {
+      const claims = object(c.claims, `${at}.claims`, fail);
+      only(claims, ['introduces', 'singlePitch', 'practice'], `${at}.claims`, fail);
+      if (claims.introduces !== undefined) {
+        if (!Array.isArray(claims.introduces)) fail(`${at}.claims.introduces must be a list`);
+        for (const f of claims.introduces as unknown[]) string(f, `${at}.claims.introduces`, fail, 40);
+      }
+      for (const k of ['singlePitch', 'practice'])
+        if (claims[k] !== undefined && typeof claims[k] !== 'boolean') fail(`${at}.claims.${k} must be true or false`);
+      if (!Number.isInteger(c.teachingOrder)) fail(`${at}.teachingOrder must be the lesson's stepOrder`);
+    } else if (c.ruleSet === 'chord-lessons-v1') {
+      if (c.teachingOrder !== undefined) fail(`${at}.teachingOrder belongs to lesson-claims-v1`);
+      if (c.claims !== undefined) {
+        const claims = object(c.claims, `${at}.claims`, fail);
+        only(claims, ['commonTones', 'omit'], `${at}.claims`, fail);
+        for (const [k, extra] of [
+          ['commonTones', 'pitch'],
+          ['omit', 'tones'],
+        ] as const) {
+          if (claims[k] === undefined) continue;
+          if (!Array.isArray(claims[k])) fail(`${at}.claims.${k} must be a list`);
+          for (const [i, raw] of (claims[k] as unknown[]).entries()) {
+            const entry = object(raw, `${at}.claims.${k}[${i}]`, fail);
+            only(entry, ['bar', 'beat', extra], `${at}.claims.${k}[${i}]`, fail);
+            if (!Number.isInteger(entry.bar)) fail(`${at}.claims.${k}[${i}].bar must be a bar number`);
+            if (typeof entry.beat !== 'number' || entry.beat < 1)
+              fail(`${at}.claims.${k}[${i}].beat must be 1 or more`);
+            if (extra === 'pitch') string(entry.pitch, `${at}.claims.${k}[${i}].pitch`, fail, 4);
+            else if (
+              !Array.isArray(entry.tones) ||
+              !(entry.tones as unknown[]).every((t) => ['1', '3', '5', '7'].includes(t as string))
+            )
+              fail(`${at}.claims.omit[${i}].tones must list degrees 1, 3, 5 or 7`);
+          }
+        }
+      }
+    } else {
+      if (c.claims !== undefined) fail(`${at}.claims belongs to the lesson rule sets, not ${String(c.ruleSet)}`);
+      if (c.teachingOrder !== undefined) fail(`${at}.teachingOrder belongs to lesson-claims-v1`);
+    }
   } else if (c.method === 'visual') {
     only(c, ['method', 'source', 'bars', 'result', 'differences'], at, fail);
     string(c.source, `${at}.source`, fail);
@@ -272,8 +325,11 @@ export function runRecord(record: AuditRecord, ctx: RunContext): CheckResult[] {
 /** The independent exercise check (research R8): the claim comes from the item's title and description on the shelf. */
 function runTheory(record: AuditRecord, check: TheoryCheck, ctx: RunContext): CheckResult {
   const sidecar = JSON.parse(readFileSync(join(ctx.libraryRoot, `${record.itemId}.json`), 'utf8')) as Sidecar;
-  if (check.ruleSet === 'song-chords-v1') return runSongChords(record, check, sidecar, ctx);
+  if (check.ruleSet === 'song-chords-v1' || check.ruleSet === 'song-chords-v2')
+    return runSongChords(record, check, sidecar, ctx);
   if (check.ruleSet === 'orchestra-v1') return runOrchestra(record, check, ctx);
+  if (check.ruleSet === 'lesson-claims-v1') return runLessonClaims(record, check, ctx);
+  if (check.ruleSet === 'chord-lessons-v1') return runChordLessons(record, check, ctx);
   let claim: ReturnType<typeof claimForItem>;
   try {
     claim = claimForItem({ itemId: record.itemId, title: sidecar.title ?? '', trains: sidecar.trains ?? '' });
@@ -304,7 +360,10 @@ function runTheory(record: AuditRecord, check: TheoryCheck, ctx: RunContext): Ch
 export function theoryDifferences(
   xml: string,
   claim: ExerciseClaim,
-  ruleSet: Exclude<TheoryRuleSet, 'song-chords-v1' | 'orchestra-v1'>,
+  ruleSet: Exclude<
+    TheoryRuleSet,
+    'song-chords-v1' | 'song-chords-v2' | 'orchestra-v1' | 'lesson-claims-v1' | 'chord-lessons-v1'
+  >,
 ): Difference[] {
   const melody = claim.sections
     ?.flatMap((s) => [s.right, s.left])
@@ -319,6 +378,49 @@ export function theoryDifferences(
   for (const f of checkMelodyRules({ itemId: claim.itemId, xml, level: melody.level, keys }))
     differences.push({ kind: 'melodyRule', bar: String(f.bar), beat: f.beat, rule: f.rule, message: f.message });
   return differences;
+}
+
+/** lesson-claims-v1 (feature 022, audit-record 1.5.0): the lesson's claims against its file; the lessons earlier in the
+ *  teaching order are the other lesson-claims-v1 records of the run context. */
+function runLessonClaims(record: AuditRecord, check: TheoryCheck, ctx: RunContext): CheckResult {
+  const own: LessonClaimRecord = {
+    itemId: record.itemId,
+    teachingOrder: check.teachingOrder ?? 0,
+    claims: check.claims ?? {},
+  };
+  const others: LessonClaimRecord[] = (ctx.records ?? [])
+    .filter((r) => r.itemId !== record.itemId)
+    .flatMap((r) =>
+      r.checks
+        .filter((c): c is TheoryCheck => c.method === 'theory' && c.ruleSet === 'lesson-claims-v1')
+        .map((c) => ({ itemId: r.itemId, teachingOrder: c.teachingOrder ?? 0, claims: c.claims ?? {} })),
+    );
+  const xml = readFileSync(ctx.itemFile ?? join(ctx.libraryRoot, `${record.itemId}.musicxml`), 'utf8');
+  const differences: Difference[] = checkLessonClaims(xml, own, others);
+  const earlier = others.filter((o) => o.teachingOrder < own.teachingOrder).length;
+  return {
+    check,
+    differences,
+    allowed: [],
+    reproduced: differences.length === check.expectedDifferences,
+    detail: `lesson claims checked with ${earlier} earlier lessons: ${differences.length} differences`,
+  };
+}
+
+/** chord-lessons-v1 (feature 022, audit-record 1.5.0): every named chord of a chord lesson against the notes under it. */
+function runChordLessons(record: AuditRecord, check: TheoryCheck, ctx: RunContext): CheckResult {
+  const xml = readFileSync(ctx.itemFile ?? join(ctx.libraryRoot, `${record.itemId}.musicxml`), 'utf8');
+  const differences: Difference[] = checkChordLesson(xml, {
+    ...(check.claims?.commonTones ? { commonTones: check.claims.commonTones } : {}),
+    ...(check.claims?.omit ? { omit: check.claims.omit } : {}),
+  });
+  return {
+    check,
+    differences,
+    allowed: [],
+    reproduced: differences.length === check.expectedDifferences,
+    detail: `named chords checked against the notes under them: ${differences.length} differences`,
+  };
 }
 
 /** orchestra-v1 (feature 019, audit-record 1.4.0): rules O1-O5 of the item's Orchestra against its orchestration definition. */
@@ -361,7 +463,12 @@ function runSongChords(record: AuditRecord, check: TheoryCheck, sidecar: Sidecar
       detail: `a song is beginner or intermediate, not ${sidecar.level}`,
     };
   const xml = readFileSync(ctx.itemFile ?? join(ctx.libraryRoot, `${record.itemId}.musicxml`), 'utf8');
-  const differences = checkSong(xml, record.itemId, sidecar.level);
+  const differences = checkSong(
+    xml,
+    record.itemId,
+    sidecar.level,
+    check.ruleSet === 'song-chords-v2' ? 'song-chords-v2' : 'song-chords-v1',
+  );
   return {
     check,
     differences,

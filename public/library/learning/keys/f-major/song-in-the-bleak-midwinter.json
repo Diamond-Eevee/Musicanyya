@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "title": "Song - In the Bleak Midwinter",
+  "composer": "G. Holst (tune \"Cranham\")",
+  "subtitle": "Arrangement: the tune with left-hand broken chords (root, fifth, third, fifth)",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "intermediate",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "In the Bleak Midwinter in F major, with a one-beat pickup and dotted rhythms, over a broken-chord left hand in eighths, up to two chords a bar (F, Gm, Dm, C, B♭).",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5.5",
+    "created": "2026-10-03",
+    "basedOn": "mutopia-1233-cranham: Cranham (hymntune, G. Holst: In the Bleak Midwinter), SATB, F major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233)",
+    "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": ["The left-hand broken chords (root, fifth, third, fifth) are our own (CC0)."],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03",
+  "step": "song",
+  "stepOrder": 50
+}

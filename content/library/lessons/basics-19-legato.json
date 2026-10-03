@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "basics/legato",
+  "title": "Legato: connected notes",
+  "section": "basics",
+  "stepOrder": 190,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["articulation"],
+  "trains": "Legato means connected. Under a slur, hold each key until the next one goes down, so the notes join with no gap, like singing in one breath; lift the hand only at the end of the curve. The app checks when each note starts, not whether the notes join.",
+  "scoreText": "Slur = legato: hold each note until the next one sounds.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": [],
+    "practice": true
+  },
+  "bars": [
+    {
+      "rh": "C4:q(@1 D4:q@2 E4:q@3 F4:q@4",
+      "lh": "R:w"
+    },
+    {
+      "rh": "G4:h@5 F4:h)",
+      "lh": "R:w"
+    },
+    {
+      "rh": "E4:q( F4:q G4:q E4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "D4:w)",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q( E4:q D4:q F4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "E4:h D4:h)",
+      "lh": "R:w"
+    },
+    {
+      "rh": "E4:q( D4:q C4:q D4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:w)",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

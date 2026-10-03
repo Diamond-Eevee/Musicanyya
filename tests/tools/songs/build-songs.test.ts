@@ -5,13 +5,16 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
+import { handStretches } from '../../../src/core/library/playability';
 import { buildScore } from '../../../src/core/musicxml/build';
 import { planEngraving } from '../../../src/core/musicxml/engraving/plan';
 import { readXml } from '../../../src/core/musicxml/read';
+import { buildTimeline } from '../../../src/core/timeline/timeline';
 import { buildSong, buildSongs } from '../../../tools/library/build-songs';
 import { compareMelody } from '../../../tools/library/fidelity/compare';
 import { fromMusicXml } from '../../../tools/library/fidelity/from-musicxml';
 import { loadSources, sourceFile } from '../../../tools/library/fidelity/sources';
+import { q } from '../../../tools/library/fidelity/time';
 import { fromLilyPond, readLilyPond } from '../../../tools/library/lilypond/read';
 import type { SongDefinition } from '../../../tools/library/songs/definition';
 
@@ -258,6 +261,13 @@ describe('buildSong: the file and the sidecar', () => {
     expect(departures.some((d) => /perfect fourth/.test(d))).toBe(true);
   });
 
+  it('writes meta.raisedBecause into the sidecar, and nothing when it is absent (song-definition 1.2.0)', () => {
+    const raised = greensleeves();
+    raised.meta.raisedBecause = 'Why it sits higher.';
+    expect(buildSong(raised, options).sidecar.raisedBecause).toBe('Why it sits higher.');
+    expect(buildSong(greensleeves(), options).sidecar).not.toHaveProperty('raisedBecause');
+  });
+
   it('a song without a transposition departs only in its left hand', () => {
     const { sidecar } = buildSong(ode(), options);
     expect(sidecar.departures).toEqual(['Left-hand block chords are our own (CC0).']);
@@ -333,5 +343,260 @@ describe('buildSong: the left hand stays off the melody (music review of 2026-09
     const chords = tonics.map((c) => (c.bar === 2 ? { ...c, inversion: 0 as const } : c));
     const { xml } = buildSong(wenceslas(chords), options);
     expect(leftKeys(xml, 1)).toEqual([43, 47, 50]); // G2 B2 D3: still root position
+  });
+});
+
+// Feature 022 T052 (contract song-definition 1.2.0): left-hand patterns, `simplifies`, and paired songs ordered together.
+describe('022: left-hand patterns (song-definition 1.2.0)', () => {
+  const amazing = (pattern: 'waltz' | 'repeated' | 'broken' | 'block'): SongDefinition => ({
+    ...(JSON.parse(readFileSync('content/library/songs/amazing-grace.json', 'utf8')) as SongDefinition),
+    leftHand: { pattern },
+  });
+  const left = (xml: string) => {
+    const { score } = buildScore(readXml(xml).doc);
+    const notes = (score.parts[0]?.notes ?? []).filter((n) => n.staff === 2);
+    const onsets = new Map<string, number[]>();
+    for (const n of notes) {
+      if (n.tie.stop) continue;
+      const key = `${n.measureIndex}:${n.onsetInMeasure}`;
+      onsets.set(key, [...(onsets.get(key) ?? []), n.soundingKey]);
+    }
+    return { score, notes, onsets };
+  };
+  const strikesInBar = (onsets: Map<string, number[]>, measure: number) =>
+    [...onsets.entries()]
+      .filter(([k]) => Number(k.split(':')[0]) === measure)
+      .sort((a, b) => Number(a[0].split(':')[1]) - Number(b[0].split(':')[1]))
+      .map(([, keys]) => [...keys].sort((x, y) => x - y));
+  const melodyAt = (score: ReturnType<typeof left>['score']) =>
+    (score.parts[0]?.notes ?? []).filter((n) => n.staff === 1);
+  /** No left-hand strike shares a key with a melody note sounding at the same time. */
+  const clearOfMelody = (xml: string) => {
+    const { score, notes } = left(xml);
+    const at = (n: (typeof notes)[number]) => (score.measures[n.measureIndex]?.startTick ?? 0) + n.onsetInMeasure;
+    const melody = melodyAt(score);
+    return notes.every(
+      (l) =>
+        !melody.some(
+          (m) => m.soundingKey === l.soundingKey && at(m) < at(l) + l.durationTicks && at(l) < at(m) + m.durationTicks,
+        ),
+    );
+  };
+  const comfortable = (xml: string) => {
+    const { score } = buildScore(readXml(xml).doc);
+    return handStretches(score, buildTimeline(score).timeline, 'comfortable');
+  };
+
+  it('block (the default) writes the same song as no leftHand at all', () => {
+    const plain = JSON.parse(readFileSync('content/library/songs/amazing-grace.json', 'utf8')) as SongDefinition;
+    expect(buildSong(amazing('block'), options).xml).toBe(buildSong(plain, options).xml);
+  });
+
+  it('waltz in 3/4: the bass alone on beat 1, the other two chord notes on beats 2 and 3', () => {
+    const { xml } = buildSong(amazing('waltz'), options);
+    const { onsets } = left(xml);
+    const bar = strikesInBar(onsets, 1); // bar 1 (index 1: index 0 is the pickup), a G chord
+    expect(bar.map((keys) => keys.length)).toEqual([1, 2, 2]);
+    const [bass, second, third] = bar as [number[], number[], number[]];
+    expect(second).toEqual(third);
+    expect(Math.min(...second)).toBeGreaterThan(bass[0] as number);
+    expect([bass[0], ...second].map((k) => k % 12).sort((a, b) => a - b)).toEqual([2, 7, 11]); // G B D
+    expect(clearOfMelody(xml)).toBe(true);
+    expect(comfortable(xml)).toEqual([]);
+  });
+
+  it('repeated: the chord struck on every beat, each a beat long', () => {
+    const { xml } = buildSong(amazing('repeated'), options);
+    const { onsets } = left(xml);
+    const bar = strikesInBar(onsets, 1);
+    expect(bar.map((keys) => keys.length)).toEqual([3, 3, 3]);
+    expect(clearOfMelody(xml)).toBe(true);
+    expect(comfortable(xml)).toEqual([]);
+  });
+
+  it('repeated in 6/8: one strike per dotted beat', () => {
+    const def = { ...greensleeves(), leftHand: { pattern: 'repeated' as const } };
+    const { xml } = buildSong(def, options);
+    const bar = strikesInBar(left(xml).onsets, 1);
+    expect(bar.map((keys) => keys.length)).toEqual([3, 3]);
+    expect(comfortable(xml)).toEqual([]);
+  });
+
+  it('broken: root, fifth, third, fifth in eighths', () => {
+    const def = { ...ode(), leftHand: { pattern: 'broken' as const } };
+    const { xml } = buildSong(def, options);
+    const bar = strikesInBar(left(xml).onsets, 0); // a G chord
+    expect(bar.map((keys) => keys.length)).toEqual([1, 1, 1, 1, 1, 1, 1, 1]);
+    const pcs = bar.map((keys) => (keys[0] as number) % 12);
+    expect(pcs).toEqual([7, 2, 11, 2, 7, 2, 11, 2]); // G D B D twice
+    expect(clearOfMelody(xml)).toBe(true);
+    expect(comfortable(xml)).toEqual([]);
+  });
+
+  // Constitution audit T072 F9: the departure is shown under "Changes from the source", so it must read as a sentence.
+  it('the departure names the pattern in a sentence: one accompaniment "is", several chords "are"', () => {
+    const departure = (pattern: 'waltz' | 'repeated' | 'broken') =>
+      (buildSong(amazing(pattern), options).sidecar.departures as string[])[0];
+    expect(departure('waltz')).toBe('The left-hand waltz accompaniment (bass, then chord, chord) is our own (CC0).');
+    expect(departure('repeated')).toBe('The left-hand repeated chords on every beat are our own (CC0).');
+    expect(departure('broken')).toBe('The left-hand broken chords (root, fifth, third, fifth) are our own (CC0).');
+  });
+});
+
+describe('022: simplified songs and their order (song-definition 1.2.0)', () => {
+  it('writes simplifies into the sidecar', () => {
+    const def = ode({
+      id: 'learning/keys/g-major/song-ode-to-joy-simplified',
+      title: 'Song - Ode to Joy (simplified)',
+      simplifies: 'learning/keys/g-major/song-ode-to-joy',
+    });
+    expect(buildSong(def, options).sidecar.simplifies).toBe('learning/keys/g-major/song-ode-to-joy');
+  });
+
+  it('orders unpaired songs first (Beginner, then Intermediate, by title), then each pair, simplified first', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'songs-pairs-'));
+    try {
+      const contentDir = join(dir, 'songs');
+      const libraryRoot = join(dir, 'library');
+      const { mkdirSync } = await import('node:fs');
+      mkdirSync(contentDir, { recursive: true });
+      const id = (slug: string) => `learning/keys/g-major/song-${slug}`;
+      const defs = [
+        ode({ id: id('zed'), title: 'Song - Zed' }),
+        ode({ id: id('alpha'), title: 'Song - Alpha', meta: { ...META, level: 'intermediate' } }),
+        ode({ id: id('beta'), title: 'Song - Beta', meta: { ...META, level: 'intermediate' } }),
+        ode({ id: id('beta-simplified'), title: 'Song - Beta (simplified)', simplifies: id('beta') }),
+        ode({ id: id('aaa'), title: 'Song - Aaa', meta: { ...META, level: 'intermediate' } }),
+        ode({ id: id('aaa-simplified'), title: 'Song - Aaa (simplified)', simplifies: id('aaa') }),
+      ];
+      defs.forEach((d, i) => {
+        writeFileSync(join(contentDir, `${i}.json`), JSON.stringify(d));
+      });
+      await buildSongs(contentDir, libraryRoot, SOURCES_ROOT, '2026-10-03');
+      const order = (slug: string) =>
+        (JSON.parse(readFileSync(join(libraryRoot, `${id(slug)}.json`), 'utf8')) as { stepOrder: number }).stepOrder;
+      expect(['zed', 'alpha', 'aaa-simplified', 'aaa', 'beta-simplified', 'beta'].map(order)).toEqual([
+        10, 20, 30, 40, 50, 60,
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('the 10 existing songs keep their stepOrder', async () => {
+    const pinned: Record<string, number> = {
+      'learning/keys/a-minor/song-greensleeves': 10,
+      'learning/keys/b-flat-major/song-silent-night': 10,
+      'learning/keys/c-major/song-au-clair-de-la-lune': 10,
+      'learning/keys/d-major/song-joy-to-the-world': 10,
+      'learning/keys/e-minor/song-o-come-o-come-emmanuel': 10,
+      'learning/keys/f-major/song-the-holly-and-the-ivy': 10,
+      'learning/keys/g-major/song-amazing-grace': 10,
+      'learning/keys/g-major/song-good-king-wenceslas': 20,
+      'learning/keys/g-major/song-o-come-all-ye-faithful': 30,
+      'learning/keys/g-major/song-ode-to-joy': 40,
+    };
+    const dir = mkdtempSync(join(tmpdir(), 'songs-pinned-'));
+    try {
+      await buildSongs('content/library/songs', dir, SOURCES_ROOT, '2026-10-03');
+      for (const [songId, stepOrder] of Object.entries(pinned)) {
+        const sidecar = JSON.parse(readFileSync(join(dir, `${songId}.json`), 'utf8')) as { stepOrder: number };
+        expect(sidecar.stepOrder, songId).toBe(stepOrder);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
+// Feature 022 T077 (contract song-definition 1.2.0, melody.joinShortBars): Leoni (Mutopia 525) prints its phrase ends as
+// double bar lines inside 4/4 bars, so the reading has written bars of 3 and 1 beats in the middle of the piece.
+describe('022: joining a bar split by a phrase line (melody.joinShortBars)', () => {
+  const leoni = (join?: boolean): SongDefinition => ({
+    version: 1,
+    id: 'learning/keys/e-minor/song-leoni',
+    title: 'Song - Leoni',
+    source: 'mutopia-525-leoni',
+    melody: {
+      staff: 1,
+      voice: 'staff1:voice:sop',
+      bars: 'all',
+      ...(join === undefined ? {} : { joinShortBars: join }),
+    },
+    key: { tonic: 'E', mode: 'minor', fifths: 1 },
+    tempoBpm: 84,
+    chords: Array.from({ length: 17 }, (_, bar) => ({ bar, degree: 'i' })),
+    meta: { ...META, level: 'intermediate' },
+  });
+
+  it('without it, the short bar inside the piece is refused, as before', () => {
+    expect(() => buildSong(leoni(), options)).toThrow(/source bar 2 is not a full bar/);
+    expect(() => buildSong(leoni(false), options)).toThrow(/source bar 2 is not a full bar/);
+  });
+
+  it('with it, each 3-beat bar and the 1-beat bar after it are one 4/4 bar: a pickup, 15 full bars, a short last bar', () => {
+    const bars = fromMusicXml(buildSong(leoni(true), options).xml).bars;
+    expect(bars.map((b) => b.number)).toEqual(Array.from({ length: 17 }, (_, i) => String(i)));
+    expect(bars.map((b) => b.length)).toEqual([q(1), ...Array.from({ length: 15 }, () => q(4)), q(3)]);
+  });
+
+  it('the melody is still the source soprano note for note: 0 differences', () => {
+    const result = compareMelody(
+      fromMusicXml(buildSong(leoni(true), options).xml),
+      notationOf('mutopia-525-leoni'),
+      { itemBars: 'all', sourceBars: 'all', staff: 1, sourceStaff: 1, sourceVoice: 'staff1:voice:sop' },
+      { allowRhythm: false, spelling: true },
+    );
+    expect(result.differences).toEqual([]);
+  });
+
+  it('the joined bars load with no notices (no bar shorter than the metre but the pickup and the last)', () => {
+    const { report } = buildScore(readXml(buildSong(leoni(true), options).xml).doc);
+    expect(report.entries).toEqual([]);
+  });
+});
+
+// Feature 022 T078 (contract song-definition 1.2.0, melody.pickupBeats; owner 2026-10-03): St. Anne (Mutopia 1290) bars
+// the tune from beat 1; hymnals print it with a one-beat pickup, so the stresses fall on beats 1 and 3.
+describe('022: re-barring a tune with a pickup (melody.pickupBeats)', () => {
+  const stAnne = (pickupBeats?: number): SongDefinition => ({
+    version: 1,
+    id: 'learning/keys/c-major/song-o-god-our-help-in-ages-past',
+    title: 'Song - O God, Our Help in Ages Past',
+    source: 'mutopia-1290-st-anne',
+    melody: { staff: 1, voice: 'staff1.1', bars: 'all', ...(pickupBeats === undefined ? {} : { pickupBeats }) },
+    key: { tonic: 'C', mode: 'major', fifths: 0 },
+    tempoBpm: 88,
+    chords: Array.from({ length: 9 }, (_, bar) => ({ bar, degree: 'I' })),
+    meta: { ...META, level: 'intermediate' },
+  });
+
+  it('without it, the source barring stands: eight full bars from bar 1', () => {
+    const bars = fromMusicXml(buildSong({ ...stAnne(), chords: stAnne().chords.slice(1) }, options).xml).bars;
+    expect(bars.map((b) => b.number)).toEqual(['1', '2', '3', '4', '5', '6', '7', '8']);
+  });
+
+  it('with pickupBeats 1: a one-beat pickup, seven full bars and a three-beat last bar', () => {
+    const bars = fromMusicXml(buildSong(stAnne(1), options).xml).bars;
+    expect(bars.map((b) => b.number)).toEqual(['0', '1', '2', '3', '4', '5', '6', '7', '8']);
+    expect(bars.map((b) => b.length)).toEqual([q(1), ...Array.from({ length: 7 }, () => q(4)), q(3)]);
+  });
+
+  it('every note keeps its onset and length: 0 differences against the source soprano, and no notices', () => {
+    const { xml } = buildSong(stAnne(1), options);
+    const result = compareMelody(
+      fromMusicXml(xml),
+      notationOf('mutopia-1290-st-anne'),
+      { itemBars: 'all', sourceBars: 'all', staff: 1, sourceStaff: 1, sourceVoice: 'staff1.1' },
+      { allowRhythm: false, spelling: true },
+    );
+    expect(result.differences).toEqual([]);
+    expect(buildScore(readXml(xml).doc).report.entries).toEqual([]);
+  });
+
+  it('is refused for a source that already starts with a pickup (Greensleeves)', () => {
+    expect(() =>
+      buildSong({ ...greensleeves(), melody: { ...greensleeves().melody, pickupBeats: 1 } }, options),
+    ).toThrow(/pickupBeats/);
   });
 });

@@ -57,6 +57,21 @@ describe('validateSongDefinition', () => {
     expect(validateSongDefinition(d, SOURCES).melody.transpose).toBe('-M2');
   });
 
+  it('accepts melody.joinShortBars true or false and rejects anything else (song-definition 1.2.0, 022 T077)', () => {
+    const d = valid() as Doc;
+    d.melody.joinShortBars = true;
+    expect(validateSongDefinition(d, SOURCES).melody.joinShortBars).toBe(true);
+    expect(problem((x) => (x.melody.joinShortBars = 'yes'))).toMatch(/melody\.joinShortBars/);
+  });
+
+  it('accepts melody.pickupBeats above 0 and rejects anything else (song-definition 1.2.0, 022 T078)', () => {
+    const d = valid() as Doc;
+    d.melody.pickupBeats = 1;
+    expect(validateSongDefinition(d, SOURCES).melody.pickupBeats).toBe(1);
+    expect(problem((x) => (x.melody.pickupBeats = 0))).toMatch(/melody\.pickupBeats/);
+    expect(problem((x) => (x.melody.pickupBeats = 'one'))).toMatch(/melody\.pickupBeats/);
+  });
+
   it('rejects an id outside learning/keys/<key>/song-*', () => {
     expect(problem((d) => (d.id = 'learning/keys/g-major/ode-to-joy'))).toMatch(/id/);
     expect(problem((d) => (d.id = 'repertoire/beginner/song-ode-to-joy'))).toMatch(/id/);
@@ -104,5 +119,13 @@ describe('validateSongDefinition', () => {
 
   it('rejects an empty departures list', () => {
     expect(problem((d) => (d.meta.departures = []))).toMatch(/departures/);
+  });
+
+  // Song-definition 1.2.0 (feature 022 FR-006): an item that measures below its level says why it sits higher
+  it('accepts meta.raisedBecause and rejects an empty one', () => {
+    const d = valid() as Doc;
+    d.meta.raisedBecause = 'A long tune in 6/8 with eighth-note runs.';
+    expect(validateSongDefinition(d, SOURCES).meta.raisedBecause).toBe('A long tune in 6/8 with eighth-note runs.');
+    expect(problem((x) => (x.meta.raisedBecause = ''))).toMatch(/meta\.raisedBecause/);
   });
 });

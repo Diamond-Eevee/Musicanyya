@@ -68,16 +68,19 @@ and Web MIDI.
 
 ### Testing and Quality Gates
 
-Three tiers (constitution "Test tiers"): after a change, the affected unit tests and e2e specs
-(`pnpm exec playwright test tests/e2e/<spec>.ts --project=chromium`); at a checkpoint,
-`pnpm lint && pnpm typecheck && pnpm test && pnpm test:e2e:smoke` (the `@smoke` tests, about 15 s); once before
-merge, the full gate: the same plus `pnpm test:e2e` (every browser project, 15-30 min).
+Three tiers (constitution "Test tiers"): after a change, the affected unit tests (and an e2e spec only when the
+change edits it: `pnpm exec playwright test tests/e2e/<spec>.ts --project=chromium`); at a checkpoint,
+`pnpm lint && pnpm typecheck && pnpm test && pnpm test:e2e:smoke` (the `@smoke` tests, about 15 s) plus the changed
+features' e2e specs on chromium; exactly once, as the last step before merge, the full gate: the same plus
+`pnpm test:e2e` (every browser project, then Electron, 15-40 min). After that, failures and later changes are
+checked by rerunning only the affected specs and the smoke set.
 
 ### Practice Score Library
 
 Regenerate the bundled library after editing its content:
 `pnpm library:exercises` (the steps of every key, the key changes and the chord drills from `content/library/exercises/*.json`), then
 `pnpm library:songs` (the songs from `content/library/songs/*.json` and the approved public-domain sources), then
+`pnpm library:lessons` (the Basics and chord lessons from `content/library/lessons/*.json`), then
 `pnpm library:engrave` (completes hand-written repertoire files with beams and accidentals in place), then
 `pnpm library:index` (rebuilds `public/library/index.json` from the files on disk).
 

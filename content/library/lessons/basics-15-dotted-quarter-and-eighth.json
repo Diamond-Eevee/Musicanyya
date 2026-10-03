@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "basics/dotted-quarter-and-eighth",
+  "title": "Dotted quarter and eighth",
+  "section": "basics",
+  "stepOrder": 150,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["note-values"],
+  "trains": "A dotted quarter lasts a beat and a half; the eighth after it takes the last half beat, so the two fill two beats. Count \"1 and 2 and\": play on 1, hold through its \"and\" and beat 2, play the eighth on the \"and\" of 2. The app checks only when notes start.",
+  "scoreText": "Dotted quarter: a beat and a half, then a short eighth.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": ["dotted-quarter"],
+    "singlePitch": true
+  },
+  "bars": [
+    {
+      "rh": "C4:q@1 C4:q C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q. C4:e C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q. C4:e C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q. C4:e C4:q. C4:e",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q. C4:e C4:q. C4:e",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:w",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

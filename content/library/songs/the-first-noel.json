@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "id": "learning/keys/d-major/song-the-first-noel",
+  "title": "Song - The First Noel",
+  "source": "mutopia-1243-first-noel",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "D",
+    "mode": "major",
+    "fifths": 2
+  },
+  "tempoBpm": 96,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "degree": "I"
+    },
+    {
+      "bar": 3,
+      "degree": "IV"
+    },
+    {
+      "bar": 4,
+      "degree": "I"
+    },
+    {
+      "bar": 5,
+      "degree": "IV"
+    },
+    {
+      "bar": 6,
+      "degree": "I"
+    },
+    {
+      "bar": 7,
+      "degree": "V"
+    },
+    {
+      "bar": 8,
+      "degree": "I"
+    },
+    {
+      "bar": 9,
+      "degree": "I"
+    },
+    {
+      "bar": 10,
+      "degree": "I"
+    },
+    {
+      "bar": 11,
+      "degree": "IV"
+    },
+    {
+      "bar": 12,
+      "degree": "I"
+    },
+    {
+      "bar": 13,
+      "degree": "IV"
+    },
+    {
+      "bar": 14,
+      "degree": "I"
+    },
+    {
+      "bar": 15,
+      "degree": "V"
+    },
+    {
+      "bar": 16,
+      "degree": "I"
+    },
+    {
+      "bar": 17,
+      "degree": "I"
+    },
+    {
+      "bar": 18,
+      "degree": "I"
+    },
+    {
+      "bar": 19,
+      "degree": "IV"
+    },
+    {
+      "bar": 20,
+      "degree": "I"
+    },
+    {
+      "bar": 21,
+      "degree": "vi"
+    },
+    {
+      "bar": 22,
+      "degree": "I"
+    },
+    {
+      "bar": 23,
+      "degree": "V"
+    },
+    {
+      "bar": 24,
+      "degree": "I"
+    }
+  ],
+  "leftHand": {
+    "pattern": "waltz"
+  },
+  "meta": {
+    "level": "intermediate",
+    "trains": "The First Noel in D major and 3/4, over a waltz left hand (the bass on beat 1, the chord on beats 2 and 3), one chord a bar (D, G, A, Bm).",
+    "composer": "Traditional (English)",
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-10-03"
+  }
+}

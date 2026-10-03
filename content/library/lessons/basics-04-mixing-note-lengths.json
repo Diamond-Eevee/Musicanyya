@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "id": "basics/mixing-note-lengths",
+  "title": "Whole, half and quarter",
+  "section": "basics",
+  "stepOrder": 40,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["note-values"],
+  "trains": "No new sign here: whole, half and quarter notes mixed, all on middle C. Keep counting 1 2 3 4 in every bar and hold each note for its full value. The app checks when each note starts, not how long you hold it.",
+  "scoreText": "Count every beat: whole 4, half 2, quarter 1.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": [],
+    "singlePitch": true,
+    "practice": true
+  },
+  "bars": [
+    {
+      "rh": "C4:w@1",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:w",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:h C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:w",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

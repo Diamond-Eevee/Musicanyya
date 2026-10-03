@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "id": "learning/chord-lessons/progressions/twelve-bar-blues-simplified-in-{key}",
+  "title": "Twelve-bar blues in {keyName} (simplified)",
+  "section": "learning/chord-lessons/progressions",
+  "stepOrder": 60,
+  "level": "beginner",
+  "hands": "both",
+  "tags": ["chords", "chord-changes"],
+  "trains": "The twelve-bar blues with three-note chords held a whole bar: four bars of I, two of IV, two of I, then V, IV, I, I. The thumb keeps the keynote from I to IV and back; finger 5 keeps the fifth from I to V. Count the bars. A simpler version of the next lesson.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "commonTones": [
+      {
+        "bar": 5,
+        "beat": 1,
+        "pitch": "C4"
+      },
+      {
+        "bar": 7,
+        "beat": 1,
+        "pitch": "C4"
+      },
+      {
+        "bar": 9,
+        "beat": 1,
+        "pitch": "G4"
+      },
+      {
+        "bar": 11,
+        "beat": 1,
+        "pitch": "C4"
+      }
+    ]
+  },
+  "simplifies": "learning/chord-lessons/progressions/twelve-bar-blues-in-{key}",
+  "departures": [
+    "Three-note chords (I, IV, V) instead of seventh chords.",
+    "One chord a bar, held, with the root alone in the left hand.",
+    "Slower: 60 instead of 72 quarter notes a minute."
+  ],
+  "transpositions": [
+    {
+      "slug": "c-major",
+      "tonic": "C",
+      "mode": "major",
+      "fifths": 0,
+      "interval": "+P1"
+    },
+    {
+      "slug": "g-major",
+      "tonic": "G",
+      "mode": "major",
+      "fifths": 1,
+      "interval": "+P5"
+    }
+  ],
+  "bars": [
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w@5"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w@5"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w@5"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w@5"
+    },
+    {
+      "rh": "{F}<C4 F4 A4>:w@1-4-5",
+      "lh": "F2:w@5"
+    },
+    {
+      "rh": "{F}<C4 F4 A4>:w@1-4-5",
+      "lh": "F2:w@5"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w@5"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w@5"
+    },
+    {
+      "rh": "{G}<B3 D4 G4>:w@1-2-5",
+      "lh": "G2:w@5"
+    },
+    {
+      "rh": "{F}<C4 F4 A4>:w@1-4-5",
+      "lh": "F2:w@5"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w@5"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w@5"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

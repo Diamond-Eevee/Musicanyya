@@ -41,6 +41,8 @@ export interface SourceManifest {
   obtained: string;
   files: SourceFile[];
   approvedByOwner: string;
+  /** source-manifest 1.4.0 (feature 022, FR-034): whether a multi-part version exists, for a later Orchestra. */
+  multiPart?: { available: boolean; where?: string; licence?: string; note?: string };
 }
 
 export class SourceError extends Error {
@@ -64,6 +66,7 @@ const MANIFEST_FIELDS = [
   'obtained',
   'files',
   'approvedByOwner',
+  'multiPart',
 ];
 const FILE_FIELDS = [
   'role',
@@ -124,6 +127,15 @@ export function validateManifest(json: unknown, folder: string): SourceManifest 
   date(m.obtained, 'obtained', fail);
   if (m.approvedByOwner === undefined) fail('approvedByOwner is missing: the owner has not approved this source');
   date(m.approvedByOwner, 'approvedByOwner', fail);
+  if (m.multiPart !== undefined) {
+    const multi = object(m.multiPart, 'multiPart', fail);
+    for (const key of Object.keys(multi))
+      if (!['available', 'where', 'licence', 'note'].includes(key)) fail(`multiPart has an unknown field "${key}"`);
+    if (typeof multi.available !== 'boolean') fail('multiPart.available must be true or false');
+    if (multi.where !== undefined) url(multi.where, 'multiPart.where', fail);
+    if (multi.licence !== undefined) text(multi.licence, 'multiPart.licence', fail, 100);
+    if (multi.note !== undefined) text(multi.note, 'multiPart.note', fail, 300);
+  }
   if (!Array.isArray(m.files) || m.files.length === 0) fail('files must list at least one file');
   for (const [i, f] of (m.files as unknown[]).entries()) validateFile(f, i, fail);
   return m as unknown as SourceManifest;

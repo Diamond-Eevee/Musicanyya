@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "basics/quarter-rests",
+  "title": "Quarter rests",
+  "section": "basics",
+  "stepOrder": 50,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["rests"],
+  "trains": "A rest is silence that still has a length. The quarter rest, a zigzag sign, lasts one beat: lift your thumb and keep counting. In Play mode a key pressed during a rest counts as an extra note.",
+  "scoreText": "Quarter rest = one beat of silence. Count it.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": ["quarter-rest"],
+    "singlePitch": true
+  },
+  "bars": [
+    {
+      "rh": "C4:q@1 C4:q C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q r:q C4:q r:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q C4:q r:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:q r:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "r:q C4:q r:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q r:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q r:q C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q C4:h",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

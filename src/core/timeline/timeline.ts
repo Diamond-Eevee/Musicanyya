@@ -1,3 +1,4 @@
+import { STACCATO_SOUNDING_FRACTION } from '../defaults.js';
 import type { LoadNoticeCode } from '../score/load-report.js';
 import type { Note, NoteId, Score } from '../score/model.js';
 import { buildTempoMap } from '../tempo/tempo-map.js';
@@ -164,7 +165,7 @@ export function buildTimeline(score: Score): TimelineResult {
       key,
       velocity,
       startTick: chain.startTick,
-      endTick: chain.endTick,
+      endTick: soundingEndTick(chain, meta.note),
     });
   }
 
@@ -203,4 +204,15 @@ function shiftEvents(events: SoundingEvent[], by: number): SoundingEvent[] {
 function shiftSpans(spans: VisualSpan[], by: number): VisualSpan[] {
   if (by === 0) return spans;
   return spans.map((s) => ({ ...s, startTick: s.startTick + by, endTick: s.endTick + by }));
+}
+
+/** Where a chain stops sounding: its written end, or - for a lone staccato note - STACCATO_SOUNDING_FRACTION of its
+ *  length, at least one tick (feature 022 research R9). A tie chain ignores staccato; visual spans never use this. */
+function soundingEndTick(
+  chain: { startTick: number; endTick: number; members: readonly unknown[] },
+  head: Note,
+): number {
+  if (!head.staccato || chain.members.length !== 1) return chain.endTick;
+  const length = chain.endTick - chain.startTick;
+  return chain.startTick + Math.max(1, Math.round(length * STACCATO_SOUNDING_FRACTION));
 }

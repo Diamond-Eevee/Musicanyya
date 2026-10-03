@@ -44,13 +44,22 @@ const KEY_CHANGE_SECTIONS: readonly LibrarySectionDefinition[] = KEY_CHANGE_PAIR
 }));
 
 export const LIBRARY_SECTIONS: readonly LibrarySectionDefinition[] = [
+  // Feature 022 (data-model §2): Basics is where a beginner starts, so it comes first
+  {
+    id: 'basics',
+    title: 'Basics',
+    description: 'Reading music from the first note: note lengths, rests, ties, slurs, time.',
+    path: 'basics',
+    parent: null,
+    order: 1,
+  },
   {
     id: 'learning',
     title: 'Learning',
     description: 'Exercises written for this app.',
     path: 'learning',
     parent: null,
-    order: 1,
+    order: 2,
   },
   {
     id: 'learning/keys',
@@ -72,13 +81,46 @@ export const LIBRARY_SECTIONS: readonly LibrarySectionDefinition[] = [
     formerIds: ['learning/chords/changes'],
   },
   ...KEY_CHANGE_SECTIONS,
+  // Feature 022 (data-model §2): not learning/chords, which is a former id of Keys (feature 011 FR-020)
+  {
+    id: 'learning/chord-lessons',
+    title: 'Chords',
+    description: 'Chords one at a time, switching between two, then progressions.',
+    path: 'learning/chord-lessons',
+    parent: 'learning',
+    order: 3,
+  },
+  {
+    id: 'learning/chord-lessons/single-chords',
+    title: 'One chord',
+    description: 'One chord type and its inversions.',
+    path: 'learning/chord-lessons/single-chords',
+    parent: 'learning/chord-lessons',
+    order: 1,
+  },
+  {
+    id: 'learning/chord-lessons/switches',
+    title: 'Chord switches',
+    description: 'From one chord to another with the least movement.',
+    path: 'learning/chord-lessons/switches',
+    parent: 'learning/chord-lessons',
+    order: 2,
+  },
+  {
+    id: 'learning/chord-lessons/progressions',
+    title: 'Progressions',
+    description: 'Common chord sequences, in several keys.',
+    path: 'learning/chord-lessons/progressions',
+    parent: 'learning/chord-lessons',
+    order: 3,
+  },
   {
     id: 'repertoire',
     title: 'Repertoire',
     description: 'Pieces.',
     path: 'repertoire',
     parent: null,
-    order: 2,
+    order: 3,
   },
   {
     id: 'repertoire/beginner',

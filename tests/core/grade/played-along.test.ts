@@ -4,6 +4,10 @@ import type { TickedMessage } from '../../../src/core/grade/match.js';
 import { matchPerformance } from '../../../src/core/grade/match.js';
 import type { ExpectedNote } from '../../../src/core/grade/types.js';
 import type { ResolvedWindow } from '../../../src/core/grade/windows.js';
+import { buildScore } from '../../../src/core/musicxml/build.js';
+import { readXml } from '../../../src/core/musicxml/read.js';
+import { type WriteNote, writeScoreXml } from '../../../src/core/musicxml/write.js';
+import { buildTimeline } from '../../../src/core/timeline/timeline.js';
 import { loadFixture } from './helpers.js';
 
 const RIGHT = { preset: 'right' as const, partIndex: 0, staves: [1] };
@@ -129,5 +133,75 @@ describe('played-along spans and match pass 3 (T093, research R-18, FR-024)', ()
     expect(claims).toEqual([]);
     expect(playedAlong).toEqual([]);
     expect(extraMessageIndices).toEqual([0]);
+  });
+
+  // Feature 022 (research R9, constitution audit T072 F1): staccato shortens how long a note *sounds*, never how long
+  // it may be played along - an ungraded staccato note keeps its written length, as grading did before staccato sounded.
+  it('an ungraded staccato note stays played along for its whole written length', () => {
+    const quarter = (step: string, octave: number, staff: number, extra: Partial<WriteNote> = {}): WriteNote => ({
+      pitch: { step, octave },
+      duration: 1,
+      voice: String(staff),
+      type: 'quarter',
+      staff,
+      ...extra,
+    });
+    const xml = writeScoreXml({
+      parts: [
+        {
+          id: 'P1',
+          name: 'Piano',
+          measures: [
+            {
+              number: '1',
+              attributes: {
+                divisions: 1,
+                time: { beats: '4', beatType: 4 },
+                staves: 2,
+                clefs: [
+                  { number: 1, sign: 'G', line: 2 },
+                  { number: 2, sign: 'F', line: 4 },
+                ],
+              },
+              events: [
+                { kind: 'direction', metronome: { beatUnit: 'quarter', perMinute: 60 }, tempo: 60, placement: 'above' },
+                ...['C', 'D', 'E', 'F'].map((step) => ({ kind: 'note' as const, note: quarter(step, 5, 1) })),
+                { kind: 'backup', duration: 4 },
+                ...['C', 'G', 'C', 'G'].map((step) => ({
+                  kind: 'note' as const,
+                  note: quarter(step, 3, 2, { articulations: ['staccato'] }),
+                })),
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    const { score } = buildScore(readXml(xml).doc);
+    const { timeline } = buildTimeline(score);
+    const quarterTicks = score.ppq;
+    // the left hand sounds short (R9) ...
+    const firstLeft = timeline.events.find((e) => e.key === 48 && e.startTick === 0);
+    expect(firstLeft && firstLeft.endTick - firstLeft.startTick).toBeLessThan(quarterTicks);
+
+    const expected = buildExpectedNotes(score, timeline, RIGHT, null);
+    const spans = buildPlayedAlongSpans(score, timeline, RIGHT, null).filter((s) => s.source === 'ungraded');
+    // ... but each of its notes may be played along until its written end
+    expect(spans.map((s) => [s.key, s.fromTick, s.toTick])).toEqual([
+      [48, 0, quarterTicks],
+      [55, quarterTicks, 2 * quarterTicks],
+      [48, 2 * quarterTicks, 3 * quarterTicks],
+      [55, 3 * quarterTicks, 4 * quarterTicks],
+    ]);
+    // a press of the first left-hand C at three quarters of its written length is played along, not extra
+    const late = on(48, Math.round(0.75 * quarterTicks));
+    const { playedAlong, extraMessageIndices } = matchPerformance(
+      expected,
+      expected.map(() => wide()),
+      [late],
+      spans,
+    );
+    expect(extraMessageIndices).toEqual([]);
+    expect(playedAlong).toEqual([{ messageIndex: 0, source: 'ungraded' }]);
   });
 });

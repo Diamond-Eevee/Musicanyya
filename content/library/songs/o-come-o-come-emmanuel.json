@@ -54,6 +54,7 @@
   ],
   "meta": {
     "level": "intermediate",
+    "raisedBecause": "Long runs of eighth notes in the melody, five and more in a row.",
     "trains": "A modal hymn tune in E minor over block chords (Em, Am, B, D) in the left.",
     "composer": "Traditional (tune \"Veni Emmanuel\")",
     "reviewedBy": "claude-sonnet-5",

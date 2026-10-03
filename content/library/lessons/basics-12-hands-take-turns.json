@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "id": "basics/hands-take-turns",
+  "title": "Hands take turns",
+  "section": "basics",
+  "stepOrder": 120,
+  "level": "introduction",
+  "hands": "both",
+  "tags": ["reading"],
+  "trains": "Now both staves are used. The right hand plays a bar, then rests while the left hand answers in the bass clef. Keep counting through the bars you rest: a whole rest means that hand waits for the whole bar.",
+  "scoreText": "Right hand, then left hand: one bar each.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": ["hands-alternate"]
+  },
+  "bars": [
+    {
+      "rh": "C4:q@1 D4:q@2 E4:q@3 F4:q@4",
+      "lh": "R:w"
+    },
+    {
+      "rh": "R:w",
+      "lh": "C3:q@5 D3:q@4 E3:q@3 F3:q@2"
+    },
+    {
+      "rh": "G4:w@5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "R:w",
+      "lh": "G3:w@1"
+    },
+    {
+      "rh": "G4:q F4:q E4:q D4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "R:w",
+      "lh": "G3:q F3:q E3:q D3:q"
+    },
+    {
+      "rh": "C4:w",
+      "lh": "R:w"
+    },
+    {
+      "rh": "R:w",
+      "lh": "C3:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

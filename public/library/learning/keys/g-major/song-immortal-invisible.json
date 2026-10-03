@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "title": "Song - Immortal, Invisible",
+  "composer": "Traditional (Welsh, tune \"St. Denio\")",
+  "subtitle": "Arrangement: the tune with left-hand waltz accompaniment (bass, then chord, chord)",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "intermediate",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "Immortal, Invisible in G major and 3/4, with a one-beat pickup, over a waltz left hand (the bass on beat 1, the chord on beats 2 and 3), one chord a bar (C, D, G, Em).",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5.5",
+    "created": "2026-10-03",
+    "basedOn": "mutopia-1291-st-denio: St. Denio (hymntune: Immortal, Invisible), SATB, sounding G major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1291)",
+    "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1291), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": ["The left-hand waltz accompaniment (bass, then chord, chord) is our own (CC0)."],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03",
+  "step": "song",
+  "stepOrder": 60
+}

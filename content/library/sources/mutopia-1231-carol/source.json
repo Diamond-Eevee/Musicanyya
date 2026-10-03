@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "id": "mutopia-1231-carol",
+  "work": "Carol (hymntune, R. S. Willis: It Came Upon the Midnight Clear), SATB, B-flat major; the tune is in the Soprano",
+  "edition": "www.cyberhymnal.org",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1231",
+  "identifier": "Mutopia-2008/01/13-1231",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond by Steve Dunlop for the Mutopia Project from www.cyberhymnal.org, and placed in the public domain by the typesetter. The piece page states \"Public Domain\" (checked 2026-10-04).",
+  "obtained": "2026-10-04",
+  "approvedByOwner": "2026-10-03",
+  "multiPart": {
+    "available": true,
+    "where": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1231",
+    "licence": "public-domain",
+    "note": "SATB, the tune in the Soprano: the other voices are a ready multi-part version for a later Orchestra."
+  },
+  "files": [
+    {
+      "role": "notation",
+      "path": "carol.ly",
+      "url": "https://www.mutopiaproject.org/ftp/WillisRS/carol/carol.ly",
+      "sha256": "721e2c5bf7efe5cd0038c5ad6e62bcf591be2af910c74d5aa2b2e672c7f256ed",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "carol.mid",
+      "url": "https://www.mutopiaproject.org/ftp/WillisRS/carol/carol.mid",
+      "sha256": "0e1f08dd5e6840949cfa700c026643d6d748402d1b83336a9a723e94db1e8104",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "id": "learning/chord-lessons/single-chords/minor-chord-inversions",
+  "title": "Minor chord inversions",
+  "section": "learning/chord-lessons/single-chords",
+  "stepOrder": 40,
+  "level": "beginner",
+  "hands": "right",
+  "tags": ["chords", "inversions"],
+  "trains": "A minor chord can stand on any of its notes too. Am/E has E at the bottom, Am/C has C; the shape climbs or falls while the chord stays A minor. Listen for the same colour in every position.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "A",
+    "mode": "minor",
+    "fifths": 0
+  },
+  "claims": {},
+  "bars": [
+    {
+      "rh": "{Am/E}<E4 A4 C5>:h@1-3-5 {Am}<A4 C5 E5>:h@1-3-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{Am/C}<C5 E5 A5>:h@1-2-5 {Am}<A4 C5 E5>:h@1-3-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{Am/E}<E4 A4 C5>:w@1-3-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{Am}<A4 C5 E5>:h@1-3-5 {Am/E}<E4 A4 C5>:h@1-3-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{Am/C}<C4 E4 A4>:h@1-2-5 {Am/E}<E4 A4 C5>:h@1-3-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{Am/C}<C4 E4 A4>:w@1-2-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{Am/E}<E4 A4 C5>:h@1-3-5 {Am/C}<C4 E4 A4>:h@1-2-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{Am}<A4 C5 E5>:w@1-3-5",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

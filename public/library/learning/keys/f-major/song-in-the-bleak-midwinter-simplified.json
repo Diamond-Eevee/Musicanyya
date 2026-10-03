@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "title": "Song - In the Bleak Midwinter (simplified)",
+  "composer": "G. Holst (tune \"Cranham\")",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "In the Bleak Midwinter in F major, with a one-beat pickup and dotted rhythms, over one held block chord a bar in the left (F, B♭, C).",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5.5",
+    "created": "2026-10-03",
+    "basedOn": "mutopia-1233-cranham: Cranham (hymntune, G. Holst: In the Bleak Midwinter), SATB, F major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233)",
+    "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": [
+    "Left-hand block chords are our own (CC0).",
+    "Simplified: one block chord a bar, held, with the three primary chords only (F, B♭, C), instead of the full version's moving left hand.",
+    "Slower: 60 instead of 72 quarter notes a minute."
+  ],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03",
+  "step": "song",
+  "stepOrder": 40,
+  "simplifies": "learning/keys/f-major/song-in-the-bleak-midwinter"
+}

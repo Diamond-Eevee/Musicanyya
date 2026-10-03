@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "title": "Song - Passion Chorale (simplified)",
+  "composer": "H. L. Hassler (tune \"Passion Chorale\", as J. S. Bach set it)",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "The Passion Chorale in D minor, with its one-beat pickup, over one held block chord a bar in the left (Dm, Gm, C).",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5.5",
+    "created": "2026-10-03",
+    "basedOn": "mutopia-107-passion-chorale: Choral \"O Haupt voll Blut und Wunden\" from the St Matthew Passion (J. S. Bach), SATB with piano, D minor; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=107)",
+    "note": "Melody from Edition Peters (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=107), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": [
+    "Left-hand block chords are our own (CC0).",
+    "Simplified: one block chord a bar, held, with the chords of a beginner minor song only (Dm, Gm, C), instead of the full version's moving left hand.",
+    "Slower: 60 instead of 72 quarter notes a minute.",
+    "The fermatas at the ends of the phrases are left out: the music goes on in time."
+  ],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03",
+  "step": "song",
+  "stepOrder": 10,
+  "simplifies": "learning/keys/d-minor/song-passion-chorale"
+}

@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "id": "learning/chord-lessons/single-chords/diminished-and-augmented",
+  "title": "Diminished and augmented",
+  "section": "learning/chord-lessons/single-chords",
+  "stepOrder": 70,
+  "level": "intermediate",
+  "raisedBecause": "Diminished and augmented chords bring tense sounds and new hand shapes, and come after major and minor chords are secure; the notes alone measure Beginner.",
+  "hands": "both",
+  "tags": ["chords"],
+  "trains": "B° (diminished: two minor thirds, B D F) leans into C; C+ (augmented: two major thirds, C E G♯) pushes its G♯ up to A in F. Every finger moves a step at most; the left hand plays the bass.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {},
+  "bars": [
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w@5"
+    },
+    {
+      "rh": "{B°}<B3 D4 F4>:w@1-3-5",
+      "lh": "B2:w@5"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{C+}<C4 E4 G#4>:w@1-3-5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{F}<C4 F4 A4>:w@1-4-5",
+      "lh": "F2:w@5"
+    },
+    {
+      "rh": "{B°}<D4 F4 B4>:w@1-2-5",
+      "lh": "B2:w"
+    },
+    {
+      "rh": "{C+}<E4 G#4 C5>:w@1-3-5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "{C}<E4 G4 C5>:w@1-2-5",
+      "lh": "C3:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

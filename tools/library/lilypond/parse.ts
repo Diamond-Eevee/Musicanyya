@@ -145,6 +145,7 @@ const CONTEXT_TYPES = new Set([
   'ChoirStaff',
   'Dynamics',
   'Lyrics',
+  'ChordNames',
 ]);
 
 /** Post-event commands after a note (ignored by the comparator; the articulations mark a note that may sound shorter). */
@@ -412,8 +413,13 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
       const key = expect('word');
       expect('symbol', '=');
       const v = peek();
+      const earlier = v.type === 'command' ? into[v.value.slice(1)] : undefined;
       if (v.type === 'string') into[key.value] = next().value;
-      else if (v.type === 'command' && v.value === '\\markup') {
+      else if (earlier !== undefined) {
+        // a field naming an earlier one takes its value (022 T076, Leoni: mutopiatitle = \title)
+        next();
+        into[key.value] = earlier;
+      } else if (v.type === 'command' && v.value === '\\markup') {
         next();
         skipMarkup();
       } else if (v.type === 'word' || v.type === 'number' || v.type === 'scheme') next();
@@ -795,6 +801,12 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
       case '\\addlyrics':
         // the lexer emptied the lyric block: words are no music
         return { kind: 'seq', items: [parseMusic()], pos: p };
+      case '\\chordmode':
+        // the lexer emptied the chord-name block (022 T076): it is shown by a ChordNames context, which read.ts skips
+        return { kind: 'seq', items: [parseMusic()], pos: p };
+      case '\\chords':
+        // \chords { ... } is \new ChordNames \chordmode { ... }
+        return { kind: 'context', type: 'ChordNames', body: parseMusic(), pos: p };
       case '\\lyricsto': {
         const voice = next();
         if (voice.type !== 'string' && voice.type !== 'word') unsupported(voice, '\\lyricsto voice name');

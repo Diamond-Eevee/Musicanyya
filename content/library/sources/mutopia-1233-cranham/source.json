@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "id": "mutopia-1233-cranham",
+  "work": "Cranham (hymntune, G. Holst: In the Bleak Midwinter), SATB, F major; the tune is in the Soprano",
+  "edition": "www.cyberhymnal.org",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233",
+  "identifier": "Mutopia-2008/01/13-1233",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond by Steve Dunlop for the Mutopia Project from www.cyberhymnal.org, and placed in the public domain by the typesetter. The piece page states \"Public Domain\" (checked 2026-10-04).",
+  "obtained": "2026-10-04",
+  "approvedByOwner": "2026-10-03",
+  "multiPart": {
+    "available": true,
+    "where": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233",
+    "licence": "public-domain",
+    "note": "SATB, the tune in the Soprano: the other voices are a ready multi-part version for a later Orchestra."
+  },
+  "files": [
+    {
+      "role": "notation",
+      "path": "cranham.ly",
+      "url": "https://www.mutopiaproject.org/ftp/HolstGT/cranham/cranham.ly",
+      "sha256": "e5ffd19b9aab0b5789b120e633151a8d5d8b97786646ead8cfb85b321fb073a0",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "cranham.mid",
+      "url": "https://www.mutopiaproject.org/ftp/HolstGT/cranham/cranham.mid",
+      "sha256": "8bdd6cb58b8bef36cfa18ae2046128ae3faddf9ed2be1341d3fa09ee9aa745e1",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

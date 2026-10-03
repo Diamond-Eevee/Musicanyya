@@ -269,7 +269,8 @@ describe('feature 011: rule sets, supersedes and the Introduction level (contrac
   const theoryCheck = (ruleSet: string) => ({ method: 'theory', ruleSet, expectedDifferences: 0 });
   const withChecks = (checks: unknown[]) => JSON.parse(JSON.stringify({ ...record(), claim: 'exercise', checks }));
 
-  it.each(['exercise-theory-v1', 'exercise-theory-v2', 'exercise-theory-v3', 'song-chords-v1'])(
+  // song-chords-v2: feature 022, audit-record 1.5.0
+  it.each(['exercise-theory-v1', 'exercise-theory-v2', 'exercise-theory-v3', 'song-chords-v1', 'song-chords-v2'])(
     'accepts the theory rule set %s',
     (ruleSet) => {
       expect(() => validateRecord(withChecks([theoryCheck(ruleSet)]), 'x.json')).not.toThrow();
@@ -412,5 +413,90 @@ describe('exercise-theory-v3: the melody hand (feature 014, contract audit-recor
   it('refuses a melody claim under a rule set before v3', () => {
     expect(() => theoryDifferences(xmlOf(), melodyClaim, 'exercise-theory-v2')).toThrow(ClaimError);
     expect(() => theoryDifferences(xmlOf(), melodyClaim, 'exercise-theory-v2')).toThrow(/exercise-theory-v3/);
+  });
+});
+
+// Feature 022 (contract audit-record 1.5.0): lesson-claims-v1 carries the lesson's claims and its teaching order; it
+// reads the other Basics records (those earlier in the order) from the run context.
+describe('022: lesson-claims-v1 records (audit-record 1.5.0)', () => {
+  const claims = { introduces: ['staff', 'treble-clef', 'middle-c', 'quarter', 'metre-4-4'], singlePitch: true };
+  const lessonCheck = (extra: Record<string, unknown> = {}) => ({
+    method: 'theory',
+    ruleSet: 'lesson-claims-v1',
+    expectedDifferences: 0,
+    claims,
+    teachingOrder: 10,
+    ...extra,
+  });
+  const lessonRecord = (itemId: string, check: Record<string, unknown>) =>
+    JSON.parse(JSON.stringify({ ...record(), itemId, claim: 'exercise', checks: [check] })) as AuditRecord;
+
+  it('accepts a lesson-claims-v1 check with claims and teachingOrder', () => {
+    const r = validateRecord(lessonRecord('basics/one', lessonCheck()), 'basics/one.json');
+    expect(r.checks[0]).toEqual(lessonCheck());
+  });
+
+  it('rejects a lesson-claims-v1 check without claims or teachingOrder, and claims on another rule set', () => {
+    const { claims: _c, ...noClaims } = lessonCheck();
+    expect(() => validateRecord(lessonRecord('basics/one', noClaims), 'x.json')).toThrow(/claims/);
+    const { teachingOrder: _t, ...noOrder } = lessonCheck();
+    expect(() => validateRecord(lessonRecord('basics/one', noOrder), 'x.json')).toThrow(/teachingOrder/);
+    expect(() =>
+      validateRecord(lessonRecord('basics/one', lessonCheck({ ruleSet: 'exercise-theory-v2' })), 'x.json'),
+    ).toThrow(/claims/);
+    expect(() =>
+      validateRecord(
+        lessonRecord('basics/one', lessonCheck({ claims: { introduces: ['quarter'], extra: 1 } })),
+        'x.json',
+      ),
+    ).toThrow(/extra/);
+  });
+
+  it('re-runs the check against the item, with the earlier lessons of the run context', () => {
+    // one bar of four middle Cs with the explanation printed above it (authored for this test, CC0)
+    const xml = `<?xml version="1.0" encoding="UTF-8"?><score-partwise version="4.0"><part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list><part id="P1"><measure number="1"><attributes><divisions>1</divisions><key><fifths>0</fifths></key><time><beats>4</beats><beat-type>4</beat-type></time><staves>2</staves><clef number="1"><sign>G</sign><line>2</line></clef><clef number="2"><sign>F</sign><line>4</line></clef></attributes><direction placement="above"><direction-type><words font-style="italic">Four beats.</words></direction-type><staff>1</staff></direction>${'<note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>'.repeat(4)}<backup><duration>4</duration></backup><note><rest measure="yes"/><duration>4</duration><voice>5</voice><type>whole</type><staff>2</staff></note></measure></part></score-partwise>`;
+    write('library/basics/one.musicxml', xml);
+    write('library/basics/one.json', JSON.stringify(SIDECAR));
+    write('library/basics/two.musicxml', xml);
+    write('library/basics/two.json', JSON.stringify(SIDECAR));
+    const first = lessonRecord('basics/one', lessonCheck());
+    const second = lessonRecord(
+      'basics/two',
+      lessonCheck({ claims: { introduces: [], practice: true, singlePitch: true }, teachingOrder: 20 }),
+    );
+    expect(runRecord(first, ctx)[0]).toMatchObject({ reproduced: true, differences: [] });
+    // the practice lesson uses what the first one introduced: only the run context's records can tell
+    expect(runRecord(second, { ...ctx, records: [first, second] })[0]).toMatchObject({ reproduced: true });
+    const alone = runRecord(second, ctx)[0];
+    expect(alone?.reproduced).toBe(false);
+    expect(alone?.differences.map((d) => (d as { code?: string }).code)).toContain('not-introduced');
+  });
+});
+
+// Feature 022 (contract audit-record 1.5.0): chord-lessons-v1 carries optional claims (common tones, omitted tones).
+describe('022: chord-lessons-v1 records (audit-record 1.5.0)', () => {
+  const chordRecord = (check: Record<string, unknown>) =>
+    JSON.parse(
+      JSON.stringify({ ...record(), itemId: 'learning/chord-lessons/switches/x', claim: 'exercise', checks: [check] }),
+    ) as AuditRecord;
+  const base = { method: 'theory', ruleSet: 'chord-lessons-v1', expectedDifferences: 0 };
+
+  it('accepts a chord-lessons-v1 check with or without claims', () => {
+    expect(() => validateRecord(chordRecord(base), 'x.json')).not.toThrow();
+    const claims = {
+      commonTones: [{ bar: 2, beat: 1, pitch: 'C5' }],
+      omit: [{ bar: 3, beat: 1, tones: ['5'] }],
+    };
+    expect(validateRecord(chordRecord({ ...base, claims }), 'x.json').checks[0]).toEqual({ ...base, claims });
+  });
+
+  it('rejects malformed claims and a teaching order', () => {
+    expect(() => validateRecord(chordRecord({ ...base, claims: { introduces: ['chord'] } }), 'x.json')).toThrow(
+      /introduces/,
+    );
+    expect(() =>
+      validateRecord(chordRecord({ ...base, claims: { omit: [{ bar: 1, beat: 1, tones: ['9'] }] } }), 'x.json'),
+    ).toThrow(/omit/);
+    expect(() => validateRecord(chordRecord({ ...base, teachingOrder: 10 }), 'x.json')).toThrow(/teachingOrder/);
   });
 });

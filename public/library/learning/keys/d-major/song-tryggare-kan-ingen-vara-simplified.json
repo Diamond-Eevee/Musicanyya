@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "title": "Song - Tryggare kan ingen vara (simplified)",
+  "composer": "Traditional (Swedish)",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "Tryggare kan ingen vara (\"Children of the Heavenly Father\") in D major and 3/4, with a one-beat pickup of two eighths, over one held block chord a bar in the left (D, G, A).",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5.5",
+    "created": "2026-10-03",
+    "basedOn": "mutopia-1299-tryggare-kan-ingen-vara: Tryggare kan ingen vara (hymntune), SATB, D major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299)",
+    "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": [
+    "Left-hand block chords are our own (CC0).",
+    "Simplified: one block chord a bar, held, with the three primary chords only (D, G, A), instead of the full version's moving left hand.",
+    "Slower: 80 instead of 96 quarter notes a minute."
+  ],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03",
+  "step": "song",
+  "stepOrder": 40,
+  "simplifies": "learning/keys/d-major/song-tryggare-kan-ingen-vara"
+}

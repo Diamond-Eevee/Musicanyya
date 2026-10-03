@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "id": "learning/keys/b-flat-major/song-it-came-upon-the-midnight-clear-simplified",
+  "title": "Song - It Came Upon the Midnight Clear (simplified)",
+  "source": "mutopia-1231-carol",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "Bb",
+    "mode": "major",
+    "fifths": -2
+  },
+  "tempoBpm": 72,
+  "chords": [
+    {
+      "bar": 0,
+      "degree": "I"
+    },
+    {
+      "bar": 1,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "degree": "I"
+    },
+    {
+      "bar": 3,
+      "degree": "IV"
+    },
+    {
+      "bar": 4,
+      "degree": "V"
+    },
+    {
+      "bar": 5,
+      "degree": "I"
+    },
+    {
+      "bar": 6,
+      "degree": "I"
+    },
+    {
+      "bar": 7,
+      "degree": "V"
+    },
+    {
+      "bar": 8,
+      "degree": "I"
+    },
+    {
+      "bar": 9,
+      "degree": "I"
+    },
+    {
+      "bar": 10,
+      "degree": "IV"
+    },
+    {
+      "bar": 11,
+      "degree": "V"
+    },
+    {
+      "bar": 12,
+      "degree": "V"
+    },
+    {
+      "bar": 13,
+      "degree": "I"
+    },
+    {
+      "bar": 14,
+      "degree": "I"
+    },
+    {
+      "bar": 15,
+      "degree": "V"
+    },
+    {
+      "bar": 16,
+      "degree": "I"
+    }
+  ],
+  "simplifies": "learning/keys/b-flat-major/song-it-came-upon-the-midnight-clear",
+  "meta": {
+    "level": "beginner",
+    "trains": "It Came Upon the Midnight Clear in B♭ major and 6/8, with an eighth-note pickup, over one held block chord a bar in the left (B♭, E♭, F).",
+    "composer": "R. S. Willis (tune \"Carol\")",
+    "departures": [
+      "Simplified: one block chord a bar, held, with the three primary chords only (B♭, E♭, F), instead of the full version's moving left hand.",
+      "Slower: 72 instead of 84 quarter notes a minute."
+    ],
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-10-03"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "id": "learning/keys/g-major/song-immortal-invisible",
+  "title": "Song - Immortal, Invisible",
+  "source": "mutopia-1291-st-denio",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "G",
+    "mode": "major",
+    "fifths": 1
+  },
+  "tempoBpm": 104,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "IV"
+    },
+    {
+      "bar": 2,
+      "degree": "V"
+    },
+    {
+      "bar": 3,
+      "degree": "I"
+    },
+    {
+      "bar": 4,
+      "degree": "I"
+    },
+    {
+      "bar": 5,
+      "degree": "IV"
+    },
+    {
+      "bar": 6,
+      "degree": "V"
+    },
+    {
+      "bar": 7,
+      "degree": "I"
+    },
+    {
+      "bar": 8,
+      "degree": "I"
+    },
+    {
+      "bar": 9,
+      "degree": "I"
+    },
+    {
+      "bar": 10,
+      "degree": "vi"
+    },
+    {
+      "bar": 11,
+      "degree": "I"
+    },
+    {
+      "bar": 12,
+      "degree": "V"
+    },
+    {
+      "bar": 13,
+      "degree": "IV"
+    },
+    {
+      "bar": 14,
+      "degree": "V"
+    },
+    {
+      "bar": 15,
+      "degree": "I"
+    },
+    {
+      "bar": 16,
+      "degree": "I"
+    }
+  ],
+  "leftHand": {
+    "pattern": "waltz"
+  },
+  "meta": {
+    "level": "intermediate",
+    "trains": "Immortal, Invisible in G major and 3/4, with a one-beat pickup, over a waltz left hand (the bass on beat 1, the chord on beats 2 and 3), one chord a bar (C, D, G, Em).",
+    "composer": "Traditional (Welsh, tune \"St. Denio\")",
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-10-03"
+  }
+}

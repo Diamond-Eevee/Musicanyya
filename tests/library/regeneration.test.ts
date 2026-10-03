@@ -7,6 +7,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
 import { buildExercises } from '../../tools/library/build-exercises.js';
+import { buildLessons } from '../../tools/library/build-lessons.js';
 import { buildSongs } from '../../tools/library/build-songs.js';
 import { main as orchestraMain } from '../../tools/library/orchestra/cli.js';
 
@@ -45,6 +46,39 @@ describe('regenerating the shelf on another day', () => {
 
     for (const file of after) {
       const now = fs.readFileSync(path.join(temp, file), 'utf8');
+      const was = fs.readFileSync(path.join(committed, file), 'utf8');
+      if (file.endsWith('.json')) expect(JSON.parse(now), file).toEqual(JSON.parse(was));
+      else expect(now, file).toBe(was);
+    }
+  });
+});
+
+// Feature 022 (contract lesson-definition 1.0.0 §4 step 4): the Basics and chord lessons are generated too. Regenerating
+// them on another day writes exactly the committed files of their folders, and nothing else.
+describe('regenerating every lesson on another day', () => {
+  const lessonFolders = ['basics', 'learning/chord-lessons'];
+  const contentDir = path.join(root, 'content/library/lessons');
+
+  it('gives back every lesson item exactly (MusicXML byte for byte, sidecars as data)', async () => {
+    const lessonTemp = path.join(temp, 'lessons');
+    for (const folder of lessonFolders) {
+      if (fs.existsSync(path.join(committed, folder)))
+        fs.cpSync(path.join(committed, folder), path.join(lessonTemp, folder), { recursive: true });
+    }
+    const committedFiles = lessonFolders
+      .flatMap((folder) =>
+        fs.existsSync(path.join(committed, folder)) ? filesUnder(path.join(committed, folder)) : [],
+      )
+      .map((f) => path.relative(committed, f).split(path.sep).join('/'))
+      .sort();
+
+    fs.mkdirSync(lessonTemp, { recursive: true });
+    const written = fs.existsSync(contentDir) ? await buildLessons(contentDir, lessonTemp, LATER) : [];
+    const writtenFiles = written.flatMap((f) => [f, f.replace(/\.musicxml$/, '.json')]).sort();
+    expect(writtenFiles).toEqual(committedFiles); // every committed lesson file is generated, nothing more
+
+    for (const file of committedFiles) {
+      const now = fs.readFileSync(path.join(lessonTemp, file), 'utf8');
       const was = fs.readFileSync(path.join(committed, file), 'utf8');
       if (file.endsWith('.json')) expect(JSON.parse(now), file).toEqual(JSON.parse(was));
       else expect(now, file).toBe(was);

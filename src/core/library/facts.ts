@@ -1,5 +1,6 @@
 import type { XmlDocument, XmlElement as XmlElementType } from '@rgrove/parse-xml';
 import { XmlElement, XmlText } from '@rgrove/parse-xml';
+import { INTRODUCTION_DOTTED_RHYTHM_BELOW_QUARTERS, INTRODUCTION_SHORT_NOTE_BELOW_QUARTERS } from '../defaults.js';
 import type { LoadReport } from '../score/load-report.js';
 import type { Score } from '../score/model.js';
 import { audioTimeAtTick } from '../tempo/rate.js';
@@ -212,6 +213,84 @@ function tieChains(
     }
   }
   return { maxChainNotes, maxBarlinesCrossed };
+}
+
+/** True when `quarters` is a power of two (a plain note value, whole down to a 64th) - `2 ** -6 .. 2 ** 3`. */
+function isPlainValue(quarters: number): boolean {
+  for (let k = -6; k <= 3; k++) if (quarters === 2 ** k) return true;
+  return false;
+}
+
+/** A compound metre (6/8, 9/8, 12/8, ...) beats in dotted values: three of its written unit per beat. */
+function isCompound(time: { beats: string; beatType: number }): boolean {
+  const beats = Number.parseInt(time.beats, 10);
+  return Number.isFinite(beats) && beats > 3 && beats % 3 === 0 && time.beatType >= 8;
+}
+
+/** The rhythm facts criterion 29 reads (feature 022 data-model §1): an upbeat, a dotted rhythm, notes shorter than a
+ *  quarter. Values come from each note's written length (`durationTicks`), grace notes excluded, so a tuplet is never
+ *  taken for a dotted value. "Dotted" is one or two dots on a plain value. */
+function rhythmFacts(
+  score: Score,
+  notes: readonly import('../score/model.js').Note[],
+  measureStart: Map<number, number>,
+): { hasPickup: boolean; hasDottedRhythm: boolean; hasShortNotes: boolean } {
+  const first = score.measures[0];
+  const hasPickup = first?.implicit === true && first.lengthTicks < first.nominalTicks;
+
+  const timeAt: { beats: string; beatType: number }[] = [];
+  let current = { beats: '4', beatType: 4 };
+  for (const measure of score.measures) {
+    if (measure.time) current = measure.time;
+    timeAt[measure.index] = current;
+  }
+
+  const ppq = score.ppq;
+  const byVoice = new Map<string, { tick: number; quarters: number; measureIndex: number }[]>();
+  for (const note of notes) {
+    if (note.grace !== null || note.durationTicks <= 0) continue;
+    const key = `${note.staff}:${note.voice}`;
+    const list = byVoice.get(key) ?? [];
+    list.push({
+      tick: (measureStart.get(note.measureIndex) ?? 0) + note.onsetInMeasure,
+      quarters: note.durationTicks / ppq,
+      measureIndex: note.measureIndex,
+    });
+    byVoice.set(key, list);
+  }
+
+  let hasDottedRhythm = false;
+  let hasShortNotes = false;
+  for (const list of byVoice.values()) {
+    list.sort((a, b) => a.tick - b.tick);
+    let previous: { tick: number; quarters: number } | null = null;
+    for (const entry of list) {
+      if (previous && previous.tick === entry.tick) continue; // a chord member: one onset
+      const time = timeAt[entry.measureIndex] ?? { beats: '4', beatType: 4 };
+      const compound = isCompound(time);
+      const unit = 4 / time.beatType; // the metre's written unit, in quarters
+      const dotted = isPlainValue(entry.quarters / 1.5) || isPlainValue(entry.quarters / 1.75);
+      // A dotted value below a dotted half; in a compound metre the dotted beat itself is the metre
+      if (
+        dotted &&
+        entry.quarters < INTRODUCTION_DOTTED_RHYTHM_BELOW_QUARTERS &&
+        !(compound && entry.quarters === 3 * unit)
+      )
+        hasDottedRhythm = true;
+      if (entry.quarters < INTRODUCTION_SHORT_NOTE_BELOW_QUARTERS) {
+        const eighthOfMetre = compound && entry.quarters === unit;
+        const completesDottedQuarter =
+          !compound &&
+          entry.quarters === 0.5 &&
+          previous !== null &&
+          previous.quarters === 1.5 &&
+          previous.tick + previous.quarters * ppq === entry.tick;
+        if (!eighthOfMetre && !completesDottedQuarter) hasShortNotes = true;
+      }
+      previous = entry;
+    }
+  }
+  return { hasPickup, hasDottedRhythm, hasShortNotes };
 }
 
 export interface FactsInput {
@@ -432,6 +511,8 @@ export function deriveFacts(input: FactsInput): ItemFacts {
     measureStart,
   );
 
+  const { hasPickup, hasDottedRhythm, hasShortNotes } = rhythmFacts(score, pitchedNotes, measureStart);
+
   const graceNoteCount = allNotes.filter((n) => n.grace !== null).length;
   const ornamentCount = allNotes.filter((n) => n.ornament !== null).length;
 
@@ -486,6 +567,9 @@ export function deriveFacts(input: FactsInput): ItemFacts {
     ornamentCount,
     repeatKind,
     backwardRepeatCount,
+    hasPickup,
+    hasDottedRhythm,
+    hasShortNotes,
     ...(orchestra.length > 0 ? { orchestra } : {}),
     ...(maxArpeggiatedSpanSemitones !== null ? { maxArpeggiatedSpanSemitones } : {}),
   };

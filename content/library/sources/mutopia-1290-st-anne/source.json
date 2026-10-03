@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "id": "mutopia-1290-st-anne",
+  "work": "St. Anne (hymntune, W. Croft: O God, Our Help in Ages Past), SATB; the tune is in the Soprano",
+  "edition": "www.cyberhymnal.org",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1290",
+  "identifier": "Mutopia-2008/02/19-1290",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond by Steve Dunlop for the Mutopia Project from www.cyberhymnal.org, and placed in the public domain by the typesetter. The piece page states \"Public Domain\" (checked 2026-10-04).",
+  "obtained": "2026-10-04",
+  "approvedByOwner": "2026-10-04",
+  "multiPart": {
+    "available": true,
+    "where": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1290",
+    "licence": "public-domain",
+    "note": "SATB, the tune in the Soprano: the other voices are a ready multi-part version for a later Orchestra."
+  },
+  "files": [
+    {
+      "role": "notation",
+      "path": "st_anne.ly",
+      "url": "https://www.mutopiaproject.org/ftp/CroftW/st_anne/st_anne.ly",
+      "sha256": "27a83b88c50f7c9a3420d03be331c691e8e982f29cb666fd04fbbe10fd8032d8",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "st_anne.mid",
+      "url": "https://www.mutopiaproject.org/ftp/CroftW/st_anne/st_anne.mid",
+      "sha256": "45908040246ba48da3244679674fcf87fa29cce0fb2cc304dc3fb9bc7444014d",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

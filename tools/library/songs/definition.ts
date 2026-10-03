@@ -25,6 +25,9 @@ export interface SongChordEntry {
   until?: string;
 }
 
+export type LeftHandPattern = 'block' | 'waltz' | 'repeated' | 'broken';
+export const LEFT_HAND_PATTERNS: readonly LeftHandPattern[] = ['block', 'waltz', 'repeated', 'broken'];
+
 export interface SongDefinition {
   version: 1;
   /** The item id to write: `learning/keys/<key>/song-<slug>`. */
@@ -40,25 +43,47 @@ export interface SongDefinition {
     bars: string;
     /** A signed interval like "-M2" or "+P4". */
     transpose?: string;
+    /** song-definition 1.2.0 (022 T077): join a short bar inside the piece with the next (a phrase line inside a bar). */
+    joinShortBars?: boolean;
+    /** song-definition 1.2.0 (022 T078): re-bar a source that starts on a full bar with a pickup of this many beats. */
+    pickupBeats?: number;
   };
   key: { tonic: string; mode: 'major' | 'minor'; fifths: number };
   tempoBpm: number;
   chords: SongChordEntry[];
+  /** song-definition 1.2.0 (feature 022): how the left hand plays each chord; `block` (default) holds it. */
+  leftHand?: { pattern?: LeftHandPattern };
+  /** song-definition 1.2.0: the id of the song this one is a simplified version of (same folder, higher level). */
+  simplifies?: string;
   meta: {
     level: 'beginner' | 'intermediate';
     trains: string;
     composer?: string;
     departures?: string[];
+    /** Why the song sits above the level its facts measure (song-definition 1.2.0, feature 022 FR-006). */
+    raisedBecause?: string;
     reviewedBy: string;
     reviewedOn: string;
   };
 }
 
-const TOP_FIELDS = ['version', 'id', 'title', 'source', 'melody', 'key', 'tempoBpm', 'chords', 'meta'];
-const MELODY_FIELDS = ['staff', 'voice', 'topVoice', 'bars', 'transpose'];
+const TOP_FIELDS = [
+  'version',
+  'id',
+  'title',
+  'source',
+  'melody',
+  'key',
+  'tempoBpm',
+  'chords',
+  'leftHand',
+  'simplifies',
+  'meta',
+];
+const MELODY_FIELDS = ['staff', 'voice', 'topVoice', 'bars', 'transpose', 'joinShortBars', 'pickupBeats'];
 const KEY_FIELDS = ['tonic', 'mode', 'fifths'];
 const CHORD_FIELDS = ['bar', 'beat', 'degree', 'quality', 'inversion', 'until'];
-const META_FIELDS = ['level', 'trains', 'composer', 'departures', 'reviewedBy', 'reviewedOn'];
+const META_FIELDS = ['level', 'trains', 'composer', 'departures', 'raisedBecause', 'reviewedBy', 'reviewedOn'];
 const QUALITIES = ['major', 'minor', 'diminished', 'augmented'];
 const ID = /^learning\/keys\/([a-z0-9-]+)\/song-[a-z0-9-]+$/;
 const BARS = /^(?:all|\d+-\d+)$/;
@@ -97,6 +122,10 @@ export function validateSongDefinition(json: unknown, sources: ReadonlySet<strin
   if (typeof melody.bars !== 'string' || !BARS.test(melody.bars)) fail('melody.bars must be "all" or "N-M"');
   if (melody.transpose !== undefined && (typeof melody.transpose !== 'string' || !TRANSPOSE.test(melody.transpose)))
     fail('melody.transpose must be an interval like "-M2" or "+P4"');
+  if (melody.joinShortBars !== undefined && typeof melody.joinShortBars !== 'boolean')
+    fail('melody.joinShortBars must be true or false');
+  if (melody.pickupBeats !== undefined && (typeof melody.pickupBeats !== 'number' || !(melody.pickupBeats > 0)))
+    fail('melody.pickupBeats must be a number of beats above 0');
 
   const key = object(top.key, 'key', fail);
   known(key, KEY_FIELDS, 'key', fail);
@@ -132,6 +161,19 @@ export function validateSongDefinition(json: unknown, sources: ReadonlySet<strin
     previous = position;
   });
 
+  if (top.leftHand !== undefined) {
+    const leftHand = object(top.leftHand, 'leftHand', fail);
+    known(leftHand, ['pattern'], 'leftHand', fail);
+    if (leftHand.pattern !== undefined && !LEFT_HAND_PATTERNS.includes(leftHand.pattern as LeftHandPattern))
+      fail(`leftHand.pattern must be one of ${LEFT_HAND_PATTERNS.join(', ')}`);
+  }
+  if (top.simplifies !== undefined) {
+    const target = string(top.simplifies, 'simplifies', fail, 120);
+    const targetMatch = ID.exec(target);
+    if (!targetMatch || targetMatch[1] !== idMatch?.[1])
+      fail(`simplifies "${target}" must be a song id in the same folder as ${id}`);
+  }
+
   const meta = object(top.meta, 'meta', fail);
   known(meta, META_FIELDS, 'meta', fail);
   if (meta.level !== 'beginner' && meta.level !== 'intermediate')
@@ -143,6 +185,7 @@ export function validateSongDefinition(json: unknown, sources: ReadonlySet<strin
       fail('meta.departures must list at least one departure when present');
     for (const d of meta.departures as unknown[]) string(d, 'meta.departures[]', fail, 500);
   }
+  if (meta.raisedBecause !== undefined) string(meta.raisedBecause, 'meta.raisedBecause', fail, 500);
   string(meta.reviewedBy, 'meta.reviewedBy', fail, 100);
   if (
     typeof meta.reviewedOn !== 'string' ||

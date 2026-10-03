@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "id": "basics/hands-together",
+  "title": "Hands together",
+  "section": "basics",
+  "stepOrder": 130,
+  "level": "introduction",
+  "hands": "both",
+  "tags": ["hands-together"],
+  "trains": "Both hands now play at once. The left hand holds a long note while the right hand plays the tune above it; every left-hand note starts together with a right-hand one. Read both staves at once, top and bottom.",
+  "scoreText": "Both hands at once: the left holds, the right moves.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": ["hands-together"]
+  },
+  "bars": [
+    {
+      "rh": "C4:q@1 D4:q@2 E4:q@3 C4:q",
+      "lh": "C3:w@5"
+    },
+    {
+      "rh": "E4:q F4:q@4 G4:h@5",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "G4:q F4:q E4:q D4:q",
+      "lh": "G3:w@1"
+    },
+    {
+      "rh": "C4:w",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "E4:q E4:q D4:q D4:q",
+      "lh": "C3:h G3:h"
+    },
+    {
+      "rh": "C4:q D4:q E4:h",
+      "lh": "C3:h C3:h"
+    },
+    {
+      "rh": "D4:q D4:q E4:q D4:q",
+      "lh": "G3:w"
+    },
+    {
+      "rh": "C4:w",
+      "lh": "C3:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

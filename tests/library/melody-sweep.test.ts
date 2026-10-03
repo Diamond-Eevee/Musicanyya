@@ -69,9 +69,19 @@ function familyOf(id: string): 'relative' | 'parallel' {
   return fromKey.split('-')[0] === toKey.split('-')[0] ? 'parallel' : 'relative';
 }
 
-/** The one `raisedBecause` on a key-change item at 7f8ab96 (`key-change-relative-intermediate.json`). */
-const RELATIVE_INTERMEDIATE_RAISED_BECAUSE_AT_BASELINE =
-  'the minor-to-major pairs (A minor to C major, E minor to G major, B minor to D major) compute beginner on this content - kept at intermediate so every pair in the folder shares one step';
+/** Feature 022 (owner decision OD-1, FR-006): the level check stopped counting eighth-note runs, key changes and
+ *  accidentals, so these items measure below their shelf and say why they keep it (022 T010). Every other item of this
+ *  sweep still needs no `raisedBecause`. Keyed by the exercise definition the item is generated from. */
+const RAISED_BECAUSE_022: Readonly<Record<string, string>> = {
+  'key-change-parallel-intermediate':
+    'A change of key in the middle of the exercise, under right-hand runs of more than four eighth notes in a row.',
+  'key-change-relative-intermediate':
+    "A change of key in the middle of the exercise, with the new key's accidentals written in, under right-hand runs of eighth notes.",
+  'learning/key-changes/c-major-to-c-minor/major-and-minor':
+    'Major and minor on the same tonic, switched back and forth with accidentals in almost every bar, ties across bar lines and a repeat.',
+  'learning/key-changes/a-minor-to-a-major/minor-and-major':
+    'Minor and major on the same tonic, switched back and forth with accidentals in almost every bar, ties across bar lines and a repeat.',
+};
 
 function keysOf(item: ShelfItem) {
   const claim = claimForItem({ itemId: item.id, title: item.title, trains: item.trains });
@@ -235,16 +245,20 @@ describe('chord-change drill melody sweep (US3, FR-001, FR-005)', () => {
     expect(findings).toEqual([]);
   });
 
-  it.each(drillItems)('$id passes the level check at its shelved level with no raisedBecause', (shelfItem) => {
-    const { meta, facts } = shelfItem.item;
-    expect(meta.raisedBecause).toBeUndefined();
-    const result = checkLevel(facts, meta.level, {
-      expectedNotices: meta.expected?.notices ?? [],
-      kind: meta.kind,
-      tags: meta.tags,
-    });
-    expect(result.pass).toBe(true);
-  });
+  it.each(drillItems)(
+    '$id passes the level check at its shelved level, with no raisedBecause but the 022 one',
+    (shelfItem) => {
+      const { meta, facts } = shelfItem.item;
+      // 022 FR-006: only the two same-tonic drills gained one, with exactly this text
+      expect(meta.raisedBecause).toBe(RAISED_BECAUSE_022[shelfItem.id]);
+      const result = checkLevel(facts, meta.level, {
+        expectedNotices: meta.expected?.notices ?? [],
+        kind: meta.kind,
+        ...(meta.raisedBecause !== undefined ? { raisedBecause: meta.raisedBecause } : {}),
+      });
+      expect(result.pass).toBe(true);
+    },
+  );
 
   it('the melodies of the two beginner drills differ (FR-008)', () => {
     const beginners = drillItems
@@ -420,16 +434,18 @@ describe('key-change melody sweep (FR-001, FR-002, US1)', () => {
       const result = checkLevel(facts, meta.level, {
         expectedNotices: meta.expected?.notices ?? [],
         kind: meta.kind,
-        tags: meta.tags,
         ...(meta.arrangement !== undefined ? { arrangement: meta.arrangement } : {}),
         ...(meta.raisedBecause !== undefined ? { raisedBecause: meta.raisedBecause } : {}),
       });
       expect(result.pass).toBe(true);
       // FR-011: "without a new raisedBecause unless the item already had one" - at 7f8ab96 only the relative
-      // intermediate items had one; it may stay or go, but no other item may gain one.
-      if (meta.raisedBecause !== undefined) {
-        expect(`${familyOf(shelfItem.id)}-${meta.step}`).toBe('relative-intermediate');
-        expect(meta.raisedBecause).toBe(RELATIVE_INTERMEDIATE_RAISED_BECAUSE_AT_BASELINE);
+      // intermediate items had one; it may stay or go, but no other item may gain one. Feature 022 FR-006 (owner
+      // decision OD-1) replaced it: every intermediate item of both families now carries its family's 022 text, and no
+      // other step has one.
+      if (meta.step === 'intermediate') {
+        expect(meta.raisedBecause).toBe(RAISED_BECAUSE_022[`key-change-${familyOf(shelfItem.id)}-intermediate`]);
+      } else {
+        expect(meta.raisedBecause).toBeUndefined();
       }
     });
   });
@@ -505,7 +521,9 @@ describe('key-change melody sweep (FR-001, FR-002, US1)', () => {
 
 // ---- SC-001 over the whole Learning section (T052) ----
 describe('no doubled block chords in the Learning section (SC-001)', () => {
-  const learningItems = (indexJson.items as LibraryItem[]).filter((i) => i.id.startsWith('learning/'));
+  // Feature 022: Learning > Chords holds chord drills whose right hand plays the chords on purpose; they are checked by
+  // chord-lessons-v1 instead. The sweep keeps to the Keys and Key-changes shelves of feature 014, songs included.
+  const learningItems = (indexJson.items as LibraryItem[]).filter((i) => /^learning\/(keys|key-changes)\//.test(i.id));
 
   /** The key per bar range: the claim table for exercises, the folder's key for songs (`checkSong` does the same). */
   function learningKeys(item: LibraryItem): MelodyCheckInput['keys'] {

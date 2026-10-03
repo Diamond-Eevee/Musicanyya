@@ -1,6 +1,6 @@
 # Contract: audit records and the audit report
 
-**Version**: `1.4.0` (1.4.0, 2026-10-01, feature 019-metronome-orchestra-volume: theory rule set `orchestra-v1`, rule 10 below; 1.0.0 new; 1.1.0, 2026-09-24: `melodyRhythm`, and a melody check may add only `spelling`, T054; 1.2.0, 2026-09-26, feature 011: theory rule sets `exercise-theory-v2` and `song-chords-v1`, `previous.level` `introduction`, optional `supersedes`, moved records, the "Replaced by feature 011" table; change request `specs/011-learning-by-key/contracts/audit-record-1.2.md`; 1.3.0, 2026-09-28, feature 014: theory rule set `exercise-theory-v3`, rule 9; change request `specs/014-melody-over-chords/contracts/audit-record-1.3.md`).
+**Version**: `1.5.0` (1.5.0, 2026-10-03, feature 022-library-basics-chords-songs: theory rule sets `lesson-claims-v1`, `chord-lessons-v1` and `song-chords-v2`, a theory check's optional `claims` and `teachingOrder`, rules 11-13 below; change request `specs/022-library-basics-chords-songs/contracts/audit-record-1.5.md`; 1.4.0, 2026-10-01, feature 019-metronome-orchestra-volume: theory rule set `orchestra-v1`, rule 10 below; 1.0.0 new; 1.1.0, 2026-09-24: `melodyRhythm`, and a melody check may add only `spelling`, T054; 1.2.0, 2026-09-26, feature 011: theory rule sets `exercise-theory-v2` and `song-chords-v1`, `previous.level` `introduction`, optional `supersedes`, moved records, the "Replaced by feature 011" table; change request `specs/011-learning-by-key/contracts/audit-record-1.2.md`; 1.3.0, 2026-09-28, feature 014: theory rule set `exercise-theory-v3`, rule 9; change request `specs/014-melody-over-chords/contracts/audit-record-1.3.md`).
 
 **Owner**: `tools/library/fidelity/records.ts` (reads, validates, re-runs), `tools/library/fidelity/report.ts`
 (writes the report). **Location**: records at `content/library/audit/<item-id>.json` (the item id's slashes are
@@ -74,8 +74,14 @@ folders, e.g. `content/library/audit/repertoire/advanced/chopin-prelude-op28-no4
           "required": ["method", "ruleSet", "expectedDifferences"],
           "properties": {
             "method": { "const": "theory" },
-            "ruleSet": { "enum": ["exercise-theory-v1", "exercise-theory-v2", "exercise-theory-v3", "song-chords-v1", "orchestra-v1"] },
-            "expectedDifferences": { "const": 0 }
+            "ruleSet": { "enum": ["exercise-theory-v1", "exercise-theory-v2", "exercise-theory-v3", "song-chords-v1", "orchestra-v1",
+                                  "lesson-claims-v1", "chord-lessons-v1", "song-chords-v2"] },
+            "expectedDifferences": { "const": 0 },
+            "claims": {
+              "type": "object",
+              "description": "1.5.0, lesson rule sets only. lesson-claims-v1 (required): { introduces?: string[], singlePitch?: boolean, practice?: boolean }; chord-lessons-v1 (optional): { commonTones?: [{ bar, beat, pitch }], omit?: [{ bar, beat, tones: (\"1\"|\"3\"|\"5\"|\"7\")[] }] }, beat counted in quarter notes from 1"
+            },
+            "teachingOrder": { "type": "integer", "description": "1.5.0, lesson-claims-v1 only (required there): the lesson's stepOrder" }
           }
         },
         {
@@ -136,6 +142,35 @@ folders, e.g. `content/library/audit/repertoire/advanced/chopin-prelude-op28-no4
     [019 orchestration-definition.md](../../019-metronome-orchestra-volume/contracts/orchestration-definition.md)
     section 3 (structure, doubling, range, regeneration, hidden); the check has `method: "theory"` and
     `expectedDifferences: 0`. No other record changes.
+11. **Rule set `lesson-claims-v1`** (feature 022, 1.5.0; `tools/library/fidelity/lesson-claims.ts`): for a Basics lesson.
+    The check carries `claims` and `teachingOrder`. Differences reported:
+    1. `explanation-missing` - no `<words>` direction above staff 1 in bar 1 (pickup bar or bar 1).
+    2. `not-single-pitch` - `singlePitch` claimed and more than one sounding pitch.
+    3. `not-introduced` - a notation feature (lesson-definition §3 ids, detected from the MusicXML; a staff holding only
+       whole-bar rests, with its clef, is not counted, nor are tempo marks, key signatures or the explanation) that
+       neither this lesson nor an earlier Basics lesson introduces; the check reads the other Basics records for the
+       earlier ones.
+    4. `tie-pitch` - a tie between different pitches; `slur-same-pitch` - a slur between two equal adjacent pitches only.
+12. **Rule set `chord-lessons-v1`** (feature 022, 1.5.0; `tools/library/fidelity/chord-lessons.ts`): for a chord lesson.
+    The check may carry `claims` (`commonTones`, `omit`). Chord-name grammar: 022 research R4. At each chord symbol until
+    the next (or the end):
+    1. `chord-tones` - the notes sounding at the symbol's onset across both staves (struck there, or held into it) do not
+       spell exactly the named chord (letter arithmetic, spelled tones; an `omit` entry - the chord named at that bar and
+       beat leaves those tones out - is honoured for named chords only).
+    2. `bass` - the lowest note is not the slash bass (or the root without a slash).
+    3. `common-tone` - a claimed common tone (`claims.commonTones`) is not held or re-struck on the same key.
+    4. `stray-note` - a note under the symbol's span that is not a chord tone.
+13. **Rule set `song-chords-v2`** (feature 022, 1.5.0; `tools/library/fidelity/song-chords.ts`, option `ruleSet`): as
+    `song-chords-v1`, plus: left-hand notes are grouped by the chord name above them (not by attack), so the `waltz`,
+    `repeated` and `broken` patterns of song definition 1.2.0 are checked note by note; the per-bar limit counts chord
+    **changes**; the Beginner minor set is `i, iv, v, V, VII` (022 research R8). `claim: "arrangement"` for songs accepts
+    a `song-chords-v2` check in place of `song-chords-v1`. Songs built with song definition 1.2.0 use it; existing
+    records keep v1.
+
+Each of the three rule sets reads only the finished MusicXML (and the claim recorded in the audit record), never the
+definition or the builder (independence, like `theory.ts` and `song-chords.ts`). Every item of feature 022 has a
+record with `outcome: "verified"` and `expectedDifferences: 0`; `pnpm library:fidelity` regenerates
+`docs/library-audit.md`.
 
 ## 3. The report (`docs/library-audit.md`)
 

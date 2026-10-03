@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "itemId": "learning/chord-lessons/progressions/two-five-one-in-f-major",
+  "claim": "exercise",
+  "claimText": "ii-V-I in F major",
+  "checks": [
+    {
+      "method": "theory",
+      "ruleSet": "chord-lessons-v1",
+      "expectedDifferences": 0,
+      "claims": {
+        "commonTones": [
+          {
+            "bar": 2,
+            "beat": 1,
+            "pitch": "Bb4"
+          },
+          {
+            "bar": 3,
+            "beat": 1,
+            "pitch": "C5"
+          },
+          {
+            "bar": 3,
+            "beat": 1,
+            "pitch": "E5"
+          },
+          {
+            "bar": 5,
+            "beat": 3,
+            "pitch": "Bb4"
+          },
+          {
+            "bar": 6,
+            "beat": 1,
+            "pitch": "C5"
+          },
+          {
+            "bar": 6,
+            "beat": 1,
+            "pitch": "E5"
+          },
+          {
+            "bar": 7,
+            "beat": 3,
+            "pitch": "Bb4"
+          },
+          {
+            "bar": 8,
+            "beat": 1,
+            "pitch": "C5"
+          },
+          {
+            "bar": 8,
+            "beat": 1,
+            "pitch": "E5"
+          }
+        ],
+        "omit": [
+          {
+            "bar": 2,
+            "beat": 1,
+            "tones": ["5"]
+          },
+          {
+            "bar": 5,
+            "beat": 3,
+            "tones": ["5"]
+          },
+          {
+            "bar": 7,
+            "beat": 3,
+            "tones": ["5"]
+          }
+        ]
+      }
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "The independent chord-lesson check (chord-lessons-v1) reads only the file: every chord named above the staff is spelled exactly by the notes sounding at it (both hands), stands on its named bass, has no other note under it, and keeps the common tones this record claims; 0 differences.",
+  "checkedBy": "claude-opus-5.5",
+  "date": "2026-10-03"
+}

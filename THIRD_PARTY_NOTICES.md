@@ -171,6 +171,35 @@ source, cross-checks it against its MIDI and `pnpm library:fidelity` re-checks e
   (The songs Greensleeves, Ode to Joy and Amazing Grace take their melodies from the Mutopia 1247, 528 and 1283 sources
   listed above.)
 
+The melodies of the songs feature 022 adds to *Learning > Keys* (each a full and a simplified version) are taken
+unchanged from these public-domain Mutopia sources, in the same way (LilyPond source and its MIDI file, obtained
+2026-10-03/04; each piece page states "Public Domain"). All are SATB settings with the tune in the Soprano; the
+left-hand chords are Musicanyya's own and CC0:
+
+- **The First Noel** - Mutopia-2008/01/13-1243, typeset by Steve Dunlop from www.cyberhymnal.org.
+  `mutopia-1243-first-noel/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1243
+- **"O Haupt voll Blut und Wunden" (Passion Chorale, J. S. Bach, St Matthew Passion)** - Mutopia-2013/03/22-107,
+  typeset by dwb from Edition Peters. `mutopia-107-passion-chorale/`.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=107
+- **Carol ("It Came Upon the Midnight Clear", R. S. Willis)** - Mutopia-2008/01/13-1231, typeset by Steve Dunlop
+  from www.cyberhymnal.org. `mutopia-1231-carol/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1231
+- **Cranham ("In the Bleak Midwinter", G. Holst)** - Mutopia-2008/01/13-1233, typeset by Steve Dunlop from
+  www.cyberhymnal.org. `mutopia-1233-cranham/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233
+- **Lobe den Herren ("Praise to the Lord")** - Mutopia-2008/01/13-1256, typeset by Steve Dunlop from
+  www.cyberhymnal.org. `mutopia-1256-lobe-den-herren/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1256
+- **St. Anne ("O God, Our Help in Ages Past", W. Croft)** - Mutopia-2008/02/19-1290, typeset by Steve Dunlop from
+  www.cyberhymnal.org. `mutopia-1290-st-anne/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1290
+- **Leoni ("The God of Abraham Praise", from a synagogue melody for the Yigdal, transcribed by M. Lyon and adapted by
+  T. Olivers)** - Mutopia-2016/11/01-525, typeset by Peter Chubb from the Australian Hymn Book (number 53).
+  `mutopia-525-leoni/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=525
+- **St. Denio ("Immortal, Invisible", Welsh)** - Mutopia-2008/02/19-1291, typeset by Steve Dunlop from
+  www.cyberhymnal.org. `mutopia-1291-st-denio/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1291
+- **Tryggare kan ingen vara (Swedish)** - Mutopia-2008/02/19-1299, typeset by Steve Dunlop from www.cyberhymnal.org.
+  `mutopia-1299-tryggare-kan-ingen-vara/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299
+- **Mendelssohn ("Hark! the Herald Angels Sing", F. Mendelssohn)** - Mutopia-2008/01/13-1261, typeset by Steve
+  Dunlop from www.cyberhymnal.org. `mutopia-1261-mendelssohn/`.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1261
+
 A printed edition recorded by URL and hash only (the scan is not committed; feature 019): Musicanyya's own CC0
 transcriptions of *Morning Mood* are read from it.
 

@@ -340,11 +340,14 @@ function respelled(t: Tone): Tone {
   return { step, alter: midiOf(t) - midiOf({ step, alter: 0, octave }), octave };
 }
 
+// Feature 022: the Basics and chord lessons are exercises too, but are checked by their own rule sets (lesson-claims-v1,
+// chord-lessons-v1, with planted fixtures in tests/tools/fidelity/lesson-claims.test.ts and chord-lessons.test.ts): this
+// sweep covers the generated exercises the theory check reads from their titles.
 const exercises = (
   JSON.parse(readFileSync('public/library/index.json', 'utf8')) as {
     items: { id: string; file: string; meta: { kind: string; title: string; trains?: string } }[];
   }
-).items.filter((i) => i.meta.kind === 'exercise');
+).items.filter((i) => i.meta.kind === 'exercise' && /^learning\/(keys|key-changes)\//.test(i.id));
 
 describe('planted errors: the theory check on every exercise of the shelf', () => {
   for (const item of exercises) {

@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "basics/ties-in-a-bar",
+  "title": "Ties: hold, don't play again",
+  "section": "basics",
+  "stepOrder": 160,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["ties"],
+  "trains": "A tie is a curve joining two notes of the same pitch. Play the first note only and keep holding it through the second: the lengths add up. The app waits for the first note and never asks for the tied one again; it does not check how long you hold.",
+  "scoreText": "A tie joins two notes: play once, hold for both.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": ["tie"],
+    "singlePitch": true
+  },
+  "bars": [
+    {
+      "rh": "C4:q@1 C4:q C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h~ C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q~ C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:w",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q~ C4:q C4:q~ C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q~ C4:q C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h~ C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:w",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

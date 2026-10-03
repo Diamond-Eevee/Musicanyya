@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "basics/legato-and-staccato",
+  "title": "Legato and staccato",
+  "section": "basics",
+  "stepOrder": 210,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["articulation"],
+  "trains": "Both touches in one piece: smooth, connected notes under the slurs and short, detached notes where the dots are. Listen once, then play. The change of touch is the exercise here; the app checks the notes and when they start.",
+  "scoreText": "Slurs: smooth and connected. Dots: short and light.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": [],
+    "practice": true
+  },
+  "bars": [
+    {
+      "rh": "C4:q(@1 D4:q@2 E4:q@3 F4:q)@4",
+      "lh": "R:w"
+    },
+    {
+      "rh": "G4:q!@5 G4:q! G4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "G4:q( F4:q E4:q D4:q)",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q! C4:q! C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "E4:q( F4:q G4:h)",
+      "lh": "R:w"
+    },
+    {
+      "rh": "F4:q! E4:q! D4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "E4:q( D4:q C4:q) D4:q!",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:w",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

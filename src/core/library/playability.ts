@@ -30,7 +30,8 @@ interface HandNote {
  * is `null`, only the notes struck at that moment count: the pedal may hold the rest). Under a tier with `rolledExempt`, a
  * moment whose new notes are all rolled is not limited. Read from the timeline, so tie chains count as one held note; grace notes,
  * unprinted notes and Orchestra parts are left out, and a trill counts its upper note `PLAYABLE_TRILL_UPPER_SEMITONES` above
- * (Listen plays a trill as its written note only).
+ * (Listen plays a trill as its written note only). A note is held while it sounds, so a staccato note is let go when its
+ * short sound ends (feature 022 research R9).
  */
 export function handStretches(score: Score, timeline: PlaybackTimeline, tier: PlayableTier): Stretch[] {
   const limits: HandLimits = PLAYABLE_LIMITS[tier];

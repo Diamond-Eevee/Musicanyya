@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "id": "learning/chord-lessons/single-chords/minor-triads",
+  "title": "Minor chords",
+  "section": "learning/chord-lessons/single-chords",
+  "stepOrder": 20,
+  "level": "beginner",
+  "hands": "both",
+  "tags": ["chords"],
+  "trains": "A minor chord has its middle note one half step lower than in the major chord on the same root: A C E, D F A, E G B. It sounds darker. Play the three keys together, 1-3-5 in the right hand, then 5-3-1 in the left. \"m\" after a letter means minor.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "A",
+    "mode": "minor",
+    "fifths": 0
+  },
+  "claims": {},
+  "bars": [
+    {
+      "rh": "{Am}<A4 C5 E5>:h@1-3-5 <A4 C5 E5>:h@1-3-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{Dm}<D4 F4 A4>:h@1-3-5 <D4 F4 A4>:h@1-3-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{Em}<E4 G4 B4>:h@1-3-5 <E4 G4 B4>:h@1-3-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{Am}<A4 C5 E5>:w@1-3-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "R:w",
+      "lh": "{Am}<A2 C3 E3>:h@5-3-1 <A2 C3 E3>:h@5-3-1"
+    },
+    {
+      "rh": "R:w",
+      "lh": "{Dm}<D3 F3 A3>:h@5-3-1 <D3 F3 A3>:h@5-3-1"
+    },
+    {
+      "rh": "R:w",
+      "lh": "{Em}<E3 G3 B3>:h@5-3-1 <E3 G3 B3>:h@5-3-1"
+    },
+    {
+      "rh": "{Am}<A4 C5 E5>:w@1-3-5",
+      "lh": "<A2 C3 E3>:w@5-3-1"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

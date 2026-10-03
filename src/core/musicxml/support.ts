@@ -121,6 +121,13 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
     status: 'Supported',
     notes: 'Play mode: the wider arpeggio spread applies instead of the chord spread (feature 003)',
   },
+  {
+    category: 'Notes',
+    element: '<staccato>',
+    status: 'Supported',
+    notes:
+      'Engraved; playback sounds it at half its written length (an untied note; STACCATO_SOUNDING_FRACTION); not graded (feature 022)',
+  },
   { category: 'Notes', element: '<glissando>', status: 'Unsupported', notes: 'Reported; ignored for playback' },
   { category: 'Notes', element: '<slide>', status: 'Unsupported', notes: 'Reported; ignored for playback' },
   {

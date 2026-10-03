@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "id": "mutopia-1256-lobe-den-herren",
+  "work": "Lobe den Herren (hymntune), SATB, sounding F major; the tune is in the Soprano",
+  "edition": "www.cyberhymnal.org",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1256",
+  "identifier": "Mutopia-2008/01/13-1256",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond by Steve Dunlop for the Mutopia Project from www.cyberhymnal.org, and placed in the public domain by the typesetter. The piece page states \"Public Domain\" (checked 2026-10-04).",
+  "obtained": "2026-10-04",
+  "approvedByOwner": "2026-10-03",
+  "multiPart": {
+    "available": true,
+    "where": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1256",
+    "licence": "public-domain",
+    "note": "SATB, the tune in the Soprano: the other voices are a ready multi-part version for a later Orchestra."
+  },
+  "files": [
+    {
+      "role": "notation",
+      "path": "lobe_den_Herren.ly",
+      "url": "https://www.mutopiaproject.org/ftp/Anonymous/lobe_den_Herren/lobe_den_Herren.ly",
+      "sha256": "025474c3fa585ee72b2bb65122ee39315b78cff14fd0c96fba26f80bbaf455bd",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "lobe_den_Herren.mid",
+      "url": "https://www.mutopiaproject.org/ftp/Anonymous/lobe_den_Herren/lobe_den_Herren.mid",
+      "sha256": "2ceaccb73d5b35b7ea8033426eac6f602113eb3a1bfbd2c722f9e53693e17af6",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

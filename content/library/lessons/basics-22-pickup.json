@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "id": "basics/pickup",
+  "title": "Starting before the bar: the pickup",
+  "section": "basics",
+  "stepOrder": 220,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["reading"],
+  "trains": "Many tunes start before the first full bar, on an upbeat called a pickup. Here the music starts on beat 4: count 1 2 3 silently and play on 4. The last bar is short too: with the pickup it makes one full bar.",
+  "scoreText": "The first bar is short: the tune starts on beat 4.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "pickup": true,
+  "claims": {
+    "introduces": ["pickup"]
+  },
+  "bars": [
+    {
+      "rh": "G4:q@5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "E4:q@3 C4:q@1 D4:q@2 E4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "F4:h@4 E4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "D4:q E4:q F4:q D4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "E4:h G4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "E4:q C4:q D4:q E4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "F4:h D4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "E4:q D4:q C4:q D4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h.",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

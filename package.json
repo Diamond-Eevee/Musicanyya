@@ -18,6 +18,7 @@
     "gen:large-score": "tsx tests/tools/gen-large-score.ts",
     "library:exercises": "tsx tools/library/build-exercises.ts && biome format --write public/library",
     "library:songs": "tsx tools/library/build-songs.ts && biome format --write public/library",
+    "library:lessons": "tsx tools/library/build-lessons.ts && biome format --write public/library",
     "library:engrave": "tsx tools/library/engrave.ts",
     "library:index": "tsx tools/library/build-index.ts",
     "library:fidelity": "tsx tools/library/fidelity/cli.ts",

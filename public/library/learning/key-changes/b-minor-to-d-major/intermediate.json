@@ -15,6 +15,7 @@
   },
   "reviewedBy": "claude-opus-5.5",
   "reviewedOn": "2026-09-28",
+  "raisedBecause": "A change of key in the middle of the exercise, with the new key's accidentals written in, under right-hand runs of eighth notes.",
   "step": "intermediate",
   "stepOrder": 0
 }

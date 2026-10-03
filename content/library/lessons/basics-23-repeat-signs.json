@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "basics/repeat-signs",
+  "title": "Repeat signs",
+  "section": "basics",
+  "stepOrder": 230,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["repeats"],
+  "trains": "Two dots before a double bar line (one thin, one thick line) are a repeat sign: go back to the beginning and play those bars again, then go on. The app follows the repeat: it plays and expects those bars twice. Without the dots, that line ends the piece.",
+  "scoreText": "Repeat sign: go back and play those bars again.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": ["repeat"]
+  },
+  "bars": [
+    {
+      "rh": "C4:q@1 D4:q@2 E4:q@3 F4:q@4",
+      "lh": "R:w"
+    },
+    {
+      "rh": "G4:h@5 E4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "F4:q D4:q E4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "D4:w",
+      "lh": "R:w",
+      "barline": "repeat-end"
+    },
+    {
+      "rh": "E4:q F4:q G4:q E4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "F4:h D4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "E4:q D4:q C4:q D4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:w",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

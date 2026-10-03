@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "title": "Song - Passion Chorale",
+  "composer": "H. L. Hassler (tune \"Passion Chorale\", as J. S. Bach set it)",
+  "subtitle": "Arrangement: the tune with left-hand repeated chords on every beat",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "intermediate",
+  "raisedBecause": "A chord struck on every beat under a melody that changes chord up to twice a bar, in D minor with the chords of its relative major (F, C) at the cadences; the notes alone measure Beginner.",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "The Passion Chorale in D minor, with its one-beat pickup, over the left-hand chord struck on every beat, up to two chords a bar (Dm, B♭, F, Gm, A, C).",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5.5",
+    "created": "2026-10-03",
+    "basedOn": "mutopia-107-passion-chorale: Choral \"O Haupt voll Blut und Wunden\" from the St Matthew Passion (J. S. Bach), SATB with piano, D minor; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=107)",
+    "note": "Melody from Edition Peters (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=107), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": [
+    "The left-hand repeated chords on every beat are our own (CC0).",
+    "The fermatas at the ends of the phrases are left out: the music goes on in time."
+  ],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03",
+  "step": "song",
+  "stepOrder": 20
+}

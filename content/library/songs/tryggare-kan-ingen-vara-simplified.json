@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "id": "learning/keys/d-major/song-tryggare-kan-ingen-vara-simplified",
+  "title": "Song - Tryggare kan ingen vara (simplified)",
+  "source": "mutopia-1299-tryggare-kan-ingen-vara",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "D",
+    "mode": "major",
+    "fifths": 2
+  },
+  "tempoBpm": 80,
+  "chords": [
+    {
+      "bar": 0,
+      "degree": "I"
+    },
+    {
+      "bar": 1,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "degree": "I"
+    },
+    {
+      "bar": 3,
+      "degree": "IV"
+    },
+    {
+      "bar": 4,
+      "degree": "I"
+    },
+    {
+      "bar": 5,
+      "degree": "IV"
+    },
+    {
+      "bar": 6,
+      "degree": "I"
+    },
+    {
+      "bar": 7,
+      "degree": "V"
+    },
+    {
+      "bar": 8,
+      "degree": "I"
+    }
+  ],
+  "simplifies": "learning/keys/d-major/song-tryggare-kan-ingen-vara",
+  "meta": {
+    "level": "beginner",
+    "trains": "Tryggare kan ingen vara (\"Children of the Heavenly Father\") in D major and 3/4, with a one-beat pickup of two eighths, over one held block chord a bar in the left (D, G, A).",
+    "composer": "Traditional (Swedish)",
+    "departures": [
+      "Simplified: one block chord a bar, held, with the three primary chords only (D, G, A), instead of the full version's moving left hand.",
+      "Slower: 80 instead of 96 quarter notes a minute."
+    ],
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-10-03"
+  }
+}

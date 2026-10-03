@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "id": "mutopia-1261-mendelssohn",
+  "work": "Mendelssohn (hymntune, F. Mendelssohn: Hark! the Herald Angels Sing), SATB, F major; the tune is in the Soprano",
+  "edition": "www.cyberhymnal.org",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1261",
+  "identifier": "Mutopia-2008/01/13-1261",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond by Steve Dunlop for the Mutopia Project from www.cyberhymnal.org, and placed in the public domain by the typesetter. The piece page states \"Public Domain\" (checked 2026-10-04).",
+  "obtained": "2026-10-04",
+  "approvedByOwner": "2026-10-03",
+  "multiPart": {
+    "available": true,
+    "where": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1261",
+    "licence": "public-domain",
+    "note": "SATB, the tune in the Soprano: the other voices are a ready multi-part version for a later Orchestra."
+  },
+  "files": [
+    {
+      "role": "notation",
+      "path": "mendelssohn.ly",
+      "url": "https://www.mutopiaproject.org/ftp/Mendelssohn-BartholdyF/mendelssohn/mendelssohn.ly",
+      "sha256": "98e4566aac8733138b97a6f96a35a2f873c47c933835bc48ff65898bd037dc7a",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "mendelssohn.mid",
+      "url": "https://www.mutopiaproject.org/ftp/Mendelssohn-BartholdyF/mendelssohn/mendelssohn.mid",
+      "sha256": "0e8cbffa0a338e1df93110256d8968b2fd807355151c5130733aa15b1365cc61",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

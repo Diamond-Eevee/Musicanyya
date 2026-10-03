@@ -41,6 +41,14 @@ export const SKILL_TAGS = [
   'dynamics',
   'phrasing',
   'key-changes',
+  // Feature 022 (library-index 1.5.0): the Basics and chord lessons
+  'note-values',
+  'rests',
+  'articulation',
+  'time-signatures',
+  'reading',
+  'inversions',
+  'seventh-chords',
 ] as const;
 export type SkillTag = (typeof SKILL_TAGS)[number];
 
@@ -197,6 +205,16 @@ export interface ItemFacts {
   repeatKind?: 'none' | 'simple' | 'voltas' | 'jumps';
   /** How many backward repeats the score has (criterion 24's "one backward repeat" cap). */
   backwardRepeatCount?: number;
+
+  // Feature 022 (library-index 1.5.0, data-model §1): the rhythm facts criterion 29 ("one focus") reads.
+  /** The first measure is `implicit` and shorter than its metre: an upbeat. */
+  hasPickup?: boolean;
+  /** A dotted value shorter than a dotted half, grace notes excluded; in a compound metre its dotted beat is the metre,
+   *  not a dotted rhythm. */
+  hasDottedRhythm?: boolean;
+  /** A value shorter than a quarter, not counting the eighth that completes a dotted quarter in a simple metre (part of
+   *  the dotted rhythm) nor eighths in a compound metre (part of the metre). */
+  hasShortNotes?: boolean;
 }
 
 export interface LevelCheck {

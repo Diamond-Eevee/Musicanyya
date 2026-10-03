@@ -133,6 +133,8 @@ export interface Note {
   ornament: 'trill' | 'mordent' | 'inverted-mordent' | 'turn' | 'tremolo' | null;
   /** The Score writes this chord member <arpeggiate> (owner decision D-2): the wider arpeggio spread applies. */
   arpeggiate: boolean;
+  /** A written <staccato/> (feature 022 research R9): an untied note sounds for STACCATO_SOUNDING_FRACTION of its length. */
+  staccato: boolean;
 }
 
 export interface Fingering {

@@ -59,6 +59,8 @@ describe('library tempoBpm counts quarter notes (research R-10)', () => {
       }
     }
     expect(nonQuarter).toEqual([
+      // feature 022: the Basics 6/8 lesson prints "dotted quarter = 48" (contract lesson-definition 1.0.0)
+      'basics/six-eight-time',
       'repertoire/advanced/grieg-morning-mood',
       'repertoire/advanced/grieg-morning-mood-easier',
     ]);

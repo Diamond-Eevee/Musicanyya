@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "title": "Song - Tryggare kan ingen vara",
+  "composer": "Traditional (Swedish)",
+  "subtitle": "Arrangement: the tune with left-hand waltz accompaniment (bass, then chord, chord)",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "intermediate",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "Tryggare kan ingen vara (\"Children of the Heavenly Father\") in D major and 3/4, with a one-beat pickup of two eighths, over a waltz left hand (the bass on beat 1, the chord on beats 2 and 3), one chord a bar (D, A, Em, G, Bm).",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5.5",
+    "created": "2026-10-03",
+    "basedOn": "mutopia-1299-tryggare-kan-ingen-vara: Tryggare kan ingen vara (hymntune), SATB, D major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299)",
+    "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": ["The left-hand waltz accompaniment (bass, then chord, chord) is our own (CC0)."],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03",
+  "step": "song",
+  "stepOrder": 50
+}

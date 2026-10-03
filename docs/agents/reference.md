@@ -103,7 +103,7 @@ perform the review yourself, following its method and output format.
 - Log headings carry the lane: `## <date> <time> - <agent-id> (lane <name>)`.
 - **Integration** (only when the user says "integrate lanes"): merge lane branches into the feature branch one at a
   time (`git merge --no-ff`), resolve `tasks.md` (keep every `[x]`) and `implementation-log.md` (keep all entries in
-  time order), run the full gate, remove the worktrees.
+  time order), run the checkpoint gate, remove the worktrees (the full gate stays the feature's last step).
 
 ## R7. Toolchain, build and test
 
@@ -124,16 +124,17 @@ pnpm dev              # Vite dev server (open in Chrome/Edge)
 pnpm lint             # Biome
 pnpm typecheck        # tsc --noEmit over all layer projects
 pnpm test             # Vitest (unit, golden snapshots, fakes)
-pnpm test:e2e         # Playwright, every browser project, then the Electron project (~2,000 tests, 15-40 min): the full gate only
+pnpm test:e2e         # Playwright, every browser project, then the Electron project (~2,000 tests, 15-40 min): the full gate only - once, the last step before merge
 pnpm test:e2e:electron # the Electron project alone, one desktop app at a time (a test that connects MIDI opens the machine's real
                       # MIDI ports; several apps at once wedged the Windows MIDI service on the owner's machine)
-pnpm test:e2e:smoke   # the @smoke tests on chromium (~15 s): every checkpoint
-pnpm exec playwright test tests/e2e/<spec>.ts --project=chromium   # task checks: only the specs you touched
+pnpm test:e2e:smoke   # the @smoke tests on chromium (~15 s): every checkpoint, with the changed features' specs
+pnpm exec playwright test tests/e2e/<spec>.ts --project=chromium   # task checks: only a spec the task edits; checkpoints: the changed features' specs
 pnpm build            # static site in dist/
 pnpm electron:dev     # desktop shell against the dev server
 pnpm electron:build   # desktop build (electron-builder)
 pnpm library:exercises # regenerate the exercise families from content/library/exercises/*.json
 pnpm library:songs     # build the songs from content/library/songs/*.json + approved sources (--song <id> for one)
+pnpm library:lessons   # build the Basics and chord lessons from content/library/lessons/*.json (--lesson <id> for one; 022)
 pnpm library:engrave  # complete hand-written repertoire files in place (beams + accidentals)
 pnpm library:index    # regenerate public/library/index.json from the files on disk
 pnpm screenshot       # open the app headless and save a PNG (see "Running and seeing the app" below)
@@ -149,11 +150,14 @@ pnpm tsx tools/library/probe.ts <dir> [outDir]  # level numbers + page-1 SVGs; o
 Tool output (probe SVGs, `probe-results.json`, screenshots) is never committed: it goes to `tests/.generated/` or the
 system temp folder, never under `public/` (it would ship with the app) or the repository root.
 
-**Known flaky**: the two Electron e2e tests `electron-playback.spec.ts:47` and `library.spec.ts:340` sometimes fail
+**Known flaky** (constitution "Test tiers": a test that fails only under the full run's load and passes 3 of 3 alone
+is added here with both results; that settles it - the whole suite is not rerun): the two Electron e2e tests `electron-playback.spec.ts:47` and `library.spec.ts:340` sometimes fail
 under load on Windows ("Target page ... has been closed", "audio clock advances"); both pass when run alone
 (`pnpm exec playwright test --project=electron <file>`). Re-run them alone and log both results; do not call the gate
 green without that. Also under a full-suite run only (green standalone and within their own file, `--project`
-included): `pressed-keys.spec.ts:483` (firefox, a 60fps frame-timing check) and, since the 013 US3 checkpoint,
+included): `pressed-keys.spec.ts:487` (firefox, a 60fps frame-timing check; again at 022 T073: max frame 26 ms, 3/3 alone),
+`play-cursor.spec.ts:93` (firefox, "a correct key at the first note marks nothing..."; 022 T073: the 5 s wait for the
+green head timed out once in the full run, 3/3 alone) and, since the 013 US3 checkpoint,
 `score-browser.spec.ts`'s "a .musicxml file with invalid content dropped onto the browser..." (firefox) - both
 passed 13/13 and 4/4 respectively re-run alone. At the 013 US5 checkpoint `library.spec.ts:370` (firefox, "a sample of
 items across sections each engrave at least one page") joined them: failed once in the full run, 3/3 alone.
@@ -291,8 +295,8 @@ A model not in the table fits no tier: ask at the first task. A model that fits 
 `standard` task, Sonnet on a `light` one) never asks. The order is `light` < `standard` < `deep`.
 
 **Rules for `light` work**: a `light` task never decides anything (no design, no music, no expected-value change in a
-test); when it finds something that needs a decision, it stops and hands off. Checkpoints (full gate, the story's
-Independent Test) are `standard` or higher, so every `light` task is re-verified by a stronger model at the next
+test); when it finds something that needs a decision, it stops and hands off. Checkpoints (checkpoint gate, the story's
+Independent Test) and the full gate are `standard` or higher, so every `light` task is re-verified by a stronger model at the next
 checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
 
 ---
@@ -389,12 +393,22 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
   (`AudioEngine.prepare()`); `localStorage` key `musicanyya.audio.v1`. Electron e2e specs open real MIDI ports at
   start-up. MIDI access is requested only from the top-bar popover's Connect button, never at start-up (owner decision
   2026-10-03: the start-up request froze the Windows MIDI service, which then made desktop apps hang asking for or closing MIDI).
+- Feature 022: no new runtime technology and no new dependency. Dev-only: a lesson-definition format
+  (`content/library/lessons/*.json`, contract lesson-definition 1.0.0) and builder `pnpm library:lessons`
+  (`tools/library/build-lessons.ts`, `tools/library/lessons/`), independent checks `lesson-claims-v1`,
+  `chord-lessons-v1`, `song-chords-v2`; song definitions gain `leftHand.pattern` and `simplifies`. The level check
+  keeps only reach and pace criteria plus Introduction "one focus" (criterion 29); `Note.staccato` shortens playback
+  (`STACCATO_SOUNDING_FRACTION`).
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-10-03: Feature 022 planned (library Basics, chord lessons, more songs): a top-level Basics shelf (24 one-idea
+  lessons), Learning > Chords (single chords, switches, progressions, with simplified versions), 10 public-domain songs
+  as full + simplified pairs (sources need owner approval); the level check no longer bans notation (owner decision),
+  Introduction keeps one focus; staccato is heard in playback (owner confirmation pending). No new dependency.
 - 2026-10-02: Feature 021 implemented (live piano and audio setup): keys sound from start-up in every mode (one live router;
   desktop without a click, browser after the first click), a working Latency popup and calibration on the audio clock,
   the MIDI keyboard in the top bar, icon transport buttons, and output-device choice in the desktop app (the desktop
@@ -405,9 +419,4 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
   0-based; Clavinet) on a free channel, governed by the
   Orchestra level (the Levels slider is no longer disabled there). One core change in `compilePlaySchedule`; no engine,
   worklet, setting or dependency change.
-- 2026-10-01: Feature 019 planned (Metronome and Orchestra levels, Morning Mood with an Orchestra): a Levels popover
-  next to the Volume slider sets the Metronome click (0-100 %) and the Orchestra (hidden accompaniment instruments,
-  0-100 %), remembered across restarts; Orchestra parts sound in every mode but are never printed, expected or graded;
-  the library gains Grieg's own piano arrangement of Morning Mood (Schirmer 1899, owner approval pending), transcribed
-  twice and compared, with a generated flute/oboe/strings/cello/horn Orchestra. No new dependency.
 <!-- RECENT-CHANGES:END -->

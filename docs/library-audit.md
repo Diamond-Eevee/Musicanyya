@@ -6,26 +6,50 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 | Outcome | Items |
 |---|---|
-| verified | 170 |
+| verified | 258 |
 | verified (visual) | 3 |
 | fixed | 7 |
 | replaced | 4 |
 | relabelled | 2 |
 | removed | 1 |
-| Total | 187 |
+| Total | 275 |
 
 ## Level counts after the audit
 
 | Level | Pieces | Minimum | Status |
 |---|---|---|---|
-| Beginner | 13 | 7 | meets the minimum |
-| Intermediate | 9 | 5 | meets the minimum |
+| Beginner | 23 | 7 | meets the minimum |
+| Intermediate | 19 | 5 | meets the minimum |
 | Advanced | 9 | 5 | meets the minimum |
 
 ## Repertoire
 
 | Item | Claim | Source | Method | Checked | Differences | Outcome | Date |
 |---|---|---|---|---|---|---|---|
+| Bass clef and the left hand<br>`basics/bass-clef-left-hand` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Dotted half notes<br>`basics/dotted-half-notes` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Dotted quarter and eighth<br>`basics/dotted-quarter-and-eighth` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Eighth notes<br>`basics/eighth-notes` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Five fingers, five notes<br>`basics/five-finger-position` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Half and whole rests<br>`basics/half-and-whole-rests` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Half notes<br>`basics/half-notes` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Hands take turns<br>`basics/hands-take-turns` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Hands together<br>`basics/hands-together` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Legato: connected notes<br>`basics/legato` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Legato and staccato<br>`basics/legato-and-staccato` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Middle C and the beat<br>`basics/middle-c-quarter-notes` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Whole, half and quarter<br>`basics/mixing-note-lengths` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Starting before the bar: the pickup<br>`basics/pickup` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Quarter rests<br>`basics/quarter-rests` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Repeat signs<br>`basics/repeat-signs` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Six-eight time<br>`basics/six-eight-time` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Staccato: short notes<br>`basics/staccato` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Steps: C, D, E<br>`basics/steps-c-d-e` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Three beats in a bar<br>`basics/three-four-time` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Ties across the bar line<br>`basics/ties-across-the-bar-line` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Tie or slur?<br>`basics/ties-and-slurs` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Ties: hold, don't play again<br>`basics/ties-in-a-bar` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Whole notes<br>`basics/whole-notes` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
 | Prelude No. 1 in C major, BWV 846<br>`repertoire/advanced/bach-prelude-bwv846` | original | Bach-Gesellschaft Ausgabe vol. 14 scan (IMSLP) and Open Well-Tempered Clavier CC0<br>[Unknown](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=5) | visual (bars all)<br>mechanical (bars all) | visual comparison<br>barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | verified | 2026-09-24 |
 | l'Arabesque (25 Etudes faciles, Op. 100, No. 2)<br>`repertoire/advanced/burgmuller-op100-no2` | original | [Collection Litolff, 19th Century](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=203) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
 | Prelude in C minor, Op. 28 No. 20<br>`repertoire/advanced/chopin-prelude-op28-no20` | original | [Edition Peters](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=472) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | verified | 2026-09-24 |
@@ -60,6 +84,8 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | C major - I-vi-ii-V<br>`learning/keys/c-major/turnaround` | exercise | exercise-theory-v3 | theory | 0 | fixed | 2026-09-28 |
 | C major - diatonic ladder<br>`learning/keys/c-major/diatonic-ladder` | exercise | exercise-theory-v3 | theory | 0 | fixed | 2026-09-28 |
 | Song - Au clair de la lune<br>`learning/keys/c-major/song-au-clair-de-la-lune` | arrangement | [Boije collection #268 (http://www.muslib.se/ebibliotek/boije/)](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1111)<br>song-chords-v1 | mechanical (bars 1-8)<br>theory | 0 | verified | 2026-09-26 |
+| Song - O God, Our Help in Ages Past (simplified)<br>`learning/keys/c-major/song-o-god-our-help-in-ages-past-simplified` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1290)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
+| Song - O God, Our Help in Ages Past<br>`learning/keys/c-major/song-o-god-our-help-in-ages-past` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1290)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
 | A minor - introduction<br>`learning/keys/a-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | A minor - beginner<br>`learning/keys/a-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | A minor - intermediate<br>`learning/keys/a-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
@@ -73,16 +99,24 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | Song - Good King Wenceslas<br>`learning/keys/g-major/song-good-king-wenceslas` | arrangement | [Rev. Charles Lewis Hutchins, Carols Old and Carols New (Boston: Parish Choir, 1916), Carol #415](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=905)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
 | Song - O Come, All Ye Faithful<br>`learning/keys/g-major/song-o-come-all-ye-faithful` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1220)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
 | Song - Ode to Joy<br>`learning/keys/g-major/song-ode-to-joy` | arrangement | [Various](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=528)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
+| Song - Immortal, Invisible (simplified)<br>`learning/keys/g-major/song-immortal-invisible-simplified` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1291)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
+| Song - Immortal, Invisible<br>`learning/keys/g-major/song-immortal-invisible` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1291)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
 | E minor - introduction<br>`learning/keys/e-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | E minor - beginner<br>`learning/keys/e-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | E minor - intermediate<br>`learning/keys/e-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | E minor - advanced<br>`learning/keys/e-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | Song - O Come, O Come, Emmanuel<br>`learning/keys/e-minor/song-o-come-o-come-emmanuel` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1300)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
+| Song - The God of Abraham Praise (simplified)<br>`learning/keys/e-minor/song-leoni-simplified` | arrangement | [Australian Hymn Book, number 53](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=525)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
+| Song - The God of Abraham Praise<br>`learning/keys/e-minor/song-leoni` | arrangement | [Australian Hymn Book, number 53](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=525)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
 | D major - introduction<br>`learning/keys/d-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | D major - beginner<br>`learning/keys/d-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | D major - intermediate<br>`learning/keys/d-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | D major - advanced<br>`learning/keys/d-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | Song - Joy to the World<br>`learning/keys/d-major/song-joy-to-the-world` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1223)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
+| Song - The First Noel (simplified)<br>`learning/keys/d-major/song-the-first-noel-simplified` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1243)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
+| Song - The First Noel<br>`learning/keys/d-major/song-the-first-noel` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1243)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
+| Song - Tryggare kan ingen vara (simplified)<br>`learning/keys/d-major/song-tryggare-kan-ingen-vara-simplified` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
+| Song - Tryggare kan ingen vara<br>`learning/keys/d-major/song-tryggare-kan-ingen-vara` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
 | B minor - introduction<br>`learning/keys/b-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | B minor - beginner<br>`learning/keys/b-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | B minor - intermediate<br>`learning/keys/b-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
@@ -148,6 +182,8 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | B♭ major - intermediate<br>`learning/keys/b-flat-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | B♭ major - advanced<br>`learning/keys/b-flat-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | Song - Silent Night<br>`learning/keys/b-flat-major/song-silent-night` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1295)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
+| Song - It Came Upon the Midnight Clear (simplified)<br>`learning/keys/b-flat-major/song-it-came-upon-the-midnight-clear-simplified` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1231)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
+| Song - It Came Upon the Midnight Clear<br>`learning/keys/b-flat-major/song-it-came-upon-the-midnight-clear` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1231)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
 | G minor - introduction<br>`learning/keys/g-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | G minor - beginner<br>`learning/keys/g-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | G minor - intermediate<br>`learning/keys/g-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
@@ -157,10 +193,18 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | F major - intermediate<br>`learning/keys/f-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | F major - advanced<br>`learning/keys/f-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | Song - The Holly and the Ivy<br>`learning/keys/f-major/song-the-holly-and-the-ivy` | arrangement | [http://www.hymnsandcarolsofchristmas.com/Hymns_and_Carols/holly_and_the_ivy.htm](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=644)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
+| Song - Hark! the Herald Angels Sing (simplified)<br>`learning/keys/f-major/song-hark-the-herald-angels-sing-simplified` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1261)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
+| Song - Hark! the Herald Angels Sing<br>`learning/keys/f-major/song-hark-the-herald-angels-sing` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1261)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
+| Song - In the Bleak Midwinter (simplified)<br>`learning/keys/f-major/song-in-the-bleak-midwinter-simplified` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
+| Song - In the Bleak Midwinter<br>`learning/keys/f-major/song-in-the-bleak-midwinter` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
+| Song - Praise to the Lord (simplified)<br>`learning/keys/f-major/song-praise-to-the-lord-simplified` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1256)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
+| Song - Praise to the Lord<br>`learning/keys/f-major/song-praise-to-the-lord` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1256)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
 | D minor - introduction<br>`learning/keys/d-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | D minor - beginner<br>`learning/keys/d-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | D minor - intermediate<br>`learning/keys/d-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | D minor - advanced<br>`learning/keys/d-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| Song - Passion Chorale (simplified)<br>`learning/keys/d-minor/song-passion-chorale-simplified` | arrangement | [Edition Peters](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=107)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
+| Song - Passion Chorale<br>`learning/keys/d-minor/song-passion-chorale` | arrangement | [Edition Peters](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=107)<br>song-chords-v2 | mechanical (bars all)<br>theory | 0 | verified | 2026-10-03 |
 | C major to A minor - introduction<br>`learning/key-changes/c-major-to-a-minor/introduction` | exercise | exercise-theory-v3 | theory | 0 | verified | 2026-09-28 |
 | C major to A minor - beginner<br>`learning/key-changes/c-major-to-a-minor/beginner` | exercise | exercise-theory-v3 | theory | 0 | verified | 2026-09-28 |
 | C major to A minor - intermediate<br>`learning/key-changes/c-major-to-a-minor/intermediate` | exercise | exercise-theory-v3 | theory | 0 | verified | 2026-09-28 |
@@ -217,6 +261,50 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | A major to A minor - introduction<br>`learning/key-changes/a-major-to-a-minor/introduction` | exercise | exercise-theory-v3 | theory | 0 | verified | 2026-09-28 |
 | A major to A minor - beginner<br>`learning/key-changes/a-major-to-a-minor/beginner` | exercise | exercise-theory-v3 | theory | 0 | verified | 2026-09-28 |
 | A major to A minor - intermediate<br>`learning/key-changes/a-major-to-a-minor/intermediate` | exercise | exercise-theory-v3 | theory | 0 | verified | 2026-09-28 |
+| Major chords<br>`learning/chord-lessons/single-chords/major-triads` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Minor chords<br>`learning/chord-lessons/single-chords/minor-triads` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Major chord inversions<br>`learning/chord-lessons/single-chords/major-chord-inversions` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Minor chord inversions<br>`learning/chord-lessons/single-chords/minor-chord-inversions` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Suspended chords<br>`learning/chord-lessons/single-chords/suspended-chords` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Diminished and augmented (simplified)<br>`learning/chord-lessons/single-chords/diminished-and-augmented-simplified` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Diminished and augmented<br>`learning/chord-lessons/single-chords/diminished-and-augmented` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Seventh chords (simplified)<br>`learning/chord-lessons/single-chords/seventh-chords-simplified` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Seventh chords<br>`learning/chord-lessons/single-chords/seventh-chords` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Major to minor in C major<br>`learning/chord-lessons/switches/major-to-minor-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Major to minor in G major<br>`learning/chord-lessons/switches/major-to-minor-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Major to minor in D major<br>`learning/chord-lessons/switches/major-to-minor-in-d-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii to I in C major<br>`learning/chord-lessons/switches/minor-to-major-step-down-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii to I in F major<br>`learning/chord-lessons/switches/minor-to-major-step-down-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii to I in G major<br>`learning/chord-lessons/switches/minor-to-major-step-down-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I to IV in C major<br>`learning/chord-lessons/switches/one-to-four-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I to IV in G major<br>`learning/chord-lessons/switches/one-to-four-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I to IV in F major<br>`learning/chord-lessons/switches/one-to-four-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I to V in C major<br>`learning/chord-lessons/switches/one-to-five-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I to V in G major<br>`learning/chord-lessons/switches/one-to-five-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I to V in F major<br>`learning/chord-lessons/switches/one-to-five-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| i to V in A minor<br>`learning/chord-lessons/switches/minor-one-to-five-in-a-minor` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| i to V in E minor<br>`learning/chord-lessons/switches/minor-one-to-five-in-e-minor` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| i to V in D minor<br>`learning/chord-lessons/switches/minor-one-to-five-in-d-minor` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-IV-I in C major<br>`learning/chord-lessons/progressions/one-four-one-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-IV-I in G major<br>`learning/chord-lessons/progressions/one-four-one-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-IV-I in F major<br>`learning/chord-lessons/progressions/one-four-one-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-V-I in C major<br>`learning/chord-lessons/progressions/one-five-one-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-V-I in G major<br>`learning/chord-lessons/progressions/one-five-one-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-V-I in F major<br>`learning/chord-lessons/progressions/one-five-one-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-IV-V-I in C major<br>`learning/chord-lessons/progressions/one-four-five-one-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-IV-V-I in G major<br>`learning/chord-lessons/progressions/one-four-five-one-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-IV-V-I in F major<br>`learning/chord-lessons/progressions/one-four-five-one-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| I-IV-V-I in D major<br>`learning/chord-lessons/progressions/one-four-five-one-in-d-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii-V-I in C major (simplified)<br>`learning/chord-lessons/progressions/two-five-one-simplified-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii-V-I in F major (simplified)<br>`learning/chord-lessons/progressions/two-five-one-simplified-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii-V-I in B♭ major (simplified)<br>`learning/chord-lessons/progressions/two-five-one-simplified-in-b-flat-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii-V-I in C major<br>`learning/chord-lessons/progressions/two-five-one-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii-V-I in F major<br>`learning/chord-lessons/progressions/two-five-one-in-f-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| ii-V-I in B♭ major<br>`learning/chord-lessons/progressions/two-five-one-in-b-flat-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Twelve-bar blues in C major (simplified)<br>`learning/chord-lessons/progressions/twelve-bar-blues-simplified-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Twelve-bar blues in G major (simplified)<br>`learning/chord-lessons/progressions/twelve-bar-blues-simplified-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Twelve-bar blues in C major<br>`learning/chord-lessons/progressions/twelve-bar-blues-in-c-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
+| Twelve-bar blues in G major<br>`learning/chord-lessons/progressions/twelve-bar-blues-in-g-major` | exercise | chord-lessons-v1 | theory | 0 | verified | 2026-10-03 |
 
 ## Removed
 
@@ -281,6 +369,18 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 - Departure: Left-hand block chords are our own (CC0).
 - Departure: Transposed up a perfect fourth, from E minor to A minor.
 
+### Song - It Came Upon the Midnight Clear (`learning/keys/b-flat-major/song-it-came-upon-the-midnight-clear`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: The left-hand broken chords (root, fifth, third, fifth) are our own (CC0).
+
+### Song - It Came Upon the Midnight Clear (simplified) (`learning/keys/b-flat-major/song-it-came-upon-the-midnight-clear-simplified`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+- Departure: Simplified: one block chord a bar, held, with the three primary chords only (B♭, E♭, F), instead of the full version's moving left hand.
+- Departure: Slower: 72 instead of 84 quarter notes a minute.
+
 ### Song - Silent Night (`learning/keys/b-flat-major/song-silent-night`)
 
 - Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).
@@ -296,6 +396,20 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 - Departure: Left-hand block chords are our own (CC0).
 - Departure: The first eight bars only (the two phrases everyone knows).
 
+### Song - O God, Our Help in Ages Past (`learning/keys/c-major/song-o-god-our-help-in-ages-past`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: The left-hand repeated chords on every beat are our own (CC0).
+- Departure: Barred with a one-beat pickup, as hymnals print the tune (the source starts it on the first beat of a bar): every note keeps its place in time, only the bar lines move.
+
+### Song - O God, Our Help in Ages Past (simplified) (`learning/keys/c-major/song-o-god-our-help-in-ages-past-simplified`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+- Departure: Simplified: one block chord a bar, held, with the three primary chords only (C, G, F), instead of the full version's moving left hand.
+- Departure: Slower: 72 instead of 88 quarter notes a minute.
+- Departure: Barred with a one-beat pickup, as hymnals print the tune (the source starts it on the first beat of a bar): every note keeps its place in time, only the bar lines move.
+
 ### C major - I-vi-ii-V (`learning/keys/c-major/turnaround`)
 
 - Outcome (fixed): Feature 014: a beginner right-hand melody over the unchanged left-hand chords; the item starts fresh. Theory check (the left-hand chords from the title) and melody rule check (harmony, key, ending, register, fingering, Difficulty ladder): 0 differences. Earlier (feature 007): The description said "one common tone per change", but I to vi shares two (C, E). Corrected at the exercise definition to "one or two common tones per change"; no note changed.
@@ -305,10 +419,100 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 - Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).
 - Departure: Left-hand block chords are our own (CC0).
 
+### Song - The First Noel (`learning/keys/d-major/song-the-first-noel`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: The left-hand waltz accompaniment (bass, then chord, chord) is our own (CC0).
+
+### Song - The First Noel (simplified) (`learning/keys/d-major/song-the-first-noel-simplified`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+- Departure: Simplified: one block chord a bar, held, with the three primary chords only (D, G, A), instead of the full version's moving left hand.
+- Departure: Slower: 80 instead of 96 quarter notes a minute.
+
+### Song - Tryggare kan ingen vara (`learning/keys/d-major/song-tryggare-kan-ingen-vara`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: The left-hand waltz accompaniment (bass, then chord, chord) is our own (CC0).
+
+### Song - Tryggare kan ingen vara (simplified) (`learning/keys/d-major/song-tryggare-kan-ingen-vara-simplified`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+- Departure: Simplified: one block chord a bar, held, with the three primary chords only (D, G, A), instead of the full version's moving left hand.
+- Departure: Slower: 80 instead of 96 quarter notes a minute.
+
+### Song - Passion Chorale (`learning/keys/d-minor/song-passion-chorale`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: The left-hand repeated chords on every beat are our own (CC0).
+- Departure: The fermatas at the ends of the phrases are left out: the music goes on in time.
+
+### Song - Passion Chorale (simplified) (`learning/keys/d-minor/song-passion-chorale-simplified`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+- Departure: Simplified: one block chord a bar, held, with the chords of a beginner minor song only (Dm, Gm, C), instead of the full version's moving left hand.
+- Departure: Slower: 60 instead of 72 quarter notes a minute.
+- Departure: The fermatas at the ends of the phrases are left out: the music goes on in time.
+
+### Song - The God of Abraham Praise (`learning/keys/e-minor/song-leoni`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: The left-hand broken chords (root, fifth, third, fifth) are our own (CC0).
+- Departure: The double bar lines the source prints inside the bars at the ends of phrases are left out: the music is written in whole 4/4 bars.
+- Departure: Written in E minor, the key the source sounds in (the source writes it in F minor and transposes it down a semitone).
+
+### Song - The God of Abraham Praise (simplified) (`learning/keys/e-minor/song-leoni-simplified`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+- Departure: Simplified: one block chord a bar, held, with the chords of a beginner minor song only (Em, D, Bm, B, Am), instead of the full version's moving left hand.
+- Departure: Slower: 72 instead of 88 quarter notes a minute.
+- Departure: The double bar lines the source prints inside the bars at the ends of phrases are left out: the music is written in whole 4/4 bars.
+- Departure: Written in E minor, the key the source sounds in (the source writes it in F minor and transposes it down a semitone).
+
 ### Song - O Come, O Come, Emmanuel (`learning/keys/e-minor/song-o-come-o-come-emmanuel`)
 
 - Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).
 - Departure: Left-hand block chords are our own (CC0).
+
+### Song - Hark! the Herald Angels Sing (`learning/keys/f-major/song-hark-the-herald-angels-sing`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: The left-hand repeated chords on every beat are our own (CC0).
+
+### Song - Hark! the Herald Angels Sing (simplified) (`learning/keys/f-major/song-hark-the-herald-angels-sing-simplified`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+- Departure: Simplified: one block chord a bar, held, with the three primary chords only (F, C, B♭), instead of the full version's moving left hand.
+- Departure: Slower: 84 instead of 100 quarter notes a minute.
+
+### Song - In the Bleak Midwinter (`learning/keys/f-major/song-in-the-bleak-midwinter`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: The left-hand broken chords (root, fifth, third, fifth) are our own (CC0).
+
+### Song - In the Bleak Midwinter (simplified) (`learning/keys/f-major/song-in-the-bleak-midwinter-simplified`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+- Departure: Simplified: one block chord a bar, held, with the three primary chords only (F, B♭, C), instead of the full version's moving left hand.
+- Departure: Slower: 60 instead of 72 quarter notes a minute.
+
+### Song - Praise to the Lord (`learning/keys/f-major/song-praise-to-the-lord`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: The left-hand repeated chords on every beat are our own (CC0).
+
+### Song - Praise to the Lord (simplified) (`learning/keys/f-major/song-praise-to-the-lord-simplified`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+- Departure: Simplified: one block chord a bar, held, with the three primary chords only (F, C, B♭), instead of the full version's moving left hand.
+- Departure: Slower: 88 instead of 104 quarter notes a minute.
 
 ### Song - The Holly and the Ivy (`learning/keys/f-major/song-the-holly-and-the-ivy`)
 
@@ -325,6 +529,18 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 - Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).
 - Departure: Left-hand block chords are our own (CC0).
 - Departure: Transposed down a major second, from A major to G major.
+
+### Song - Immortal, Invisible (`learning/keys/g-major/song-immortal-invisible`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: The left-hand waltz accompaniment (bass, then chord, chord) is our own (CC0).
+
+### Song - Immortal, Invisible (simplified) (`learning/keys/g-major/song-immortal-invisible-simplified`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+- Departure: Simplified: one block chord a bar, held, with the three primary chords only (G, C, D), instead of the full version's moving left hand.
+- Departure: Slower: 88 instead of 104 quarter notes a minute.
 
 ### Song - O Come, All Ye Faithful (`learning/keys/g-major/song-o-come-all-ye-faithful`)
 

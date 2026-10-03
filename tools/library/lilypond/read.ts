@@ -546,6 +546,8 @@ function layOut(root: LyMusic, staves: Staves): Layout {
         return;
       }
       case 'context': {
+        // Chord names print above the staff; even notes written straight into the context are names, not notes.
+        if (m.type === 'ChordNames') return;
         const saved = { staff, voice, inDynamics };
         if (m.type === 'Staff') {
           staff = staves.byNode.get(m) as number;

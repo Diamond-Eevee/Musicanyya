@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "learning/chord-lessons/single-chords/major-chord-inversions",
+  "title": "Major chord inversions",
+  "section": "learning/chord-lessons/single-chords",
+  "stepOrder": 30,
+  "level": "beginner",
+  "hands": "right",
+  "tags": ["chords", "inversions"],
+  "trains": "An inversion is the same chord with another of its notes at the bottom. C/E is C E G with E lowest, C/G has G lowest; the letter after the slash names the bass. Root position 1-3-5, first inversion 1-2-5, second 1-3-5.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {},
+  "bars": [
+    {
+      "rh": "{C}<C4 E4 G4>:h@1-3-5 {C/E}<E4 G4 C5>:h@1-2-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{C/G}<G4 C5 E5>:h@1-3-5 {C/E}<E4 G4 C5>:h@1-2-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{F}<F4 A4 C5>:h@1-3-5 {F/A}<A4 C5 F5>:h@1-2-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{F/C}<C5 F5 A5>:h@1-3-5 {F/A}<A4 C5 F5>:h@1-2-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{F}<F4 A4 C5>:w@1-3-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{C/E}<E4 G4 C5>:h@1-2-5 {F/A}<A4 C5 F5>:h@1-2-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:h@1-3-5 {F/C}<C4 F4 A4>:h@1-3-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{C}<C4 E4 G4>:w@1-3-5",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}
