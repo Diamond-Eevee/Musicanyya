@@ -40,7 +40,7 @@
 
 ### Level rules (OD-1, research R1, data-model §1)
 
-- [ ] T004 [P] [deep] Write failing tests in `tests/core/library/levels.test.ts`: (a) an Introduction exercise and
+- [x] T004 [P] [deep] Write failing tests in `tests/core/library/levels.test.ts`: (a) an Introduction exercise and
   piece with only eighth notes / only ties / only a repeat / only 6/8 / only a pickup each pass (criteria 5, 12, 20,
   24 retired); (b) eighth notes + ties fails with `failed` = `['29']`; (c) a minor key's raised 6th/7th are not the
   `accidentals` feature; (d) accidentals in an item with a key change are not a second feature; (e) Beginner with
@@ -49,39 +49,39 @@
   Advanced item is Advanced; (h) an Introduction item with dotted quarter + eighth only passes (one feature,
   `dotted-rhythm`), and a 6/8 Introduction item with dotted quarters and eighths only passes (one feature, `metre`) -
   analyze H2. Run; record the failures.
-- [ ] T005 [P] Write failing tests in `tests/core/library/facts.test.ts` for `hasPickup` (implicit short first
+- [x] T005 [P] Write failing tests in `tests/core/library/facts.test.ts` for `hasPickup` (implicit short first
   measure: true; full first measure or implicit full measure: false), `hasDottedRhythm` (dotted quarter + eighth in
   4/4: true; dotted half only: false; dotted quarter in 6/8: false; dotted grace note ignored) and `hasShortNotes`
   (eighth pairs: true; eighths only after dotted quarters in 4/4: false; eighths in 6/8: false; a sixteenth in 6/8:
   true), using fixtures built in the test with `src/core/musicxml/write.ts` (a comment states they are authored for
   the test, CC0 - constitution IV).
-- [ ] T006 [light] In `src/core/defaults.ts` add `INTRODUCTION_FOCUS_FEATURES_MAX = 1`, `INTRODUCTION_FOCUS_FEATURES`
+- [x] T006 [light] In `src/core/defaults.ts` add `INTRODUCTION_FOCUS_FEATURES_MAX = 1`, `INTRODUCTION_FOCUS_FEATURES`
   (the 11 ids of data-model §1, in order) and `INTRODUCTION_SIMPLE_METRES = ['2/4', '3/4', '4/4']`, each with a comment
   citing 022 data-model §1.
-- [ ] T007 Add `hasPickup`, `hasDottedRhythm` and `hasShortNotes` to `ItemFacts` (`src/core/library/types.ts`, optional) and compute
+- [x] T007 Add `hasPickup`, `hasDottedRhythm` and `hasShortNotes` to `ItemFacts` (`src/core/library/types.ts`, optional) and compute
   them in `src/core/library/facts.ts`; read them as optional booleans in `src/core/library/index-model.ts`. T005 green.
-- [ ] T008 [deep] Rewrite `failingCriteria` in `src/core/library/levels.ts`: drop criteria 5, 6, 8-13, 20-25 and the
+- [x] T008 [deep] Rewrite `failingCriteria` in `src/core/library/levels.ts`: drop criteria 5, 6, 8-13, 20-25 and the
   B5/B6 variants, add criterion 29 from the T006 constants; remove the now-unread constants from `src/core/defaults.ts`
   (data-model §1 list; keep any still imported elsewhere with a comment). Update the doc comments. T004 green;
   `pnpm typecheck` green.
-- [ ] T009 Write `tests/library/levels-unchanged.test.ts`: every id in `tests/library/base-levels.json` exists in
+- [x] T009 Write `tests/library/levels-unchanged.test.ts`: every id in `tests/library/base-levels.json` exists in
   `public/library/index.json` with the same `meta.level` and `levelCheck.pass === true` (SC-006, FR-006). Run: it fails
   for the items that now need `raisedBecause`; record the list (expected about 16, research R1).
-- [ ] T010 [deep] Give every item T009 lists a `raisedBecause` naming what made it harder before OD-1 (e.g. "A key
+- [x] T010 [deep] Give every item T009 lists a `raisedBecause` naming what made it harder before OD-1 (e.g. "A key
   change in the middle of the piece", "6/8 with a pickup and ties across bar lines"): generated exercises in their
   definitions under `content/library/exercises/` (exercise-definition meta), downloaded pieces in their sidecar under
   `public/library/repertoire/`; songs wait for T013. Never change a `level`.
-- [ ] T011 [light] Run `pnpm library:exercises`, `pnpm library:index`; T009 still lists only the songs.
+- [x] T011 [light] Run `pnpm library:exercises`, `pnpm library:index`; T009 still lists only the songs.
 
 ### Tags, sections, song-definition meta (library-index 1.5.0, song-definition 1.2.0 part)
 
-- [ ] T012 [P] Write failing tests in `tests/core/library/index-model.test.ts`: an item tagged each of `note-values`,
+- [x] T012 [P] Write failing tests in `tests/core/library/index-model.test.ts`: an item tagged each of `note-values`,
   `rests`, `articulation`, `time-signatures`, `reading`, `inversions`, `seventh-chords` is kept (today: skipped).
-- [ ] T013 Allow `meta.raisedBecause` in song definitions (`tools/library/songs/definition.ts`, written into the
+- [x] T013 Allow `meta.raisedBecause` in song definitions (`tools/library/songs/definition.ts`, written into the
   sidecar by `tools/library/build-songs.ts`), test first in `tests/tools/songs/definition.test.ts`; then add the
   `raisedBecause` T009 found for Silent Night and O Come O Come Emmanuel in `content/library/songs/*.json`, run
   `pnpm library:songs`, `pnpm library:index`; T009 green.
-- [ ] T014 [light] Add the seven tags to `SKILL_TAGS` (`src/core/library/types.ts`) and labels in `src/ui/i18n/en.ts`
+- [x] T014 [light] Add the seven tags to `SKILL_TAGS` (`src/core/library/types.ts`) and labels in `src/ui/i18n/en.ts`
   ("Note values", "Rests", "Articulation", "Time signatures", "Reading", "Inversions", "Seventh chords"). T012 green.
 - [ ] T015 Write failing tests in `tests/library/index.test.ts`: `learning` has `order` 2 and `repertoire` `order` 3;
   no section id equals any `formerIds` entry. (The new sections only appear in the index once they hold items, so

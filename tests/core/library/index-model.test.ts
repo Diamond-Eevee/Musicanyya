@@ -183,6 +183,26 @@ describe('library-index 1.2.0 fields', () => {
     expect(index.items[0]?.meta.tags).toContain('key-changes');
   });
 
+  // Feature 022 (library-index 1.5.0, research R11): the tags of the Basics and chord lessons
+  it.each(['note-values', 'rests', 'articulation', 'time-signatures', 'reading', 'inversions', 'seventh-chords'])(
+    'keeps an item tagged %s',
+    (tag) => {
+      const { index, notices } = parseLibraryIndex(validIndex([stepItem({ tags: ['chords', tag] })]));
+      expect(notices).toEqual([]);
+      expect(index.items).toHaveLength(1);
+      expect(index.items[0]?.meta.tags).toContain(tag);
+    },
+  );
+
+  it('copies the 022 rhythm facts hasPickup, hasDottedRhythm and hasShortNotes', () => {
+    const { index } = parseLibraryIndex(
+      validIndex([stepItem({}, { hasPickup: true, hasDottedRhythm: false, hasShortNotes: true })]),
+    );
+    expect(index.items[0]?.facts.hasPickup).toBe(true);
+    expect(index.items[0]?.facts.hasDottedRhythm).toBe(false);
+    expect(index.items[0]?.facts.hasShortNotes).toBe(true);
+  });
+
   it('accepts levelCheck.level introduction', () => {
     const raw = stepItem({}, {});
     const { index } = parseLibraryIndex(

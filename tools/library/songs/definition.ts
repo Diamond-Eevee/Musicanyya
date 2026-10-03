@@ -49,6 +49,8 @@ export interface SongDefinition {
     trains: string;
     composer?: string;
     departures?: string[];
+    /** Why the song sits above the level its facts measure (song-definition 1.2.0, feature 022 FR-006). */
+    raisedBecause?: string;
     reviewedBy: string;
     reviewedOn: string;
   };
@@ -58,7 +60,7 @@ const TOP_FIELDS = ['version', 'id', 'title', 'source', 'melody', 'key', 'tempoB
 const MELODY_FIELDS = ['staff', 'voice', 'topVoice', 'bars', 'transpose'];
 const KEY_FIELDS = ['tonic', 'mode', 'fifths'];
 const CHORD_FIELDS = ['bar', 'beat', 'degree', 'quality', 'inversion', 'until'];
-const META_FIELDS = ['level', 'trains', 'composer', 'departures', 'reviewedBy', 'reviewedOn'];
+const META_FIELDS = ['level', 'trains', 'composer', 'departures', 'raisedBecause', 'reviewedBy', 'reviewedOn'];
 const QUALITIES = ['major', 'minor', 'diminished', 'augmented'];
 const ID = /^learning\/keys\/([a-z0-9-]+)\/song-[a-z0-9-]+$/;
 const BARS = /^(?:all|\d+-\d+)$/;
@@ -143,6 +145,7 @@ export function validateSongDefinition(json: unknown, sources: ReadonlySet<strin
       fail('meta.departures must list at least one departure when present');
     for (const d of meta.departures as unknown[]) string(d, 'meta.departures[]', fail, 500);
   }
+  if (meta.raisedBecause !== undefined) string(meta.raisedBecause, 'meta.raisedBecause', fail, 500);
   string(meta.reviewedBy, 'meta.reviewedBy', fail, 100);
   if (
     typeof meta.reviewedOn !== 'string' ||

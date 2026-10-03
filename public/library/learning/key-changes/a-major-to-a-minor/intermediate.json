@@ -15,6 +15,7 @@
   },
   "reviewedBy": "claude-opus-5.5",
   "reviewedOn": "2026-09-28",
+  "raisedBecause": "A change of key in the middle of the exercise, under right-hand runs of more than four eighth notes in a row.",
   "step": "intermediate",
   "stepOrder": 0
 }

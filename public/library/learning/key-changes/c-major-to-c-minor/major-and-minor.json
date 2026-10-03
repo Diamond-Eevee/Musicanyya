@@ -15,6 +15,7 @@
   },
   "reviewedBy": "claude-opus-5.5",
   "reviewedOn": "2026-09-28",
+  "raisedBecause": "Major and minor on the same tonic, switched back and forth with accidentals in almost every bar, ties across bar lines and a repeat.",
   "step": "intermediate",
   "stepOrder": 10
 }

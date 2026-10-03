@@ -355,6 +355,13 @@ export const en = {
       dynamics: 'Dynamics',
       phrasing: 'Phrasing',
       'key-changes': 'Key changes',
+      'note-values': 'Note values',
+      rests: 'Rests',
+      articulation: 'Articulation',
+      'time-signatures': 'Time signatures',
+      reading: 'Reading',
+      inversions: 'Inversions',
+      'seventh-chords': 'Seventh chords',
     } as Record<string, string>,
     detail: {
       composer: 'Composer',

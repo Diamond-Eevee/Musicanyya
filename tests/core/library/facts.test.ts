@@ -7,6 +7,12 @@ import type { ExerciseDefinition } from '../../../src/core/library/exercise/type
 import { deriveFacts } from '../../../src/core/library/facts.js';
 import { buildScore } from '../../../src/core/musicxml/build.js';
 import { readXml } from '../../../src/core/musicxml/read.js';
+import {
+  type WriteDuration,
+  type WriteMeasure,
+  type WriteNote,
+  writeScoreXml,
+} from '../../../src/core/musicxml/write.js';
 import { buildTimeline } from '../../../src/core/timeline/timeline.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -555,5 +561,134 @@ describe('deriveFacts: hand spans count struck notes only (feature 019 T100)', (
         { step: 'E', octave: 4, chord: true },
       ]).maxSpanSemitones,
     ).toBe(16);
+  });
+});
+
+// Feature 022 (data-model §1, library-index 1.5.0): the facts criterion 29 reads. The fixtures below are authored for
+// this test (CC0) and written through src/core/musicxml/write.ts, so they are exactly what the library builders write.
+describe('022 rhythm facts: hasPickup, hasDottedRhythm, hasShortNotes', () => {
+  /** A value and its dots, e.g. 'q.' = dotted quarter; 'g8' = an eighth grace note, 'g8.' a dotted one. */
+  type Token = string;
+  const DIVISIONS = 4; // a quarter = 4, so a sixteenth is 1
+  const VALUES: Record<string, { type: WriteDuration; duration: number }> = {
+    w: { type: 'whole', duration: 16 },
+    h: { type: 'half', duration: 8 },
+    q: { type: 'quarter', duration: 4 },
+    '8': { type: 'eighth', duration: 2 },
+    '16': { type: '16th', duration: 1 },
+  };
+
+  function note(token: Token): WriteNote {
+    const grace = token.startsWith('g');
+    const body = grace ? token.slice(1) : token;
+    const dotted = body.endsWith('.');
+    const value = VALUES[dotted ? body.slice(0, -1) : body];
+    if (!value) throw new Error(`unknown token ${token}`);
+    const duration = dotted ? value.duration * 1.5 : value.duration;
+    return {
+      pitch: { step: 'C', octave: 4 },
+      duration: grace ? 0 : duration,
+      voice: '1',
+      type: value.type,
+      ...(dotted ? { dot: true } : {}),
+      ...(grace ? { grace: {} } : {}),
+    };
+  }
+
+  function rhythmFacts(time: [string, number], bars: Token[][], options: { implicitFirst?: boolean } = {}) {
+    const measures: WriteMeasure[] = bars.map((bar, index) => ({
+      number: options.implicitFirst ? String(index) : String(index + 1),
+      ...(options.implicitFirst && index === 0 ? { implicit: true } : {}),
+      ...(index === 0
+        ? {
+            attributes: {
+              divisions: DIVISIONS,
+              key: { fifths: 0, mode: 'major' },
+              time: { beats: time[0], beatType: time[1] },
+              clefs: [{ number: 1, sign: 'G', line: 2 }],
+            },
+          }
+        : {}),
+      events: bar.map((token) => ({ kind: 'note' as const, note: note(token) })),
+    }));
+    const xml = writeScoreXml({ parts: [{ id: 'P1', name: 'Piano', measures }] });
+    const { doc } = readXml(xml);
+    const { score, report } = buildScore(doc);
+    const { timeline, notices } = buildTimeline(score);
+    return deriveFacts({ doc, score, timeline, report, timelineNotices: notices });
+  }
+
+  describe('hasPickup', () => {
+    it('an implicit first measure shorter than the metre is a pickup', () => {
+      expect(rhythmFacts(['4', 4], [['q'], ['h', 'h'], ['h', 'q']], { implicitFirst: true }).hasPickup).toBe(true);
+    });
+
+    it('a full first measure is not a pickup', () => {
+      expect(rhythmFacts(['4', 4], [['h', 'h'], ['w']]).hasPickup).toBe(false);
+    });
+
+    it('an implicit first measure that is full is not a pickup', () => {
+      expect(rhythmFacts(['3', 4], [['h', 'q'], ['h.']], { implicitFirst: true }).hasPickup).toBe(false);
+    });
+  });
+
+  describe('hasDottedRhythm', () => {
+    it('a dotted quarter and an eighth in 4/4 is a dotted rhythm', () => {
+      expect(rhythmFacts(['4', 4], [['q.', '8', 'h'], ['w']]).hasDottedRhythm).toBe(true);
+    });
+
+    it('a dotted half alone is not', () => {
+      expect(rhythmFacts(['3', 4], [['h.'], ['h.']]).hasDottedRhythm).toBe(false);
+    });
+
+    it('a dotted quarter in 6/8 is the beat, not a dotted rhythm', () => {
+      expect(
+        rhythmFacts(
+          ['6', 8],
+          [
+            ['q.', 'q.'],
+            ['q.', 'q.'],
+          ],
+        ).hasDottedRhythm,
+      ).toBe(false);
+    });
+
+    it('a dotted grace note is ignored', () => {
+      expect(rhythmFacts(['4', 4], [['g8.', 'q', 'q', 'h'], ['w']]).hasDottedRhythm).toBe(false);
+    });
+  });
+
+  describe('hasShortNotes', () => {
+    it('pairs of eighths are short notes', () => {
+      expect(rhythmFacts(['4', 4], [['8', '8', 'q', 'h'], ['w']]).hasShortNotes).toBe(true);
+    });
+
+    it('an eighth only after a dotted quarter in 4/4 is part of the dotted rhythm, not a short note', () => {
+      expect(rhythmFacts(['4', 4], [['q.', '8', 'q.', '8'], ['w']]).hasShortNotes).toBe(false);
+    });
+
+    it('eighths in 6/8 belong to the metre', () => {
+      expect(
+        rhythmFacts(
+          ['6', 8],
+          [
+            ['8', '8', '8', 'q.'],
+            ['q', '8', 'q.'],
+          ],
+        ).hasShortNotes,
+      ).toBe(false);
+    });
+
+    it('a sixteenth in 6/8 is a short note', () => {
+      expect(
+        rhythmFacts(
+          ['6', 8],
+          [
+            ['16', '16', '8', '8', 'q.'],
+            ['q.', 'q.'],
+          ],
+        ).hasShortNotes,
+      ).toBe(true);
+    });
   });
 });

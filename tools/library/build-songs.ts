@@ -519,6 +519,7 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
     arranger: ARRANGER,
     kind: 'piece',
     level: definition.meta.level,
+    ...(definition.meta.raisedBecause ? { raisedBecause: definition.meta.raisedBecause } : {}),
     arrangement: true,
     tags: ['chords', 'hands-together'],
     trains: definition.meta.trains,

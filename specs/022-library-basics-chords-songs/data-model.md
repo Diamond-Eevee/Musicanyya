@@ -25,7 +25,7 @@ add:
 | `metre` | any of `metres` outside `INTRODUCTION_SIMPLE_METRES` (`2/4`, `3/4`, `4/4`) |
 | `tuplets` | `hasTuplets` |
 | `grace-ornaments` | `graceNoteCount + ornamentCount > 0` |
-| `accidentals` | `accidentalMarkCount - minorScaleAccidentalCount > 0` **and** `keys.length === 1` |
+| `accidentals` | `accidentalMarkCount - minorScaleAccidentalCount > 0` **and** `keys.length === 1`; the minor-scale count is subtracted only when the key is minor (a G♯ in C major is chromatic - T008) |
 | `pedal` | `hasPedal` |
 | `changes` | `keys.length > 1` or `metres.length > 1` or `tempoChanges > 0` |
 

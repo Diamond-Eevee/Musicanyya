@@ -258,6 +258,13 @@ describe('buildSong: the file and the sidecar', () => {
     expect(departures.some((d) => /perfect fourth/.test(d))).toBe(true);
   });
 
+  it('writes meta.raisedBecause into the sidecar, and nothing when it is absent (song-definition 1.2.0)', () => {
+    const raised = greensleeves();
+    raised.meta.raisedBecause = 'Why it sits higher.';
+    expect(buildSong(raised, options).sidecar.raisedBecause).toBe('Why it sits higher.');
+    expect(buildSong(greensleeves(), options).sidecar).not.toHaveProperty('raisedBecause');
+  });
+
   it('a song without a transposition departs only in its left hand', () => {
     const { sidecar } = buildSong(ode(), options);
     expect(sidecar.departures).toEqual(['Left-hand block chords are our own (CC0).']);

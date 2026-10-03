@@ -1,35 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import {
-  LEVEL_ACCIDENTALS_PER_16_MEASURES_MAX,
-  LEVEL_BACKWARD_REPEATS_MAX,
   LEVEL_DURATION_SECONDS_MAX,
-  LEVEL_GRACE_NOTES_PER_4_MEASURES_MAX,
   LEVEL_HAND_INDEPENDENCE_FRACTION_MAX,
-  LEVEL_KEY_CHANGES_MAX,
-  LEVEL_KEY_FIFTHS_MAX,
-  LEVEL_LONGEST_RUN_MAX,
   LEVEL_MAX_INTERVAL_SEMITONES,
   LEVEL_MAX_LEAP_SEMITONES,
   LEVEL_MEAN_DENSITY_MAX,
   LEVEL_MEASURES_RANGE,
-  LEVEL_METRE_CHANGES_MAX,
-  LEVEL_METRES,
-  LEVEL_ORNAMENTS_PER_4_MEASURES_MAX,
   LEVEL_PEAK_DENSITY_MAX,
-  LEVEL_PEDAL,
   LEVEL_PITCH_BOUNDS_MIDI,
   LEVEL_PITCH_SPAN_SEMITONES_MAX,
-  LEVEL_REPEAT_KINDS,
-  LEVEL_SHORTEST_VALUE_BEATS_MIN,
-  LEVEL_TEMPO_CHANGES_MAX,
   LEVEL_TEMPO_QPM_RANGE,
-  LEVEL_TIE_BARLINES_MAX,
-  LEVEL_TIE_CHAIN_NOTES_MAX,
-  LEVEL_TUPLETS,
   LEVEL_VOICES_PER_STAFF_MAX,
 } from '../../../src/core/defaults.js';
 import { checkLevel, computeLevel } from '../../../src/core/library/levels.js';
-import type { ItemFacts } from '../../../src/core/library/types.js';
+import type { ItemFacts, Level } from '../../../src/core/library/types.js';
 
 /** A minimal Beginner-satisfying `ItemFacts` (data-model.md §4) - every test below perturbs exactly
  *  one field away from this baseline to isolate one criterion at a time. */
@@ -101,16 +85,6 @@ describe('computeLevel: one criterion at a time (data-model.md §4)', () => {
     expect(computeLevel(facts({ voicesPerStaff: 4 }))).toBe('advanced');
   });
 
-  it('criterion 5 - a shortest value under half a beat needs Intermediate, under a quarter beat Advanced', () => {
-    expect(computeLevel(facts({ shortestDivision: 16 }))).toBe('intermediate'); // sixteenth = 0.25 beat
-    expect(computeLevel(facts({ shortestDivision: 32 }))).toBe('advanced'); // thirty-second = 0.125 beat
-  });
-
-  it('criterion 6 - a run of more than 4 shortest-value notes needs Intermediate', () => {
-    expect(computeLevel(facts({ longestRunAtShortestValue: 10 }))).toBe('intermediate');
-    expect(computeLevel(facts({ longestRunAtShortestValue: 40 }))).toBe('advanced');
-  });
-
   it('criterion 7 - tempo outside 50-100 needs Intermediate', () => {
     expect(computeLevel(facts({ tempoBpm: 120 }))).toBe('intermediate');
   });
@@ -123,34 +97,6 @@ describe('computeLevel: one criterion at a time (data-model.md §4)', () => {
     const defaulted = checkLevel(facts({ tempoDefaulted: true }), 'advanced');
     expect(defaulted.pass).toBe(false);
     expect(defaulted.failed).toContain('7');
-  });
-
-  it('criterion 8 - a tempo change needs Intermediate; more than two needs Advanced', () => {
-    expect(computeLevel(facts({ tempoChanges: 1 }))).toBe('intermediate');
-    expect(computeLevel(facts({ tempoChanges: 3 }))).toBe('advanced');
-  });
-
-  it('criterion 9 - a key signature past 2 sharps/flats needs Intermediate', () => {
-    expect(computeLevel(facts({ accidentals: 4 }))).toBe('intermediate');
-    expect(computeLevel(facts({ accidentals: 6 }))).toBe('advanced');
-  });
-
-  it('criterion 10 - a key change needs Intermediate', () => {
-    expect(computeLevel(facts({ keys: ['C major', 'G major'] }))).toBe('intermediate');
-  });
-
-  it('criterion 11 - accidentals outside the key signature past 2 per 16 measures need Intermediate', () => {
-    expect(computeLevel(facts({ accidentalMarkCount: 5 }))).toBe('intermediate');
-  });
-
-  it('criterion 12 - a metre outside the Beginner set needs Intermediate; outside both needs Advanced', () => {
-    expect(computeLevel(facts({ metres: ['6/8'] }))).toBe('intermediate');
-    expect(computeLevel(facts({ metres: ['5/4'] }))).toBe('advanced');
-  });
-
-  it('criterion 13 - a metre change needs Intermediate; more than one needs Advanced', () => {
-    expect(computeLevel(facts({ metres: ['4/4', '3/4'] }))).toBe('intermediate');
-    expect(computeLevel(facts({ metres: ['4/4', '3/4', '2/4'] }))).toBe('advanced');
   });
 
   it('criterion 14 - measures outside 8-32 need Intermediate; outside 16-96 too need Advanced', () => {
@@ -225,44 +171,6 @@ describe('computeLevel: one criterion at a time (data-model.md §4)', () => {
     expect(computeLevel(facts({ peakNotesPerSecond: 15 }))).toBe('advanced');
   });
 
-  it('criterion 20 - a tie chain longer than 2 notes needs Intermediate', () => {
-    expect(computeLevel(facts({ maxTieChainNotes: 3 }))).toBe('intermediate');
-  });
-
-  it('criterion 20 - a tie crossing more than one barline needs Intermediate', () => {
-    expect(computeLevel(facts({ maxTieChainNotes: 2, maxTieBarlinesCrossed: 2 }))).toBe('intermediate');
-  });
-
-  it('criterion 21 - any tuplet needs Intermediate; a non-3:2 tuplet needs Advanced', () => {
-    expect(computeLevel(facts({ hasTuplets: true }))).toBe('intermediate');
-    expect(computeLevel(facts({ hasTuplets: true, hasNonSimpleTuplet: true }))).toBe('advanced');
-  });
-
-  it('criterion 22 - any grace note needs Intermediate', () => {
-    expect(computeLevel(facts({ graceNoteCount: 1 }))).toBe('intermediate');
-  });
-
-  it('criterion 22 - grace notes past 1 per 4 measures (16 measures here) need Advanced', () => {
-    expect(computeLevel(facts({ graceNoteCount: 5 }))).toBe('advanced');
-  });
-
-  it('criterion 23 - any ornament needs Intermediate', () => {
-    expect(computeLevel(facts({ ornamentCount: 1 }))).toBe('intermediate');
-  });
-
-  it('criterion 24 - a volta needs Intermediate; a D.C./D.S. needs Advanced', () => {
-    expect(computeLevel(facts({ repeatKind: 'voltas', backwardRepeatCount: 1 }))).toBe('intermediate');
-    expect(computeLevel(facts({ repeatKind: 'jumps' }))).toBe('advanced');
-  });
-
-  it('criterion 24 - a second backward repeat needs Intermediate', () => {
-    expect(computeLevel(facts({ repeatKind: 'simple', backwardRepeatCount: 2 }))).toBe('intermediate');
-  });
-
-  it('criterion 25 - written pedal needs Intermediate', () => {
-    expect(computeLevel(facts({ hasPedal: true }))).toBe('intermediate');
-  });
-
   it('criterion 26 - an octave shift is allowed at every level (correction B)', () => {
     expect(computeLevel(facts({ hasOctaveShift: true }))).toBe('beginner');
   });
@@ -290,12 +198,6 @@ describe('computeLevel: one criterion at a time (data-model.md §4)', () => {
 });
 
 describe('checkLevel: correction C (kind/arrangement exemptions found against real content)', () => {
-  it('criterion 9 does not apply to an exercise - a wide key signature is fine for a shape drill', () => {
-    const wideKeyExercise = facts({ accidentals: 6 });
-    expect(checkLevel(wideKeyExercise, 'beginner', { kind: 'exercise' }).pass).toBe(true);
-    expect(checkLevel(wideKeyExercise, 'beginner').pass).toBe(false); // a piece: criterion 9 still applies
-  });
-
   it("criterion 14's minimum does not apply to an exercise or an arrangement", () => {
     const short = facts({ measures: 4 }); // below every level's minimum
     expect(checkLevel(short, 'beginner', { kind: 'exercise' }).pass).toBe(true);
@@ -307,17 +209,11 @@ describe('checkLevel: correction C (kind/arrangement exemptions found against re
     expect(checkLevel(long, 'advanced', { kind: 'exercise' }).pass).toBe(false);
     expect(checkLevel(long, 'advanced', { arrangement: true }).pass).toBe(false);
   });
-
-  it('criterion 20 does not apply to an exercise - a chord-change drill may tie a common tone freely', () => {
-    const tiedThroughout = facts({ maxTieChainNotes: 8, maxTieBarlinesCrossed: 6 });
-    expect(checkLevel(tiedThroughout, 'beginner', { kind: 'exercise' }).pass).toBe(true);
-    expect(checkLevel(tiedThroughout, 'beginner').pass).toBe(false); // a piece: criterion 20 still applies
-  });
 });
 
 describe('checkLevel: assigned vs. computed (data-model.md §4)', () => {
   it('assigned below computed fails - the item is harder than its shelf says', () => {
-    const tooHard = facts({ accidentals: 6 }); // computes to advanced
+    const tooHard = facts({ maxSpanSemitones: 15 }); // computes to advanced (criterion 16)
     const check = checkLevel(tooHard, 'beginner');
     expect(check.pass).toBe(false);
     expect(check.level).toBe('beginner');
@@ -375,16 +271,8 @@ describe('Introduction level: the baseline and one criterion at a time (data-mod
     ['2 highest note above MIDI 84', { lowestMidi: 60, highestMidi: 90 }, 'intermediate'],
     ['3 hand independence over 0', { handIndependenceFraction: 0.1 }, 'beginner'],
     ['4 two voices in one staff', { voicesPerStaff: 2 }, 'intermediate'],
-    ['5 shortest value an eighth (0.5 beat)', { shortestDivision: 8 }, 'beginner'],
-    ['6 run of 5 at the shortest value', { longestRunAtShortestValue: 5 }, 'intermediate'],
     ['7 tempo above 72', { tempoBpm: 80 }, 'beginner'],
     ['7 tempo below 50', { tempoBpm: 45 }, 'intermediate'],
-    ['8 one tempo change', { tempoChanges: 1 }, 'intermediate'],
-    ['9 two sharps or flats in the key signature (piece)', { accidentals: 2 }, 'beginner'],
-    ['10 one key change (piece)', { keys: ['C major', 'G major'] }, 'intermediate'],
-    ['11 three accidentals in 16 bars', { accidentalMarkCount: 3 }, 'intermediate'],
-    ['12 a 2/4 bar', { metres: ['2/4'] }, 'beginner'],
-    ['13 a metre change', { metres: ['4/4', '3/4'] }, 'intermediate'],
     ['14 17 bars', { measures: 17 }, 'beginner'],
     ['14 7 bars (piece)', { measures: 7 }, 'advanced'],
     ['15 duration 70 s', { durationSeconds: 70 }, 'beginner'],
@@ -392,12 +280,6 @@ describe('Introduction level: the baseline and one criterion at a time (data-mod
     ['17 a 13-semitone leap', { maxLeapSemitones: 13 }, 'intermediate'],
     ['18 mean density 2 attacks/s', { attackCount: 60 }, 'beginner'],
     ['19 peak density 4 attacks/s', { peakNotesPerSecond: 4 }, 'beginner'],
-    ['20 a two-note tie chain', { maxTieChainNotes: 2, maxTieBarlinesCrossed: 1 }, 'beginner'],
-    ['21 a tuplet', { hasTuplets: true }, 'intermediate'],
-    ['22 a grace note', { graceNoteCount: 1 }, 'intermediate'],
-    ['23 an ornament', { ornamentCount: 1 }, 'intermediate'],
-    ['24 a backward repeat', { repeatKind: 'simple', backwardRepeatCount: 1 }, 'beginner'],
-    ['25 written pedal', { hasPedal: true }, 'intermediate'],
   ])('criterion %s', (_row, overrides, expected) => {
     expect(computeLevel(introFacts(overrides))).toBe(expected);
   });
@@ -430,77 +312,26 @@ describe("Introduction level: nested caps (every Introduction cap within Beginne
     ['span', LEVEL_PITCH_SPAN_SEMITONES_MAX],
     ['hand independence', LEVEL_HAND_INDEPENDENCE_FRACTION_MAX],
     ['voices per staff', LEVEL_VOICES_PER_STAFF_MAX],
-    ['longest run', LEVEL_LONGEST_RUN_MAX],
-    ['tempo changes', LEVEL_TEMPO_CHANGES_MAX],
-    ['key fifths', LEVEL_KEY_FIFTHS_MAX],
-    ['key changes', LEVEL_KEY_CHANGES_MAX],
-    ['accidentals per 16 bars', LEVEL_ACCIDENTALS_PER_16_MEASURES_MAX],
-    ['metre changes', LEVEL_METRE_CHANGES_MAX],
     ['duration', LEVEL_DURATION_SECONDS_MAX],
     ['largest interval', LEVEL_MAX_INTERVAL_SEMITONES],
     ['largest leap', LEVEL_MAX_LEAP_SEMITONES],
     ['mean density', LEVEL_MEAN_DENSITY_MAX],
     ['peak density', LEVEL_PEAK_DENSITY_MAX],
-    ['tie chain', LEVEL_TIE_CHAIN_NOTES_MAX],
-    ['tie barlines', LEVEL_TIE_BARLINES_MAX],
-    ['grace notes', LEVEL_GRACE_NOTES_PER_4_MEASURES_MAX],
-    ['ornaments', LEVEL_ORNAMENTS_PER_4_MEASURES_MAX],
-    ['backward repeats', LEVEL_BACKWARD_REPEATS_MAX],
   ];
   it.each(maxCaps)('%s cap is no looser than Beginner', (_name, record) => {
     expect(record.introduction).toBeLessThanOrEqual(record.beginner);
   });
 
-  it('the shortest value is no shorter than Beginner', () => {
-    expect(LEVEL_SHORTEST_VALUE_BEATS_MIN.introduction).toBeGreaterThanOrEqual(LEVEL_SHORTEST_VALUE_BEATS_MIN.beginner);
-  });
-
-  it('ranges, sets and switches are inside Beginner', () => {
+  it('ranges are inside Beginner', () => {
     const inside = (a: { min: number; max: number }, b: { min: number; max: number }) =>
       a.min >= b.min && a.max <= b.max;
     expect(inside(LEVEL_PITCH_BOUNDS_MIDI.introduction, LEVEL_PITCH_BOUNDS_MIDI.beginner)).toBe(true);
     expect(inside(LEVEL_TEMPO_QPM_RANGE.introduction, LEVEL_TEMPO_QPM_RANGE.beginner)).toBe(true);
     expect(inside(LEVEL_MEASURES_RANGE.introduction, LEVEL_MEASURES_RANGE.beginner)).toBe(true);
-    expect(LEVEL_METRES.introduction.every((m) => LEVEL_METRES.beginner.includes(m))).toBe(true);
-    expect(LEVEL_REPEAT_KINDS.introduction.every((k) => LEVEL_REPEAT_KINDS.beginner.includes(k))).toBe(true);
-    expect(LEVEL_TUPLETS.introduction).toBe('none');
-    expect(LEVEL_PEDAL.introduction).toBe('forbidden');
   });
 });
 
-describe('D-2 exercise variants (research R4 B5-B7)', () => {
-  it('B6: a key-change exercise (tag key-changes) may have one key change at Introduction and Beginner', () => {
-    const changed = introFacts({ keys: ['C major', 'C minor'] });
-    expect(checkLevel(changed, 'introduction', { kind: 'exercise', tags: ['key-changes'] }).pass).toBe(true);
-    expect(checkLevel(changed, 'beginner', { kind: 'exercise', tags: ['key-changes'] }).pass).toBe(true);
-    // two key changes are still too many
-    const two = introFacts({ keys: ['C major', 'C minor', 'C major'] });
-    expect(checkLevel(two, 'beginner', { kind: 'exercise', tags: ['key-changes'] }).failed).toContain('10');
-    // without the tag, or as a piece, the change still fails
-    expect(checkLevel(changed, 'beginner', { kind: 'exercise' }).failed).toContain('10');
-    expect(checkLevel(changed, 'beginner', { tags: ['key-changes'] }).failed).toContain('10');
-  });
-
-  it('B5: raised 7th and 6th of a minor key are not counted for an exercise, but are for a piece', () => {
-    const harmonic = introFacts({ keys: ['A minor'], accidentalMarkCount: 12, minorScaleAccidentalCount: 12 });
-    expect(checkLevel(harmonic, 'beginner', { kind: 'exercise' }).pass).toBe(true);
-    expect(checkLevel(harmonic, 'introduction', { kind: 'exercise' }).pass).toBe(true);
-    const asPiece = checkLevel(harmonic, 'beginner');
-    expect(asPiece.pass).toBe(false);
-    expect(asPiece.failed).toContain('11');
-    expect(computeLevel(harmonic)).toBe('intermediate');
-  });
-
-  it('B5: other accidentals still count in an exercise', () => {
-    const chromatic = introFacts({ keys: ['A minor'], accidentalMarkCount: 12, minorScaleAccidentalCount: 4 });
-    expect(checkLevel(chromatic, 'beginner', { kind: 'exercise' }).failed).toContain('11');
-  });
-
-  it('B5: no minor key in facts.keys means no exemption', () => {
-    const major = introFacts({ keys: ['C major'], accidentalMarkCount: 12, minorScaleAccidentalCount: 12 });
-    expect(checkLevel(major, 'beginner', { kind: 'exercise' }).failed).toContain('11');
-  });
-
+describe('D-2 exercise variants (research R4 B7, B8; B5 and B6 retired with criteria 10 and 11 in feature 022)', () => {
   it('B7: an exercise spanning 38 semitones within MIDI 35-85 passes criteria 1-2 at Introduction and Beginner', () => {
     const wide = introFacts({ lowestMidi: 35, highestMidi: 73 });
     expect(checkLevel(wide, 'introduction', { kind: 'exercise' }).pass).toBe(true);
@@ -530,5 +361,161 @@ describe('D-2 exercise variants (research R4 B5-B7)', () => {
     expect(checkLevel(swap, 'beginner', { kind: 'exercise' }).pass).toBe(true);
     expect(checkLevel(swap, 'beginner').failed).toContain('17');
     expect(checkLevel(introFacts({ maxLeapSemitones: 20 }), 'beginner', { kind: 'exercise' }).failed).toContain('17');
+  });
+});
+
+// Feature 022 (owner decision OD-1, research R1, data-model §1): no level bans notation. Levels are decided by reach and
+// pace only (criteria 1, 2, 3, 4, 7, 14, 15, 16, 17, 18, 19, 27, 28); criteria 5, 6, 8-13 and 20-25 are retired.
+// Introduction adds criterion 29, "one focus": at most one of the harder notation features.
+describe('022: no notation is banned at any level (FR-005)', () => {
+  const RETIRED = ['5', '6', '8', '9', '10', '11', '12', '13', '20', '21', '22', '23', '24', '25'];
+
+  // (a) one feature alone at Introduction passes, as a piece and as an exercise
+  it.each<[string, Partial<ItemFacts>]>([
+    ['eighth notes only', { shortestDivision: 8, hasShortNotes: true, longestRunAtShortestValue: 8 }],
+    ['ties only', { hasTies: true, maxTieChainNotes: 3, maxTieBarlinesCrossed: 2 }],
+    ['a repeat only', { hasRepeats: true, repeatKind: 'simple', backwardRepeatCount: 2 }],
+    ['6/8 only', { metres: ['6/8'] }],
+    ['a pickup only', { hasPickup: true }],
+  ])('(a) an Introduction item with %s passes', (_name, overrides) => {
+    const only = introFacts(overrides);
+    expect(computeLevel(only)).toBe('introduction');
+    expect(checkLevel(only, 'introduction')).toEqual({ level: 'introduction', pass: true, failed: [] });
+    expect(checkLevel(only, 'introduction', { kind: 'exercise' })).toEqual({
+      level: 'introduction',
+      pass: true,
+      failed: [],
+    });
+  });
+
+  it('(b) eighth notes and ties together fail Introduction with criterion 29 only', () => {
+    const two = introFacts({ shortestDivision: 8, hasShortNotes: true, hasTies: true, maxTieChainNotes: 2 });
+    expect(checkLevel(two, 'introduction')).toEqual({ level: 'introduction', pass: false, failed: ['29'] });
+    expect(computeLevel(two)).toBe('beginner');
+  });
+
+  it("(c) a minor key's raised 6th and 7th are the key, not the accidentals feature", () => {
+    const harmonic = introFacts({
+      keys: ['A minor'],
+      accidentalMarkCount: 6,
+      minorScaleAccidentalCount: 6,
+      hasTies: true,
+    });
+    expect(checkLevel(harmonic, 'introduction').pass).toBe(true);
+    // one accidental that is not a minor-scale degree is a second feature next to the ties
+    const chromatic = introFacts({
+      keys: ['A minor'],
+      accidentalMarkCount: 7,
+      minorScaleAccidentalCount: 6,
+      hasTies: true,
+    });
+    expect(checkLevel(chromatic, 'introduction').failed).toEqual(['29']);
+    // in a major key a G sharp is chromatic, whatever the relative minor would call it
+    const major = introFacts({
+      keys: ['C major'],
+      accidentalMarkCount: 2,
+      minorScaleAccidentalCount: 2,
+      hasTies: true,
+    });
+    expect(checkLevel(major, 'introduction').failed).toEqual(['29']);
+  });
+
+  it('(d) the accidentals of an item with a key change belong to the change, not a second feature', () => {
+    const changed = introFacts({ keys: ['C major', 'C minor'], accidentalMarkCount: 9, minorScaleAccidentalCount: 2 });
+    expect(checkLevel(changed, 'introduction').pass).toBe(true);
+    expect(checkLevel({ ...changed, hasTies: true }, 'introduction').failed).toEqual(['29']);
+  });
+
+  it('(e) a Beginner item with sixteenths, triplets, pedal, voltas and more passes when pace and reach fit', () => {
+    const busyNotation = facts({
+      shortestDivision: 16,
+      hasShortNotes: true,
+      longestRunAtShortestValue: 12,
+      hasTuplets: true,
+      hasNonSimpleTuplet: true,
+      hasPedal: true,
+      hasRepeats: true,
+      repeatKind: 'voltas',
+      backwardRepeatCount: 3,
+      graceNoteCount: 6,
+      ornamentCount: 4,
+      metres: ['6/8', '9/8'],
+      keys: ['C major', 'A♭ major', 'C major'],
+      accidentals: 4,
+      accidentalMarkCount: 20,
+      tempoChanges: 3,
+      hasTies: true,
+      maxTieChainNotes: 5,
+      maxTieBarlinesCrossed: 3,
+    });
+    expect(checkLevel(busyNotation, 'beginner')).toEqual({ level: 'beginner', pass: true, failed: [] });
+    expect(computeLevel(busyNotation)).toBe('beginner');
+  });
+
+  it('(e) a retired criterion id never appears in a failure list', () => {
+    const everything = facts({
+      shortestDivision: 64,
+      longestRunAtShortestValue: 100,
+      hasTuplets: true,
+      hasNonSimpleTuplet: true,
+      hasPedal: true,
+      repeatKind: 'jumps',
+      backwardRepeatCount: 9,
+      graceNoteCount: 40,
+      ornamentCount: 40,
+      metres: ['7/8', '5/4', '4/4'],
+      keys: ['C major', 'F♯ major', 'C major'],
+      accidentals: 7,
+      accidentalMarkCount: 99,
+      tempoChanges: 9,
+      maxTieChainNotes: 9,
+      maxTieBarlinesCrossed: 9,
+    });
+    for (const level of ['introduction', 'beginner', 'intermediate', 'advanced'] as const) {
+      const failed = checkLevel(everything, level).failed;
+      expect(failed.filter((id) => RETIRED.includes(id))).toEqual([]);
+    }
+  });
+
+  // (f) every kept criterion still fails at its old threshold - one assertion each
+  it.each<[string, Level, Partial<ItemFacts>]>([
+    ['1', 'beginner', { lowestMidi: 48, highestMidi: 86 }],
+    ['2', 'beginner', { lowestMidi: 30, highestMidi: 42 }],
+    ['3', 'beginner', { handIndependenceFraction: 0.5 }],
+    ['4', 'beginner', { voicesPerStaff: 2 }],
+    ['7', 'beginner', { tempoBpm: 120 }],
+    ['14', 'beginner', { measures: 40 }],
+    ['15', 'beginner', { durationSeconds: 150 }],
+    ['16', 'beginner', { maxSpanSemitones: 11 }],
+    ['17', 'beginner', { maxLeapSemitones: 18 }],
+    ['18', 'beginner', { notes: 90, attackCount: 90 }],
+    ['19', 'beginner', { peakNotesPerSecond: 8 }],
+    ['27', 'beginner', { staves: 1 }],
+    ['28', 'beginner', { notices: ['unsupportedElement'] }],
+  ])('(f) kept criterion %s still fails at %s', (id, level, overrides) => {
+    expect(checkLevel(facts(overrides), level).failed).toContain(id);
+  });
+
+  it('(g) a reach-only Advanced item computes to Advanced', () => {
+    expect(computeLevel(facts({ maxSpanSemitones: 15 }))).toBe('advanced');
+    expect(computeLevel(facts({ lowestMidi: 22, highestMidi: 100 }))).toBe('advanced');
+  });
+
+  it('(h) a dotted quarter and its eighth are one feature, dotted-rhythm', () => {
+    const dotted = introFacts({ shortestDivision: 8, hasDottedRhythm: true, hasShortNotes: false });
+    expect(checkLevel(dotted, 'introduction')).toEqual({ level: 'introduction', pass: true, failed: [] });
+    expect(checkLevel({ ...dotted, hasTies: true }, 'introduction').failed).toEqual(['29']);
+  });
+
+  it('(h) 6/8 with dotted quarters and eighths is one feature, the metre', () => {
+    const compound = introFacts({ metres: ['6/8'], shortestDivision: 8, hasDottedRhythm: false, hasShortNotes: false });
+    expect(checkLevel(compound, 'introduction')).toEqual({ level: 'introduction', pass: true, failed: [] });
+    expect(checkLevel({ ...compound, hasPickup: true }, 'introduction').failed).toEqual(['29']);
+  });
+
+  it('criterion 29 applies to Introduction only', () => {
+    const many = introFacts({ hasTies: true, hasPickup: true, hasPedal: true, metres: ['6/8'] });
+    expect(checkLevel(many, 'introduction').failed).toEqual(['29']);
+    expect(checkLevel(many, 'beginner')).toEqual({ level: 'beginner', pass: true, failed: [] });
   });
 });

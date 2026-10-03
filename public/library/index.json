@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-02T16:45:10.780Z",
+  "generated": "2026-10-03T10:32:47.916Z",
   "sections": [
     {
       "id": "learning",
@@ -472,7 +472,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -505,6 +508,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant: a right-hand melody with eighth-note runs that changes mode with the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, under right-hand runs of more than four eighth notes in a row.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -553,7 +557,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -634,7 +641,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -715,7 +725,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -748,6 +761,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant: a right-hand melody with eighth-note runs that changes mode with the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, under right-hand runs of more than four eighth notes in a row.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -796,7 +810,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -877,7 +894,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -912,6 +932,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "The same same-tonic quality change moving the other way, minor to major, in the left-hand chords and in the melody above them.",
         "hands": "both",
+        "raisedBecause": "Minor and major on the same tonic, switched back and forth with accidentals in almost every bar, ties across bar lines and a repeat.",
         "step": "intermediate",
         "stepOrder": 10
       },
@@ -959,7 +980,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "simple",
-        "backwardRepeatCount": 1
+        "backwardRepeatCount": 1,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "advanced",
@@ -1039,7 +1063,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -1072,6 +1099,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between relative keys by voice-leading through the tones the two keys share, arriving on the new tonic: a right-hand melody with eighth-note runs over the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, with the new key's accidentals written in, under right-hand runs of eighth notes.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -1119,7 +1147,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -1199,7 +1230,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -1279,7 +1313,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -1312,6 +1349,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between relative keys by voice-leading through the tones the two keys share, arriving on the new tonic: a right-hand melody with eighth-note runs over the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, with the new key's accidentals written in, under right-hand runs of eighth notes.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -1359,7 +1397,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -1439,7 +1480,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -1519,7 +1563,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -1552,6 +1599,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between relative keys by voice-leading through the tones the two keys share, arriving on the new tonic: a right-hand melody with eighth-note runs over the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, with the new key's accidentals written in, under right-hand runs of eighth notes.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -1599,7 +1647,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -1679,7 +1730,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -1760,7 +1814,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -1793,6 +1850,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant: a right-hand melody with eighth-note runs that changes mode with the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, under right-hand runs of more than four eighth notes in a row.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -1841,7 +1899,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -1922,7 +1983,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -1957,6 +2021,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Same-tonic quality change: only the third moves, major to minor and back, in the left-hand chords and in the melody above them.",
         "hands": "both",
+        "raisedBecause": "Major and minor on the same tonic, switched back and forth with accidentals in almost every bar, ties across bar lines and a repeat.",
         "step": "intermediate",
         "stepOrder": 10
       },
@@ -2004,7 +2069,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "simple",
-        "backwardRepeatCount": 1
+        "backwardRepeatCount": 1,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -2085,7 +2153,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -2118,6 +2189,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant: a right-hand melody with eighth-note runs that changes mode with the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, under right-hand runs of more than four eighth notes in a row.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -2166,7 +2238,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -2247,7 +2322,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -2327,7 +2405,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -2360,6 +2441,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between relative keys by voice-leading through the tones the two keys share, arriving on the new tonic: a right-hand melody with eighth-note runs over the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, with the new key's accidentals written in, under right-hand runs of eighth notes.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -2407,7 +2489,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -2487,7 +2572,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -2568,7 +2656,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -2601,6 +2692,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant: a right-hand melody with eighth-note runs that changes mode with the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, under right-hand runs of more than four eighth notes in a row.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -2649,7 +2741,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -2730,7 +2825,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -2811,7 +2909,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -2844,6 +2945,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant: a right-hand melody with eighth-note runs that changes mode with the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, under right-hand runs of more than four eighth notes in a row.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -2892,7 +2994,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -2973,7 +3078,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -3053,7 +3161,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -3086,6 +3197,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between relative keys by voice-leading through the tones the two keys share, arriving on the new tonic: a right-hand melody with eighth-note runs over the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, with the new key's accidentals written in, under right-hand runs of eighth notes.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -3133,7 +3245,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -3213,7 +3328,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -3293,7 +3411,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -3326,6 +3447,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between relative keys by voice-leading through the tones the two keys share, arriving on the new tonic: a right-hand melody with eighth-note runs over the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, with the new key's accidentals written in, under right-hand runs of eighth notes.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -3373,7 +3495,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -3453,7 +3578,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -3533,7 +3661,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -3566,6 +3697,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between relative keys by voice-leading through the tones the two keys share, arriving on the new tonic: a right-hand melody with eighth-note runs over the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, with the new key's accidentals written in, under right-hand runs of eighth notes.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -3613,7 +3745,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -3693,7 +3828,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -3774,7 +3912,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -3807,6 +3948,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant: a right-hand melody with eighth-note runs that changes mode with the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, under right-hand runs of more than four eighth notes in a row.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -3855,7 +3997,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -3936,7 +4081,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -4017,7 +4165,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -4050,6 +4201,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant: a right-hand melody with eighth-note runs that changes mode with the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, under right-hand runs of more than four eighth notes in a row.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -4098,7 +4250,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -4179,7 +4334,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -4259,7 +4417,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -4292,6 +4453,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between relative keys by voice-leading through the tones the two keys share, arriving on the new tonic: a right-hand melody with eighth-note runs over the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, with the new key's accidentals written in, under right-hand runs of eighth notes.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -4339,7 +4501,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -4419,7 +4584,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -4500,7 +4668,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -4533,6 +4704,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant: a right-hand melody with eighth-note runs that changes mode with the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, under right-hand runs of more than four eighth notes in a row.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -4581,7 +4753,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -4662,7 +4837,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -4743,7 +4921,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -4776,6 +4957,7 @@
         "reviewedOn": "2026-09-28",
         "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant: a right-hand melody with eighth-note runs that changes mode with the left hand's chords.",
         "hands": "both",
+        "raisedBecause": "A change of key in the middle of the exercise, under right-hand runs of more than four eighth notes in a row.",
         "step": "intermediate",
         "stepOrder": 0
       },
@@ -4824,7 +5006,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -4905,7 +5090,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -4990,7 +5178,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -5072,7 +5263,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -5161,7 +5355,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -5243,7 +5440,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -5328,7 +5528,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -5410,7 +5613,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -5499,7 +5705,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -5581,7 +5790,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -5666,7 +5878,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -5754,7 +5969,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -5843,7 +6061,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -5925,7 +6146,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -6015,7 +6239,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -6100,7 +6327,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -6182,7 +6412,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -6271,7 +6504,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -6353,7 +6589,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -6392,6 +6631,7 @@
         "trains": "A lullaby in 6/8 over block chords (B flat, E flat, F) in the left, with dotted rhythms.",
         "hands": "both",
         "arrangement": true,
+        "raisedBecause": "A long tune in 6/8 whose dotted rhythms divide the beat into sixteenths.",
         "departures": [
           "Left-hand block chords are our own (CC0)."
         ],
@@ -6442,7 +6682,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -6527,7 +6770,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -6609,7 +6855,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -6698,7 +6947,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -6780,7 +7032,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -6865,7 +7120,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -6947,7 +7205,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -7036,7 +7297,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -7118,7 +7382,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -7203,7 +7470,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -7285,7 +7555,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -7374,7 +7647,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -7456,7 +7732,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -7551,7 +7830,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -7651,7 +7933,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -7732,7 +8017,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "simple",
-        "backwardRepeatCount": 1
+        "backwardRepeatCount": 1,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -7813,7 +8101,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "simple",
-        "backwardRepeatCount": 1
+        "backwardRepeatCount": 1,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -7906,7 +8197,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -7994,7 +8288,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -8084,7 +8381,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "beginner",
@@ -8165,7 +8465,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "simple",
-        "backwardRepeatCount": 1
+        "backwardRepeatCount": 1,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -8250,7 +8553,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -8332,7 +8638,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -8421,7 +8730,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -8503,7 +8815,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -8588,7 +8903,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -8670,7 +8988,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -8759,7 +9080,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -8841,7 +9165,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -8926,7 +9253,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -9008,7 +9338,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -9097,7 +9430,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -9179,7 +9515,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -9264,7 +9603,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -9346,7 +9688,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -9435,7 +9780,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -9517,7 +9865,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -9606,7 +9957,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -9691,7 +10045,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -9779,7 +10136,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -9868,7 +10228,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -9950,7 +10313,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -10035,7 +10401,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -10117,7 +10486,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -10206,7 +10578,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -10288,7 +10663,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -10373,7 +10751,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -10455,7 +10836,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -10544,7 +10928,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -10626,7 +11013,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -10711,7 +11101,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -10793,7 +11186,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -10882,7 +11278,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -10964,7 +11363,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -11049,7 +11451,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -11131,7 +11536,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -11220,7 +11628,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -11302,7 +11713,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -11341,6 +11755,7 @@
         "trains": "A modal hymn tune in E minor over block chords (Em, Am, B, D) in the left.",
         "hands": "both",
         "arrangement": true,
+        "raisedBecause": "Long runs of eighth notes in the melody, five and more in a row.",
         "departures": [
           "Left-hand block chords are our own (CC0)."
         ],
@@ -11391,7 +11806,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -11476,7 +11894,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -11564,7 +11985,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -11653,7 +12077,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -11735,7 +12162,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -11824,7 +12254,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "beginner",
@@ -11909,7 +12342,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -11991,7 +12427,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -12080,7 +12519,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -12162,7 +12604,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -12247,7 +12692,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -12329,7 +12777,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -12418,7 +12869,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -12500,7 +12954,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -12585,7 +13042,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -12667,7 +13127,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -12756,7 +13219,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -12838,7 +13304,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -12923,7 +13392,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -13011,7 +13483,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -13100,7 +13575,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -13182,7 +13660,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -13271,7 +13752,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "beginner",
@@ -13361,7 +13845,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -13450,7 +13937,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": true,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -13539,7 +14029,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "beginner",
@@ -13624,7 +14117,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -13706,7 +14202,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -13795,7 +14294,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -13877,7 +14379,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -13962,7 +14467,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -14044,7 +14552,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -14133,7 +14644,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "intermediate",
@@ -14215,7 +14729,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "introduction",
@@ -14253,7 +14770,8 @@
         "composer": "Johann Sebastian Bach",
         "trains": "Continuous right-hand arpeggiation over a sustained left-hand bass and an inner tied suspension voice; harmonic listening bar-to-bar (each measure is one implied chord); evenness of tone as the hand shifts position across 35 measures without a rest longer than an eighth note.",
         "hands": "both",
-        "arrangement": false
+        "arrangement": false,
+        "raisedBecause": "Unbroken sixteenth-note figures in every one of its 35 bars, with a held bass and a tied inner voice under them; the evenness and stamina that asks for sit above Intermediate."
       },
       "facts": {
         "measures": 35,
@@ -14299,7 +14817,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -14386,7 +14907,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "voltas",
-        "backwardRepeatCount": 2
+        "backwardRepeatCount": 2,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -14476,7 +15000,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -14569,7 +15096,10 @@
         "graceNoteCount": 2,
         "ornamentCount": 1,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -14657,7 +15187,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "simple",
-        "backwardRepeatCount": 2
+        "backwardRepeatCount": 2,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -14760,7 +15293,10 @@
         "graceNoteCount": 3,
         "ornamentCount": 0,
         "repeatKind": "voltas",
-        "backwardRepeatCount": 2
+        "backwardRepeatCount": 2,
+        "hasPickup": true,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "advanced",
@@ -14855,6 +15391,9 @@
         "ornamentCount": 19,
         "repeatKind": "none",
         "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true,
         "orchestra": [
           "Flute",
           "Oboe",
@@ -14964,6 +15503,9 @@
         "ornamentCount": 19,
         "repeatKind": "none",
         "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true,
         "orchestra": [
           "Flute",
           "Oboe",
@@ -15059,7 +15601,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "voltas",
-        "backwardRepeatCount": 1
+        "backwardRepeatCount": 1,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "advanced",
@@ -15147,7 +15692,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "beginner",
@@ -15240,7 +15788,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "beginner",
@@ -15332,7 +15883,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "beginner",
@@ -15423,7 +15977,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -15513,7 +16070,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -15603,7 +16163,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -15694,7 +16257,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
       },
       "levelCheck": {
         "level": "beginner",
@@ -15782,7 +16348,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "voltas",
-        "backwardRepeatCount": 2
+        "backwardRepeatCount": 2,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -15871,7 +16440,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -15959,7 +16531,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 0,
         "repeatKind": "simple",
-        "backwardRepeatCount": 2
+        "backwardRepeatCount": 2,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -16047,7 +16622,10 @@
         "graceNoteCount": 1,
         "ornamentCount": 5,
         "repeatKind": "simple",
-        "backwardRepeatCount": 2
+        "backwardRepeatCount": 2,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",
@@ -16135,7 +16713,10 @@
         "graceNoteCount": 0,
         "ornamentCount": 6,
         "repeatKind": "simple",
-        "backwardRepeatCount": 2
+        "backwardRepeatCount": 2,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
       },
       "levelCheck": {
         "level": "intermediate",

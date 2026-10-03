@@ -210,7 +210,17 @@ function validFacts(raw: unknown): ItemFacts | null {
   if (HANDS.includes(raw.handsWithNotes as (typeof HANDS)[number])) {
     facts.handsWithNotes = raw.handsWithNotes as (typeof HANDS)[number];
   }
-  for (const flag of ['hasTies', 'hasTuplets', 'hasGraceNotes', 'hasOctaveShift', 'hasRepeats', 'hasPedal'] as const) {
+  for (const flag of [
+    'hasTies',
+    'hasTuplets',
+    'hasGraceNotes',
+    'hasOctaveShift',
+    'hasRepeats',
+    'hasPedal',
+    'hasPickup',
+    'hasDottedRhythm',
+    'hasShortNotes',
+  ] as const) {
     if (typeof raw[flag] === 'boolean') facts[flag] = raw[flag] as boolean;
   }
   if (isFiniteNumber(raw.fingeringCoverage)) facts.fingeringCoverage = raw.fingeringCoverage;

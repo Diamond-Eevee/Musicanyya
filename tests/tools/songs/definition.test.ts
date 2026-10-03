@@ -105,4 +105,12 @@ describe('validateSongDefinition', () => {
   it('rejects an empty departures list', () => {
     expect(problem((d) => (d.meta.departures = []))).toMatch(/departures/);
   });
+
+  // Song-definition 1.2.0 (feature 022 FR-006): an item that measures below its level says why it sits higher
+  it('accepts meta.raisedBecause and rejects an empty one', () => {
+    const d = valid() as Doc;
+    d.meta.raisedBecause = 'A long tune in 6/8 with eighth-note runs.';
+    expect(validateSongDefinition(d, SOURCES).meta.raisedBecause).toBe('A long tune in 6/8 with eighth-note runs.');
+    expect(problem((x) => (x.meta.raisedBecause = ''))).toMatch(/meta\.raisedBecause/);
+  });
 });

@@ -6,6 +6,7 @@
   "arranger": "Musicanyya practice material",
   "kind": "piece",
   "level": "intermediate",
+  "raisedBecause": "Long runs of eighth notes in the melody, five and more in a row.",
   "arrangement": true,
   "tags": ["chords", "hands-together"],
   "trains": "A modal hymn tune in E minor over block chords (Em, Am, B, D) in the left.",
