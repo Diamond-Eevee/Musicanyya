@@ -318,6 +318,24 @@
     SC-009) are this container's: the top bar is wider than on the owner's machine (1104.7 px vs the 1081.1 baseline;
     menu and mode buttons pushed out of view); the same specs on main (38867c7) in this container: `12 failed, 23
     passed` - the same 10 plus brand (a) and one more theme-a11y Grade case. Not this branch's; nothing to fix here.
-  - Electron project (`xvfb-run`, `--workers=1`): electron-smoke.spec.ts `7 passed`; whole project: see below.
+  - Electron project (`xvfb-run`, `--workers=1`, dist-electron built): electron-smoke.spec.ts `7 passed`; whole project
+    `6 failed, 115 skipped, 517 passed (45.5m)`. The 6: brand (a) and (e) (the wide bar above) and
+    electron-audio-output.spec.ts x4 (feature 021: no microphone - `NotFoundError` where `NotAllowedError` is expected -,
+    MIDI permission `denied`, no labelled output devices in this container). The same two specs on main (38867c7) in
+    this container: the same `6 failed, 3 passed`. Not this branch's.
   - Firefox and WebKit: not run - not installable here (network policy denies the Playwright CDN). Per the
     constitution's "Test tiers" this part of the full gate is not counted as passed.
+- Decisions: F2 kept (a staccato note is not held after its sound ends - the hand lets go); the five-entry rail tests
+  updated, not the rail (Basics top level is spec behaviour).
+- Problems / open questions: **needs owner**: T073 stays [~]. Everything this container can run is green except
+  failures that are red on main here too (layout width, audio/MIDI devices, the Node windows-1252 decoder), but the
+  Firefox and WebKit projects could not run at all, and the constitution counts neither a run cut short by the
+  environment nor those failures as a pass. Options: (a) the owner runs `pnpm test:e2e` (all four projects) on the
+  reference machine, and T073 is ticked from that summary line (recommended - it also clears the container-only
+  layout failures); (b) allow cdn.playwright.dev and playwright.azureedge.net in the cloud environment's network
+  settings so a later session can install Firefox/WebKit - the layout failures would still show here. Also suggested
+  to the owner as a separate task: played-along spans are empty in all but the last pass of a repeat (feature 003
+  area, pre-existing on main).
+- Handoff: next = T073 (owner's full `pnpm test:e2e` run, or a decision on the environment), then the feature is ready
+  for merge review (every other task ticked, constitution audit done). No `src/` change since f061d39. Tree clean at
+  the commit below.
