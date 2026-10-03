@@ -306,3 +306,18 @@
     `fromTick` comes from a map the last pass overwrites. Suggested to the owner as a separate task (feature 003 area).
   - After the fixes: `pnpm lint` 0 errors (314 warnings); `pnpm typecheck` exit 0; `tests/core/library tests/core/grade
     tests/core/timeline tests/library` `Tests 3989 passed (3989)`; `tests/library tests/tools` `Tests 4188 passed (4188)`.
+- T073 full gate (after the last `src/` change, f061d39): `pnpm lint` 0 errors (314 warnings); `pnpm typecheck` exit 0;
+  `pnpm test` `Tests 1 failed | 8695 passed (8696)` - the one failure is the Node windows-1252 decode above (the 4
+  new tests pass); smoke (`--grep @smoke --project=chromium --workers=2`) `9 passed`.
+  - `pnpm test:e2e` chromium project, whole suite (`--workers=2`, fresh build): `13 failed, 21 skipped, 604 passed
+    (46.7m)`. 3 were this branch's: score-browser-tree.spec.ts (fresh and corrupt-record rails) and score-browser.spec.ts
+    (arrow-key walk) assumed 018's five top-level rail entries; feature 022 adds Basics before Learning (spec
+    "Basics is a new top-level shelf"), so the expected lists now hold `section:basics` and the walk passes All and
+    Basics (asserting each); 018 SC-001's real check, no scrolling at 768 px, is unchanged. Rerun: both files `38
+    passed`. The other 10 (theme-a11y bar/menus x6 and Grade x1, brand fit order, play-tempo 200 BPM, transport-icons
+    SC-009) are this container's: the top bar is wider than on the owner's machine (1104.7 px vs the 1081.1 baseline;
+    menu and mode buttons pushed out of view); the same specs on main (38867c7) in this container: `12 failed, 23
+    passed` - the same 10 plus brand (a) and one more theme-a11y Grade case. Not this branch's; nothing to fix here.
+  - Electron project (`xvfb-run`, `--workers=1`): electron-smoke.spec.ts `7 passed`; whole project: see below.
+  - Firefox and WebKit: not run - not installable here (network policy denies the Playwright CDN). Per the
+    constitution's "Test tiers" this part of the full gate is not counted as passed.
