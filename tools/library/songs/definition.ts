@@ -43,6 +43,8 @@ export interface SongDefinition {
     bars: string;
     /** A signed interval like "-M2" or "+P4". */
     transpose?: string;
+    /** song-definition 1.2.0 (022 T077): join a short bar inside the piece with the next (a phrase line inside a bar). */
+    joinShortBars?: boolean;
   };
   key: { tonic: string; mode: 'major' | 'minor'; fifths: number };
   tempoBpm: number;
@@ -76,7 +78,7 @@ const TOP_FIELDS = [
   'simplifies',
   'meta',
 ];
-const MELODY_FIELDS = ['staff', 'voice', 'topVoice', 'bars', 'transpose'];
+const MELODY_FIELDS = ['staff', 'voice', 'topVoice', 'bars', 'transpose', 'joinShortBars'];
 const KEY_FIELDS = ['tonic', 'mode', 'fifths'];
 const CHORD_FIELDS = ['bar', 'beat', 'degree', 'quality', 'inversion', 'until'];
 const META_FIELDS = ['level', 'trains', 'composer', 'departures', 'raisedBecause', 'reviewedBy', 'reviewedOn'];
@@ -118,6 +120,8 @@ export function validateSongDefinition(json: unknown, sources: ReadonlySet<strin
   if (typeof melody.bars !== 'string' || !BARS.test(melody.bars)) fail('melody.bars must be "all" or "N-M"');
   if (melody.transpose !== undefined && (typeof melody.transpose !== 'string' || !TRANSPOSE.test(melody.transpose)))
     fail('melody.transpose must be an interval like "-M2" or "+P4"');
+  if (melody.joinShortBars !== undefined && typeof melody.joinShortBars !== 'boolean')
+    fail('melody.joinShortBars must be true or false');
 
   const key = object(top.key, 'key', fail);
   known(key, KEY_FIELDS, 'key', fail);

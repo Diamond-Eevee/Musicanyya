@@ -14,6 +14,7 @@ import { buildSong, buildSongs } from '../../../tools/library/build-songs';
 import { compareMelody } from '../../../tools/library/fidelity/compare';
 import { fromMusicXml } from '../../../tools/library/fidelity/from-musicxml';
 import { loadSources, sourceFile } from '../../../tools/library/fidelity/sources';
+import { q } from '../../../tools/library/fidelity/time';
 import { fromLilyPond, readLilyPond } from '../../../tools/library/lilypond/read';
 import type { SongDefinition } from '../../../tools/library/songs/definition';
 
@@ -496,5 +497,52 @@ describe('022: simplified songs and their order (song-definition 1.2.0)', () => 
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+});
+
+// Feature 022 T077 (contract song-definition 1.2.0, melody.joinShortBars): Leoni (Mutopia 525) prints its phrase ends as
+// double bar lines inside 4/4 bars, so the reading has written bars of 3 and 1 beats in the middle of the piece.
+describe('022: joining a bar split by a phrase line (melody.joinShortBars)', () => {
+  const leoni = (join?: boolean): SongDefinition => ({
+    version: 1,
+    id: 'learning/keys/e-minor/song-leoni',
+    title: 'Song - Leoni',
+    source: 'mutopia-525-leoni',
+    melody: {
+      staff: 1,
+      voice: 'staff1:voice:sop',
+      bars: 'all',
+      ...(join === undefined ? {} : { joinShortBars: join }),
+    },
+    key: { tonic: 'E', mode: 'minor', fifths: 1 },
+    tempoBpm: 84,
+    chords: Array.from({ length: 17 }, (_, bar) => ({ bar, degree: 'i' })),
+    meta: { ...META, level: 'intermediate' },
+  });
+
+  it('without it, the short bar inside the piece is refused, as before', () => {
+    expect(() => buildSong(leoni(), options)).toThrow(/source bar 2 is not a full bar/);
+    expect(() => buildSong(leoni(false), options)).toThrow(/source bar 2 is not a full bar/);
+  });
+
+  it('with it, each 3-beat bar and the 1-beat bar after it are one 4/4 bar: a pickup, 15 full bars, a short last bar', () => {
+    const bars = fromMusicXml(buildSong(leoni(true), options).xml).bars;
+    expect(bars.map((b) => b.number)).toEqual(Array.from({ length: 17 }, (_, i) => String(i)));
+    expect(bars.map((b) => b.length)).toEqual([q(1), ...Array.from({ length: 15 }, () => q(4)), q(3)]);
+  });
+
+  it('the melody is still the source soprano note for note: 0 differences', () => {
+    const result = compareMelody(
+      fromMusicXml(buildSong(leoni(true), options).xml),
+      notationOf('mutopia-525-leoni'),
+      { itemBars: 'all', sourceBars: 'all', staff: 1, sourceStaff: 1, sourceVoice: 'staff1:voice:sop' },
+      { allowRhythm: false, spelling: true },
+    );
+    expect(result.differences).toEqual([]);
+  });
+
+  it('the joined bars load with no notices (no bar shorter than the metre but the pickup and the last)', () => {
+    const { report } = buildScore(readXml(buildSong(leoni(true), options).xml).doc);
+    expect(report.entries).toEqual([]);
   });
 });

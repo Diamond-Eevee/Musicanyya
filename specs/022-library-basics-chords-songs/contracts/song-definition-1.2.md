@@ -33,6 +33,13 @@
    So the 10 existing (unpaired) songs keep their `stepOrder`; the builder test pins those 10 values.
 6. Id pattern unchanged; a simplified song's id ends in `-simplified`, its title in " (simplified)"; the
    `departures` of a simplified song list what was simplified (FR-035).
+7. Optional `melody.joinShortBars: boolean` (default `false`; added in implement, T077). A source may print a phrase
+   end as a bar line inside a bar (Leoni, Mutopia 525: `\bar "||"` after beat 3 of a 4/4 bar), so its reading has short
+   written bars in the middle of the piece, which the builder refuses (1.1.0 §2.1). With `joinShortBars`, a short bar
+   other than the first is joined with the bars after it while together they make at most one bar of the metre, never
+   across a repeat sign or into an ending; the joined bar keeps the first bar's start, and the item's bars are numbered
+   in order (0 for a pickup). The melody is unchanged note for note, so the audit's melody check is unchanged; the
+   definition's `departures` say the phrase lines are left out.
 
 ## Audit
 

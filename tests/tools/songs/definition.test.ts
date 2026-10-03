@@ -57,6 +57,13 @@ describe('validateSongDefinition', () => {
     expect(validateSongDefinition(d, SOURCES).melody.transpose).toBe('-M2');
   });
 
+  it('accepts melody.joinShortBars true or false and rejects anything else (song-definition 1.2.0, 022 T077)', () => {
+    const d = valid() as Doc;
+    d.melody.joinShortBars = true;
+    expect(validateSongDefinition(d, SOURCES).melody.joinShortBars).toBe(true);
+    expect(problem((x) => (x.melody.joinShortBars = 'yes'))).toMatch(/melody\.joinShortBars/);
+  });
+
   it('rejects an id outside learning/keys/<key>/song-*', () => {
     expect(problem((d) => (d.id = 'learning/keys/g-major/ode-to-joy'))).toMatch(/id/);
     expect(problem((d) => (d.id = 'repertoire/beginner/song-ode-to-joy'))).toMatch(/id/);

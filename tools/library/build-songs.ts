@@ -299,14 +299,48 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
   const firstBar = selected[0];
   if (!firstBar) throw new Error(`${id}: melody.bars "${definition.melody.bars}" holds no bar of the source`);
   const firstNumber = Number(firstBar.number);
+  const lengthOf = (group: ReferenceBar[]) => group.reduce((sum, b) => add(sum, b.length), q(0));
+  // song-definition 1.2.0 joinShortBars (022 T077): a short bar inside the piece (a phrase line printed inside a bar)
+  // takes the bars after it until they make one bar of the metre; never the pickup, across a repeat sign or an ending
+  const groups: ReferenceBar[][] = [];
+  for (const source of selected) {
+    const open = groups.length > 1 ? groups[groups.length - 1] : undefined;
+    const last = open?.[open.length - 1];
+    if (
+      definition.melody.joinShortBars &&
+      open &&
+      last &&
+      cmp(lengthOf(open), fullBar) < 0 &&
+      cmp(add(lengthOf(open), source.length), fullBar) <= 0 &&
+      !last.repeatEnd &&
+      !source.repeatStart &&
+      last.endings.length === 0 &&
+      source.endings.length === 0
+    )
+      open.push(source);
+    else groups.push([source]);
+  }
+  const joined = groups.map((group): ReferenceBar => {
+    const head = group[0] as ReferenceBar;
+    const tail = group[group.length - 1] as ReferenceBar;
+    if (group.length === 1) return head;
+    const { repeatTimes: _times, ...rest } = head;
+    return {
+      ...rest,
+      length: lengthOf(group),
+      repeatEnd: tail.repeatEnd,
+      ...(tail.repeatTimes !== undefined ? { repeatTimes: tail.repeatTimes } : {}),
+    };
+  });
   const bars: ItemBar[] = [];
   let cursor = q(0);
-  selected.forEach((source, i) => {
+  joined.forEach((source, i) => {
     const irregular = cmp(source.length, fullBar) !== 0;
     // only a pickup (first bar) and its matching short last bar may be shorter than the metre
-    if (cmp(source.length, fullBar) > 0 || (irregular && i > 0 && i < selected.length - 1))
+    if (cmp(source.length, fullBar) > 0 || (irregular && i > 0 && i < joined.length - 1))
       throw new Error(`${id}: source bar ${source.number} is not a full bar`);
-    const number = firstNumber === 0 ? Number(source.number) : Number(source.number) - firstNumber + 1;
+    // the item's bars in order from 1, or from 0 after a pickup
+    const number = firstNumber === 0 ? i : i + 1;
     bars.push({ number: String(number), start: cursor, length: source.length, source });
     cursor = add(cursor, source.length);
   });
@@ -341,7 +375,7 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
 
   // the melody: the named voice, one note per onset (with topVoice the highest note of each chord in that voice)
   const interval = intervalOf(definition);
-  const inSelection = new Map(selected.map((b, i) => [b.index, bars[i] as ItemBar]));
+  const inSelection = new Map(groups.flatMap((group, i) => group.map((b) => [b.index, bars[i] as ItemBar] as const)));
   const byOnset = new Map<string, { note: ReferenceNote; bar: ItemBar }[]>();
   for (const note of reading.notes) {
     const bar = inSelection.get(note.bar);

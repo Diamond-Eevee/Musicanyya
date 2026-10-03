@@ -311,6 +311,11 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
   skips a `\chordmode` / `\chords` block like lyrics, `parse.ts` accepts the `ChordNames` context and a `\header` field
   naming an earlier one (`mutopiatitle = \title`), `read.ts` reads no note from a `ChordNames` context; tests first in
   `tests/tools/lilypond/read.test.ts`. Then download Leoni (Mutopia 525) again as in T058.
+- [x] T077 [US3] [standard] Optional `melody.joinShortBars` (song-definition 1.2.0, found in implement: Leoni prints its
+  phrase ends as `\bar "||"` inside 4/4 bars, so the reading has 3- and 1-beat written bars mid-piece, which the builder
+  refuses): `tools/library/songs/definition.ts` validates it; `tools/library/build-songs.ts` joins a short bar inside
+  the piece with the next when together they make at most one bar of the metre (never across a repeat or ending); tests
+  first in `tests/tools/songs/build-songs.test.ts` and `definition.test.ts`; contract `song-definition-1.2.md` updated.
 - [ ] T059 [US3] Author the full and simplified song definitions for tunes 1-5 in `content/library/songs/` (melody
   staff/voice/bars, transposition onto a key shelf where it helps - listed as a departure -, intermediate chords with a
   `leftHand.pattern`, beginner block chords, `trains`, `composer`, `departures`, `reviewedBy`, and
