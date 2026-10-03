@@ -740,8 +740,12 @@ test.describe('Score browser (feature 013, US5 - Find fast)', () => {
     await expect(page.locator('.browser-rail-item[data-key="continue"]')).toHaveAttribute('aria-selected', 'true');
     await expect(page.locator('.browser-rail-item[data-key="continue"]')).toBeFocused(); // focus stays
 
-    // Down to Learning, then Left collapses it: its Keys folder disappears from the tree.
+    // Down past All and Basics (feature 022's first shelf) to Learning, then Left collapses it: its Keys folder
+    // disappears from the tree.
     await page.keyboard.press('ArrowDown');
+    await expect(page.locator('.browser-rail-item[data-key="all"]')).toBeFocused();
+    await page.keyboard.press('ArrowDown');
+    await expect(page.locator('.browser-rail-item[data-key="section:basics"]')).toBeFocused();
     await page.keyboard.press('ArrowDown');
     await expect(page.locator('.browser-rail-item[data-key="section:learning"]')).toBeFocused();
     await expect(page.locator('.browser-rail-item[data-key="section:learning/keys"]')).toBeVisible();

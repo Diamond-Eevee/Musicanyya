@@ -20,7 +20,9 @@ const keysShown = (page: Page) =>
     .evaluateAll((els) => els.map((el) => (el as HTMLElement).dataset.key));
 
 test.describe('Score browser folder tree (feature 018, US1 and US2)', () => {
-  test('a fresh profile shows only the five top-level entries, collapsed, with no scrolling at 1280 x 768 (SC-001)', async ({
+  // Feature 022 (spec: "Basics is a new top-level shelf, listed before Learning and Repertoire") added a sixth entry; SC-001
+  // itself asks only that the whole rail fit without scrolling, which still holds.
+  test('a fresh profile shows only the six top-level entries, collapsed, with no scrolling at 1280 x 768 (SC-001)', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 768 });
@@ -28,7 +30,14 @@ test.describe('Score browser folder tree (feature 018, US1 and US2)', () => {
     await expect(browserDialog(page)).toBeVisible();
     await expect(folder(page, 'section:learning')).toBeVisible();
 
-    expect(await keysShown(page)).toEqual(['continue', 'all', 'section:learning', 'section:repertoire', 'myFiles']);
+    expect(await keysShown(page)).toEqual([
+      'continue',
+      'all',
+      'section:basics',
+      'section:learning',
+      'section:repertoire',
+      'myFiles',
+    ]);
     await expect(folder(page, 'section:learning')).toHaveAttribute('aria-expanded', 'false');
     await expect(folder(page, 'section:repertoire')).toHaveAttribute('aria-expanded', 'false');
     const size = await rail(page).evaluate((el) => ({ scrollHeight: el.scrollHeight, clientHeight: el.clientHeight }));
@@ -68,7 +77,14 @@ test.describe('Score browser folder tree (feature 018, US1 and US2)', () => {
     await page.goto('/');
     await expect(browserDialog(page)).toBeVisible();
     await expect(folder(page, 'section:learning')).toHaveAttribute('aria-expanded', 'false');
-    expect(await keysShown(page)).toEqual(['continue', 'all', 'section:learning', 'section:repertoire', 'myFiles']);
+    expect(await keysShown(page)).toEqual([
+      'continue',
+      'all',
+      'section:basics',
+      'section:learning',
+      'section:repertoire',
+      'myFiles',
+    ]);
     await expect(page.locator('.browser-message')).toHaveText('');
 
     await toggle(page, 'section:learning').click();
