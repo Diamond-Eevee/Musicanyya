@@ -323,7 +323,7 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
 - [x] T060 [US3] Same as T059 for tunes 6-10.
 - [x] T061 [US3] [light] Run `pnpm library:songs` and `pnpm library:index`; record 20 items written and every level
   check passing.
-- [ ] T062 [US3] [standard] Write the 20 audit records under `content/library/audit/learning/keys/<key>/` (`mechanical`
+- [x] T062 [US3] [standard] Write the 20 audit records under `content/library/audit/learning/keys/<key>/` (`mechanical`
   melody vs source, `expectedDifferences: 0`; `theory` / `song-chords-v2`); run `pnpm library:fidelity`; 0 differences.
 - [ ] T063 [US3] Music review with the `music-domain-expert` sub-agent: tune correct and recognisable, chords fit the
   melody, simplified versions really simpler, left-hand patterns idiomatic and comfortable; fix, regenerate, summarise.

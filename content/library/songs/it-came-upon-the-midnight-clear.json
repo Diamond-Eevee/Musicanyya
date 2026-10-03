@@ -16,10 +16,6 @@
   "tempoBpm": 84,
   "chords": [
     {
-      "bar": 0,
-      "degree": "I"
-    },
-    {
       "bar": 1,
       "degree": "I"
     },

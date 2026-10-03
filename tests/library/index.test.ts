@@ -570,18 +570,33 @@ describe('the songs on the Learning > Keys shelf (feature 011 US3)', () => {
     }
   });
 
-  it('songs come after the four steps of their folder, with distinct stepOrder, beginner songs first', async () => {
+  // Changed expectation (feature 022, song-definition 1.2.0 item 5, analyze H3): a simplified song and its full version
+  // are listed together, simplified first, after the folder's unpaired songs - so "beginner first" now holds among the
+  // unpaired songs, and each pair puts its Beginner song before its Intermediate one.
+  it('songs come after the four steps of their folder, with distinct stepOrder: unpaired songs first, beginner first, then each pair, simplified first', async () => {
     const { index } = await buildLibraryIndex(libraryRoot);
     for (const key of KEYS) {
-      const inFolder = index.items.filter((i) => i.section === `learning/keys/${key.slug}` && i.meta.step === 'song');
+      const inFolder = index.items
+        .filter((i) => i.section === `learning/keys/${key.slug}` && i.meta.step === 'song')
+        .sort((a, b) => (a.meta.stepOrder ?? 0) - (b.meta.stepOrder ?? 0));
       const orders = inFolder.map((i) => i.meta.stepOrder ?? 0);
       expect(new Set(orders).size, key.slug).toBe(orders.length);
-      const levels = [...inFolder]
-        .sort((a, b) => (a.meta.stepOrder ?? 0) - (b.meta.stepOrder ?? 0))
-        .map((i) => i.meta.level);
+      const paired = (i: (typeof inFolder)[number]) =>
+        i.id.endsWith('-simplified') || inFolder.some((j) => j.id === `${i.id}-simplified`);
+      const unpaired = inFolder.filter((i) => !paired(i));
+      const pairs = inFolder.filter(paired);
+      expect(inFolder.slice(0, unpaired.length), key.slug).toEqual(unpaired);
+      const levels = unpaired.map((i) => i.meta.level);
       expect(levels, key.slug).toEqual(
         [...levels].sort((a, b) => (a === 'beginner' ? 0 : 1) - (b === 'beginner' ? 0 : 1)),
       );
+      for (let k = 0; k < pairs.length; k += 2) {
+        const [simplified, full] = [pairs[k], pairs[k + 1]];
+        expect(simplified?.id, key.slug).toBe(`${full?.id}-simplified`);
+        expect(simplified?.meta.level, key.slug).toBe('beginner');
+      }
+      const fullTitles = pairs.filter((_, k) => k % 2 === 1).map((i) => i.meta.title);
+      expect(fullTitles, key.slug).toEqual([...fullTitles].sort((a, b) => a.localeCompare(b)));
     }
   });
 });

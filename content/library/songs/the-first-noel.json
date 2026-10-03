@@ -21,60 +21,30 @@
     },
     {
       "bar": 2,
-      "degree": "vi"
-    },
-    {
-      "bar": 2,
-      "beat": 2,
-      "degree": "V"
-    },
-    {
-      "bar": 3,
-      "degree": "ii"
-    },
-    {
-      "bar": 3,
-      "beat": 2,
       "degree": "I"
     },
     {
-      "bar": 4,
+      "bar": 3,
       "degree": "IV"
     },
     {
       "bar": 4,
-      "beat": 2,
       "degree": "I"
     },
     {
       "bar": 5,
       "degree": "IV"
-    },
-    {
-      "bar": 5,
-      "beat": 2,
-      "degree": "I"
     },
     {
       "bar": 6,
-      "degree": "IV"
+      "degree": "ii"
     },
     {
       "bar": 7,
       "degree": "V"
     },
     {
-      "bar": 7,
-      "beat": 2,
-      "degree": "I"
-    },
-    {
       "bar": 8,
-      "degree": "V"
-    },
-    {
-      "bar": 8,
-      "beat": 2,
       "degree": "I"
     },
     {
@@ -83,60 +53,30 @@
     },
     {
       "bar": 10,
-      "degree": "vi"
-    },
-    {
-      "bar": 10,
-      "beat": 2,
-      "degree": "V"
-    },
-    {
-      "bar": 11,
-      "degree": "ii"
-    },
-    {
-      "bar": 11,
-      "beat": 2,
       "degree": "I"
     },
     {
-      "bar": 12,
+      "bar": 11,
       "degree": "IV"
     },
     {
       "bar": 12,
-      "beat": 2,
       "degree": "I"
     },
     {
       "bar": 13,
       "degree": "IV"
-    },
-    {
-      "bar": 13,
-      "beat": 2,
-      "degree": "I"
     },
     {
       "bar": 14,
-      "degree": "IV"
+      "degree": "ii"
     },
     {
       "bar": 15,
       "degree": "V"
     },
     {
-      "bar": 15,
-      "beat": 2,
-      "degree": "I"
-    },
-    {
       "bar": 16,
-      "degree": "V"
-    },
-    {
-      "bar": 16,
-      "beat": 2,
       "degree": "I"
     },
     {
@@ -145,60 +85,30 @@
     },
     {
       "bar": 18,
-      "degree": "vi"
-    },
-    {
-      "bar": 18,
-      "beat": 2,
-      "degree": "V"
-    },
-    {
-      "bar": 19,
       "degree": "I"
     },
     {
       "bar": 19,
-      "beat": 2,
       "degree": "IV"
     },
     {
       "bar": 20,
-      "degree": "IV"
-    },
-    {
-      "bar": 20,
-      "beat": 2,
       "degree": "I"
     },
     {
       "bar": 21,
       "degree": "V"
-    },
-    {
-      "bar": 21,
-      "beat": 2,
-      "degree": "vi"
     },
     {
       "bar": 22,
-      "degree": "IV"
+      "degree": "ii"
     },
     {
       "bar": 23,
       "degree": "V"
     },
     {
-      "bar": 23,
-      "beat": 2,
-      "degree": "I"
-    },
-    {
       "bar": 24,
-      "degree": "V"
-    },
-    {
-      "bar": 24,
-      "beat": 2,
       "degree": "I"
     }
   ],
@@ -207,7 +117,7 @@
   },
   "meta": {
     "level": "intermediate",
-    "trains": "The First Noel in D major and 3/4, over a waltz left hand (the bass on beat 1, the chord on beats 2 and 3), up to two chords a bar (D, Bm, A, Em, G).",
+    "trains": "The First Noel in D major and 3/4, over a waltz left hand (the bass on beat 1, the chord on beats 2 and 3), one chord a bar (D, G, Em, A).",
     "composer": "Traditional (English)",
     "reviewedBy": "claude-opus-5.5",
     "reviewedOn": "2026-10-03"

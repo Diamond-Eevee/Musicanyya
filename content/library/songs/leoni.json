@@ -17,25 +17,16 @@
   "tempoBpm": 88,
   "chords": [
     {
-      "bar": 0,
-      "degree": "V"
-    },
-    {
       "bar": 1,
       "degree": "i"
     },
     {
-      "bar": 1,
-      "beat": 4,
-      "degree": "iv"
-    },
-    {
       "bar": 2,
       "degree": "V"
     },
     {
       "bar": 2,
-      "beat": 4,
+      "beat": 3,
       "degree": "III"
     },
     {
@@ -44,7 +35,7 @@
     },
     {
       "bar": 3,
-      "beat": 4,
+      "beat": 3,
       "degree": "VII"
     },
     {
@@ -53,17 +44,12 @@
     },
     {
       "bar": 4,
-      "beat": 4,
+      "beat": 3,
       "degree": "VII"
     },
     {
       "bar": 5,
       "degree": "III"
-    },
-    {
-      "bar": 5,
-      "beat": 4,
-      "degree": "VI"
     },
     {
       "bar": 6,
@@ -88,6 +74,11 @@
       "degree": "III"
     },
     {
+      "bar": 8,
+      "beat": 3,
+      "degree": "VI"
+    },
+    {
       "bar": 9,
       "degree": "III"
     },
@@ -100,22 +91,12 @@
       "degree": "i"
     },
     {
-      "bar": 11,
-      "beat": 4,
-      "degree": "iv"
-    },
-    {
       "bar": 12,
       "degree": "V"
     },
     {
       "bar": 13,
       "degree": "i"
-    },
-    {
-      "bar": 13,
-      "beat": 4,
-      "degree": "iv"
     },
     {
       "bar": 14,
@@ -145,7 +126,7 @@
   },
   "meta": {
     "level": "intermediate",
-    "trains": "The God of Abraham Praise (tune \"Leoni\") in E minor, with a one-beat pickup, over a broken-chord left hand in eighths, up to two chords a bar (B, Em, Am, G, D, C).",
+    "trains": "The God of Abraham Praise (tune \"Leoni\") in E minor, with a one-beat pickup, over a broken-chord left hand in eighths, up to two chords a bar (Em, B, G, Am, D, C).",
     "composer": "Traditional (synagogue melody for the Yigdal, tune \"Leoni\", adapted by M. Lyon)",
     "departures": [
       "The double bar lines the source prints inside the bars at the ends of phrases are left out: the music is written in whole 4/4 bars.",
