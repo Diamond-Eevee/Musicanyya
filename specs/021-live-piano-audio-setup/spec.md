@@ -2,7 +2,7 @@
 
 **Feature Branch**: `021-live-piano-audio-setup`
 **Created**: 2026-10-02
-**Status**: In progress
+**Status**: Implemented
 **Input**: User description: "improvements: move midi keyboard to the topbar for easier access, run piano engine on the
 program start, so users can play piano even without selecting music, Play/stop icons, instead of captions, for some
 reason after clicking play, the piano doesnt play when I press keys, I need to click "play the track" for it to work.

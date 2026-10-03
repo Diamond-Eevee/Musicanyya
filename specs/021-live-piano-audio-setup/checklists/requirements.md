@@ -49,3 +49,5 @@
 - Validation pass 1 (2026-10-02): all items pass except the open US5 clarification.
 - Validation pass 2 (2026-10-02): owner answered the US5 question ("keep it minimum"); spec updated (Clarifications,
   US5, FR-024 to FR-028, SC-010, Out of Scope). All items pass.
+- Validation pass 3 (2026-10-03): implemented; every task is ticked with evidence (see implementation-log.md). Known
+  exception: the Firefox calibration bound is skipped (docs/known-bugs.md).

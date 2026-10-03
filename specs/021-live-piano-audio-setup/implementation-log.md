@@ -392,3 +392,21 @@
 - Not ticked: T066 (gate not green), T070 (the electron project is green except finding 2), T067 (waits for T066).
 - Handoff: next = owner answers (Firefox calibration: a or b; electron-smoke order flake: fix task or accept), then T066 rerun of the affected specs plus `@smoke` (the full
   gate need not repeat if `src/` is unchanged; option (a) changes `src/` and needs the full gate again), then T067. Tree clean at the commit after this entry.
+
+## 2026-10-03 11:30 - claude-sonnet-5.5 (owner decisions after the gate; T066, T070, T067 done)
+- Owner decisions: (1) skip the Firefox calibration test for now and note it in known bugs; (2) fix the electron-smoke order failure.
+- Firefox calibration: `latency-setup.spec.ts` "Calibrate ... 30 ms (+-5)" is `test.skip` on Firefox with the reason; the rest of that spec runs there. New entry in
+  `docs/known-bugs.md` (cause measured, fix idea: smooth the clock pair in `MidiClockMap`). The product code is unchanged.
+- electron-smoke: root cause found. The denied navigation (`location.href = 'https://example.com'`, end of the first test) leaves Playwright's view of the shared window
+  "still navigating", so the next test ("packaged shelf") waited 5 s and failed every time the file ran in order (also on `main`). Fixing that exposed a second order
+  dependence: the "score browser opens, shows seeded progress" test read the recent cards the earlier tests had left (the seed is dated 2026-09-20). Fix: one Electron app
+  and one user-data directory per test (`beforeEach` / `afterEach`) in `electron-smoke.spec.ts`; the navigation check is its own test with the same assertion.
+  Evidence: `--repeat-each=3` `21 passed (22.9s)` (was 5 passed 1 failed in order).
+- Evidence for the tiers (no `src/` change since the gate run, so affected specs + smoke, constitution "Test tiers"): `pnpm lint` exit 0; `pnpm typecheck` exit 0;
+  `pnpm test:e2e:smoke` `9 passed`; `score-browser-tree` + `latency-setup` on chromium, firefox, webkit `36 passed, 6 skipped`; electron `electron-smoke`, `electron-audio-output`,
+  `electron-live-piano`, `electron-playback` `16 passed`. Together with the gate run above (`pnpm test` `7318 passed`; browsers `895 passed` + the three fixed specs; electron
+  `433 passed` + the fixed one) every spec has passed since its last change. T066 and T070 are ticked on that basis; the full `pnpm test:e2e` was not run again as one command.
+- T067: spec Status "Implemented", checklist note added.
+- Handoff: feature complete; next = the constitution audit stays as logged (T065); merge only when the owner asks. Open elsewhere: the Firefox clock-pair smoothing (known bugs).
+  Tree clean at the commit after this entry.
+

@@ -6,6 +6,22 @@ bug here fails the same way every time it is run.
 
 One entry per bug: what fails, how to reproduce it, what has already been ruled out, and where to pick it up.
 
+## Firefox: Latency calibration (and Play grading) is off by several ms
+
+- **Found**: 2026-10-03, feature 021 full gate (task T066); skipped on Firefox by the owner the same day.
+- **What**: `tests/e2e/latency-setup.spec.ts` "Calibrate with the fake keyboard tapping 30 ms after each click gives
+  "Calibrated: 30 ms" (+-5) ..." measures 21-24 ms on Firefox in about half the runs (Chromium is stable). The test is
+  skipped on Firefox (`test.skip(browserName === 'firefox', ...)`); the rest of that spec still runs there.
+- **Cause (measured, not a test fault)**: `AudioContext.getOutputTimestamp()` in Firefox reports an offset
+  `performanceTime - contextTime * 1000` that wobbles by 12.7 ms (sd 3.4 ms) over 6 s sampled every 7 ms; Chromium: 0.7 ms
+  (sd 0.15 ms). A calibration (and a Play run) anchors the beat on one such pair (`anchorRunStart`, `src/app/run-anchor.ts`)
+  and maps each tap with a fresh one through `MidiClockMap` (`src/engine/midi/clock-map.ts`), so on Firefox it carries a
+  random error of several ms. The same uncertainty reaches Play-mode grading and the calibrated profile on Firefox.
+- **Fix idea (not started)**: smooth the clock pair in `MidiClockMap`, e.g. the median offset of the last N pairs, with
+  unit tests on a jittery fake pair and an RT review (Constitution I and II); then un-skip the test. Needs the full gate.
+- **Reproduce**: `pnpm exec playwright test tests/e2e/latency-setup.spec.ts --project=firefox --repeat-each=6 -g "Calibrate with the fake"`
+  after removing the `test.skip` line.
+
 ## `play-grade-marks.spec.ts` grades roughly half the expected notes
 
 - **Found**: 2026-09-27, while running the full e2e suite for feature 012's (tempo-bpm-field) merge checkpoint.

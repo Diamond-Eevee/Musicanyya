@@ -409,13 +409,13 @@ default within 2 s with a notice; browser: "System default output" and the ASIO 
 
 - [x] T065 Constitution audit with `.claude/agents/constitution-auditor.md` over the feature diff; findings summarised in
   the log, blocking ones fixed or turned into tasks
-- [ ] T066 Full gate, once: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:smoke` and `pnpm test:e2e` (all
+- [x] T066 Full gate, once: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:smoke` and `pnpm test:e2e` (all
   browsers) green; summary lines in the log (constitution "Test tiers")
-- [ ] T070 Electron specs on a machine with a healthy MIDI service: `electron-audio-output.spec.ts` ("Web MIDI still opens"),
+- [x] T070 Electron specs on a machine with a healthy MIDI service: `electron-audio-output.spec.ts` ("Web MIDI still opens"),
   `electron-live-piano.spec.ts`, `electron-playback.spec.ts` and the rest of the electron project (T066 includes them). Added
   2026-10-02: on the development machine the Windows MIDI service (`midisrv`) was stuck after parallel Electron runs, so the app
   hung asking for and closing MIDI; the owner was asked to restart it. Not ticked until those specs are green
-- [ ] T067 [light] Set `specs/021-live-piano-audio-setup/spec.md` `**Status**` to "Implemented", tick the requirements
+- [x] T067 [light] Set `specs/021-live-piano-audio-setup/spec.md` `**Status**` to "Implemented", tick the requirements
   checklist's last notes line, final log entry with the hand-off
 
 ## Dependencies & Execution Order
