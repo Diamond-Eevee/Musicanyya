@@ -3,7 +3,14 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ElectronApplication, _electron as electron, expect, test } from '@playwright/test';
-import { browserDialog, KEYS_OPEN, openBrowser, seedOpenFolders } from './helpers/browser.js';
+import {
+  browserDialog,
+  KEYS_OPEN,
+  openBrowser,
+  rowByRef,
+  seedBrowserView,
+  seedOpenFolders,
+} from './helpers/browser.js';
 import { revealLibraryItem } from './helpers/library.js';
 import { openPanel } from './helpers/panels.js';
 
@@ -499,5 +506,93 @@ test.describe('Title block (006 FR-017)', () => {
     expect(box.overflow, 'no horizontal overflow').toBeLessThanOrEqual(0);
     expect(Math.abs(box.page1Top - box.blockBottom), 'page 1 starts right below the block').toBeLessThanOrEqual(1);
     await expect(page.locator('.mx-title-arranger')).toBeVisible();
+  });
+});
+
+/**
+ * Feature 022 US1 (spec FR-001, FR-004, FR-013, quickstart US1 steps 1-4): Basics is the first shelf, its lessons in
+ * teaching order; the first lesson explains itself before a session starts and plays in Listen. A library view stored
+ * before the new shelf (a filter, an open shelf) keeps its meaning across reloads.
+ */
+test.describe('022 Basics shelf', () => {
+  test('Basics is the first shelf, its lessons in teaching order; "Middle C and the beat" explains itself and plays', async ({
+    page,
+    browserName,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === 'electron', 'the browser build covers the shelf; Electron shares it');
+    const index = (await (await page.request.get('/library/index.json')).json()) as {
+      items: { id: string; meta: { trains?: string } }[];
+    };
+    const first = index.items.find((i) => i.id === 'basics/middle-c-quarter-notes');
+    if (!first?.meta.trains) throw new Error('basics/middle-c-quarter-notes is not on the shelf with its explanation');
+
+    await page.goto('/');
+    await openBrowser(page);
+    await expect(page.locator('[role="treeitem"]', { hasText: 'Basics' })).toBeVisible();
+    const labels = (await page.locator('[role="treeitem"] .browser-rail-label').allTextContents()).map((t) => t.trim());
+    expect(labels.indexOf('Basics'), 'Basics is in the rail').toBeGreaterThanOrEqual(0);
+    expect(labels.indexOf('Basics')).toBeLessThan(labels.indexOf('Learning'));
+    expect(labels.indexOf('Learning')).toBeLessThan(labels.indexOf('Repertoire'));
+
+    await page.locator('[role="treeitem"][data-key="section:basics"]').click();
+    const rows = page.locator('.browser-row[data-ref^="library:basics/"]');
+    await expect(rows.first()).toBeVisible();
+    expect((await rows.evaluateAll((els) => els.map((el) => el.getAttribute('data-ref')))).slice(0, 3)).toEqual([
+      'library:basics/middle-c-quarter-notes',
+      'library:basics/half-notes',
+      'library:basics/whole-notes',
+    ]);
+
+    const lesson = rowByRef(page, 'library:basics/middle-c-quarter-notes');
+    await lesson.click(); // selects without opening
+    await expect(lesson).toHaveAttribute('aria-selected', 'true', { timeout: 1000 });
+    await expect(page.locator('.browser-detail-trains')).toContainText(`Trains: ${first.meta.trains}`);
+
+    await lesson.dblclick();
+    await expect(browserDialog(page)).toBeHidden();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await expect(page.locator('.notice')).toHaveCount(0);
+    await expect(page.locator('.mx-title-block')).toContainText('Middle C and the beat');
+
+    await expect(page.locator('.play-btn')).not.toBeDisabled();
+    if (browserName !== 'webkit') {
+      await page.locator('.play-btn').click();
+      await expect(page.locator('g.note.playing').first()).toBeVisible();
+      await expect(async () => {
+        await page.keyboard.press('Escape');
+        await expect(page.locator('g.note.playing')).toBeHidden({ timeout: 1500 });
+      }).toPass({ timeout: 15_000 });
+    }
+  });
+
+  test('a library filter and an open shelf remembered from before Basics survive reloads (FR-004)', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === 'electron', 'the browser build covers the shelf; Electron shares it');
+    await seedBrowserView(page, {
+      folder: { kind: 'section', id: 'repertoire/beginner' },
+      filters: { level: 'beginner', key: null, tag: null, status: null },
+      expanded: ['repertoire'],
+    });
+    await page.goto('/');
+    for (let visit = 0; visit < 2; visit++) {
+      await openBrowser(page);
+      await expect(page.locator('[role="treeitem"][data-key="section:basics"]')).toBeVisible();
+      await expect(page.locator('[role="treeitem"][data-key="section:repertoire"]')).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
+      await expect(page.locator('[role="treeitem"][data-key="section:learning"]')).toHaveAttribute(
+        'aria-expanded',
+        'false',
+      );
+      await expect(page.locator('[role="treeitem"][data-key="section:repertoire/beginner"]')).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(page.locator('select[data-filter="level"]')).toHaveValue('beginner');
+      await expect(rowByRef(page, 'library:repertoire/beginner/amazing-grace')).toBeVisible();
+      await page.reload();
+    }
   });
 });

@@ -159,24 +159,29 @@ plays with the cursor, Practice waits for each note, Play grades it; the ties le
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T028 [P] [US1] [standard] Write `tests/library/basics.test.ts`: section `basics` exists with `parent: null`,
+- [x] T028 [P] [US1] [standard] Write `tests/library/basics.test.ts`: section `basics` exists with `parent: null`,
   `order` 1, title and description of data-model §2; 24 items in `basics`, `stepOrder` 10-240 in the
   order and with the titles of data-model §4; every item Introduction with `levelCheck.pass`, `kind: "exercise"`,
   `trains` and a printed explanation; the claimed single-pitch lessons (1-8, 14-17, 24) use one pitch; tags drawn from
   the lesson's ideas (`note-values`, `rests`, `ties`, `articulation`, `time-signatures`, `repeats`, `reading`,
   `hands-together`); every item passes "comfortable" (`tests/library/playability.test.ts` covers it - assert the
   count includes them). Fails now (no items).
-- [ ] T029 [P] [US1] [standard] Write `tests/library/perfect-run.test.ts` (SC-005): for every item generated from
+- [x] T029 [P] [US1] [standard] Write `tests/library/perfect-run.test.ts` (SC-005): for every item generated from
   `content/library/lessons/*.json` and every song definition with `simplifies` or its target (so chord lessons and
   songs join as they are added), plus at least the 24 Basics items, a synthetic perfect performance
   (`src/core/grade/synthetic.ts`) grades 100 % correct and grading twice gives identical Grades. Fails now (no
   Basics items).
-- [ ] T030 [P] [US1] [standard] Write a test in `tests/core/practice/` on the generated `basics/ties-in-a-bar` and
+- [x] T030 [P] [US1] [standard] Write a test in `tests/core/practice/` on the generated `basics/ties-in-a-bar` and
   `basics/ties-across-the-bar-line` files: the expected steps contain the head of each tie chain only. Fails now.
-- [ ] T031 [P] [US1] [standard] Extend `tests/e2e/library.spec.ts` (chromium): Basics is the first shelf; its first
+- [x] T031 [P] [US1] [standard] Extend `tests/e2e/library.spec.ts` (chromium): Basics is the first shelf; its first
   three lessons appear in teaching order; opening "Middle C and the beat" shows its "Trains" text and loads the score;
   Listen starts and the cursor moves; a remembered library filter and a collapsed shelf from before survive a reload
   with the new shelf order (FR-004). Fails now.
+
+- [x] T075 [US1] [standard] Show an item's `trains` text in the score browser's detail pane, labelled "Trains"
+  (found in implement: nothing renders `meta.trains` since feature 013, so FR-013's description and T031 had no place
+  to show): `src/ui/elements/mx-browser-detail.ts`, test first in `tests/ui/score-browser/rail-list-detail.test.ts`
+  (shown when present, left out when absent).
 
 ### Implementation
 

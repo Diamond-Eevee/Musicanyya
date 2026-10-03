@@ -350,4 +350,24 @@ describe('the old panel presentation, carried over (T098-T100)', () => {
     expect(meta).not.toContain('Hands:');
     expect(meta).toContain('Measures: 16');
   });
+
+  // Feature 022 T075 (FR-013): a lesson's explanation is its `trains` text, readable before a session starts
+  it("T075: the detail pane shows an item's trains text, labelled, and nothing when it has none", () => {
+    const base = libraryItem('repertoire/beginner/ode-to-joy');
+    const withText = libraryItem('repertoire/beginner/ode-to-joy', {
+      meta: { ...base.meta, trains: 'A tied note is played once and held for both values.' },
+    });
+    const without = libraryItem('repertoire/beginner/au-clair');
+    loadIndex([withText, without]);
+    browserState.setView({ selected: { kind: 'library', id: withText.id } });
+    const el = document.createElement('mx-browser-detail');
+    document.body.appendChild(el);
+    expect(el.querySelector('.browser-detail-trains')?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+      'Trains: A tied note is played once and held for both values.',
+    );
+
+    browserState.setView({ selected: { kind: 'library', id: without.id } });
+    expect(el.querySelector('.browser-detail-title')?.textContent).toBe('Ode to Joy');
+    expect(el.querySelector('.browser-detail-trains')).toBeNull();
+  });
 });
