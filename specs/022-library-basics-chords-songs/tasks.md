@@ -373,7 +373,7 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
   `specs/007-library-fidelity-audit/contracts/audit-record.md` (1.5.0) and `source-manifest.md` (1.4.0).
 - [x] T070 [P] Update `content/library/sources/README.md` (multiPart in step 3 "Manifest"), `content/library/audit/README.md`
   (new rule sets) and `docs/agents/reference.md` toolchain (`pnpm library:lessons`).
-- [ ] T071 [standard] Run `quickstart.md` end to end (all stories and the level-rule checks); fix what fails.
+- [x] T071 [standard] Run `quickstart.md` end to end (all stories and the level-rule checks); fix what fails.
 - [ ] T072 [deep] Constitution audit of the branch diff with the `constitution-auditor` sub-agent; fix findings;
   summarise them in the log.
 - [ ] T073 [standard] Full gate, once: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:smoke` and

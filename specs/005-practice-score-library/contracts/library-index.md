@@ -172,7 +172,7 @@ Everything a human decides. Never generated, never rewritten by a tool.
   `learning/key-changes/`.
 - `simplifies` (1.5.0): `tools/library/build-index.ts` fails the build unless the named item exists, is in the same
   section and has a higher level than this one. `src/core/library/index-model.ts` ignores the field (it is not copied
-  into the app model).
+  into the app model), so the generated index's `meta` does not carry it; it lives in the sidecar only.
 - Skill tags added in 1.5.0 (feature 022, English labels in `src/ui/i18n/en.ts`): `note-values`, `rests`,
   `articulation`, `time-signatures`, `reading` (the Basics lessons), `inversions`, `seventh-chords` (the chord
   lessons). An older app skips an item with a tag it does not know (existing rule) - the index and the app ship
