@@ -201,10 +201,10 @@ plays with the cursor, Practice waits for each note, Play grades it; the ties le
 - [x] T037 [US1] [standard] Write the 24 audit records `content/library/audit/basics/<id>.json` (claim `exercise`,
   check `theory` / `lesson-claims-v1`, claims copied from each definition, `expectedDifferences: 0`); run
   `pnpm library:fidelity` (rewrites `docs/library-audit.md`); 0 differences.
-- [ ] T038 [US1] Music review of the 24 lessons with the `music-domain-expert` sub-agent (one idea each, correct
+- [x] T038 [US1] Music review of the 24 lessons with the `music-domain-expert` sub-agent (one idea each, correct
   terminology, honest wording about held length, fingering, pace); fix findings in the definitions, regenerate;
   summarise findings in the log.
-- [ ] T039 [US1] [standard] Screenshot every Basics lesson (`pnpm screenshot --item basics/<id>`), look at each:
+- [x] T039 [US1] [standard] Screenshot every Basics lesson (`pnpm screenshot --item basics/<id>`), look at each:
   explanation line readable, not overlapping the tempo mark or notes; ties, slurs, staccato, repeats engraved. Fix and
   regenerate where needed; list the files looked at in the log.
 

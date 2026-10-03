@@ -7,7 +7,7 @@
   "level": "introduction",
   "hands": "right",
   "tags": ["time-signatures"],
-  "trains": "In 6/8 a bar holds six eighth notes, felt as two beats of three: ONE two three FOUR five six. Each beat is a dotted quarter; the metronome mark at the start counts dotted quarters.",
+  "trains": "In 6/8 a bar holds six eighth notes, felt as two beats of three: ONE two three FOUR five six. Each beat is a dotted quarter; the metronome mark counts dotted quarters. A quarter plus an eighth also fills a beat: play on ONE and three.",
   "scoreText": "6/8: two beats a bar, each beat three eighths.",
   "metre": "6/8",
   "tempoBpm": 72,

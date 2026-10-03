@@ -7,7 +7,7 @@
   "level": "introduction",
   "hands": "right",
   "tags": ["note-values"],
-  "trains": "A dotted quarter lasts a beat and a half; the eighth after it takes the last half beat, so the two fill two beats. Count \"1 and 2 and\": play on 1, hold through its \"and\" and beat 2, play the eighth on the \"and\" of 2.",
+  "trains": "A dotted quarter lasts a beat and a half; the eighth after it takes the last half beat, so the two fill two beats. Count \"1 and 2 and\": play on 1, hold through its \"and\" and beat 2, play the eighth on the \"and\" of 2. The app checks only when notes start.",
   "scoreText": "Dotted quarter: a beat and a half, then a short eighth.",
   "metre": "4/4",
   "tempoBpm": 60,

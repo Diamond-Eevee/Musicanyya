@@ -471,3 +471,31 @@ describe('022: lesson-claims-v1 records (audit-record 1.5.0)', () => {
     expect(alone?.differences.map((d) => (d as { code?: string }).code)).toContain('not-introduced');
   });
 });
+
+// Feature 022 (contract audit-record 1.5.0): chord-lessons-v1 carries optional claims (common tones, omitted tones).
+describe('022: chord-lessons-v1 records (audit-record 1.5.0)', () => {
+  const chordRecord = (check: Record<string, unknown>) =>
+    JSON.parse(
+      JSON.stringify({ ...record(), itemId: 'learning/chord-lessons/switches/x', claim: 'exercise', checks: [check] }),
+    ) as AuditRecord;
+  const base = { method: 'theory', ruleSet: 'chord-lessons-v1', expectedDifferences: 0 };
+
+  it('accepts a chord-lessons-v1 check with or without claims', () => {
+    expect(() => validateRecord(chordRecord(base), 'x.json')).not.toThrow();
+    const claims = {
+      commonTones: [{ bar: 2, beat: 1, pitch: 'C5' }],
+      omit: [{ bar: 3, beat: 1, tones: ['5'] }],
+    };
+    expect(validateRecord(chordRecord({ ...base, claims }), 'x.json').checks[0]).toEqual({ ...base, claims });
+  });
+
+  it('rejects malformed claims and a teaching order', () => {
+    expect(() => validateRecord(chordRecord({ ...base, claims: { introduces: ['chord'] } }), 'x.json')).toThrow(
+      /introduces/,
+    );
+    expect(() =>
+      validateRecord(chordRecord({ ...base, claims: { omit: [{ bar: 1, beat: 1, tones: ['9'] }] } }), 'x.json'),
+    ).toThrow(/omit/);
+    expect(() => validateRecord(chordRecord({ ...base, teachingOrder: 10 }), 'x.json')).toThrow(/teachingOrder/);
+  });
+});

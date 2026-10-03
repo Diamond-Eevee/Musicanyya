@@ -7,7 +7,7 @@
   "level": "introduction",
   "hands": "right",
   "tags": ["note-values"],
-  "trains": "A half note has a hollow head and a stem. It lasts two beats: play it on one beat and keep the key down through the next. Count out loud. The app listens for when each note starts, not for how long you hold it.",
+  "trains": "A half note has a hollow head and a stem. It lasts two beats: play it on one beat and keep the key down through the next. Count out loud. The app checks when each note starts, not how long you hold it.",
   "scoreText": "Half note = 2 beats: play on 1, hold through 2.",
   "metre": "4/4",
   "tempoBpm": 60,

@@ -596,3 +596,40 @@ test.describe('022 Basics shelf', () => {
     }
   });
 });
+
+/**
+ * Feature 022 US2 (spec FR-002, FR-023, quickstart US2 step 1-2): Learning > Chords comes after Keys and Key changes and
+ * holds One chord, Chord switches, Progressions; a chord switch shows its chord names on the score.
+ */
+test.describe('022 Chords shelf', () => {
+  test('Learning lists Keys, Key changes, Chords; Chords lists its three folders; "Major to minor" in C names C and Cm', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === 'electron', 'the browser build covers the shelf; Electron shares it');
+    await seedOpenFolders(page, ['learning', 'learning/chord-lessons']);
+    await page.goto('/');
+    await openBrowser(page);
+    await expect(page.locator('[role="treeitem"][data-key="section:learning/chord-lessons"]')).toBeVisible();
+    const labels = (await page.locator('[role="treeitem"] .browser-rail-label').allTextContents()).map((t) => t.trim());
+    const at = (label: string) => labels.indexOf(label);
+    expect(at('Keys')).toBeGreaterThan(at('Learning'));
+    expect(at('Key changes')).toBeGreaterThan(at('Keys'));
+    expect(at('Chords')).toBeGreaterThan(at('Key changes'));
+    expect(labels.slice(at('Chords') + 1, at('Chords') + 4)).toEqual(['One chord', 'Chord switches', 'Progressions']);
+
+    const { item } = await revealLibraryItem(page, 'learning/chord-lessons/switches/major-to-minor-in-c-major');
+    await item.dblclick();
+    await expect(browserDialog(page)).toBeHidden();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await expect(page.locator('.notice')).toHaveCount(0);
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          Array.from(document.querySelectorAll('.mx-score-page g.dir'))
+            .map((g) => g.textContent?.trim() ?? '')
+            .filter((t) => t !== ''),
+        ),
+      )
+      .toEqual(expect.arrayContaining(['C', 'Cm']));
+  });
+});

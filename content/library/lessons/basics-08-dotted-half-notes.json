@@ -7,7 +7,7 @@
   "level": "introduction",
   "hands": "right",
   "tags": ["note-values"],
-  "trains": "A dot after a note makes it half as long again. A half note lasts two beats, so a dotted half note lasts three: a whole bar of 3/4. Play on 1 and hold through 2 and 3. The app listens for when each note starts, not for how long you hold it.",
+  "trains": "A dot after a note head adds half the note's length. A half note lasts two beats, so a dotted half note lasts three: a whole bar of 3/4. Play on 1 and hold through 2 and 3. The app checks when each note starts, not how long you hold it.",
   "scoreText": "A dot adds half: dotted half note = 3 beats.",
   "metre": "3/4",
   "tempoBpm": 60,

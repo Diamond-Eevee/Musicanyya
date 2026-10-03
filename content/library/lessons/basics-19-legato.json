@@ -7,8 +7,8 @@
   "level": "introduction",
   "hands": "right",
   "tags": ["articulation"],
-  "trains": "Legato means connected. Under a slur, hold each key until the next one goes down, so the notes join with no gap, like singing in one breath; lift the hand only at the end of the curve. The app checks that each note starts on time.",
-  "scoreText": "Legato: hold each note until the next one sounds.",
+  "trains": "Legato means connected. Under a slur, hold each key until the next one goes down, so the notes join with no gap, like singing in one breath; lift the hand only at the end of the curve. The app checks when each note starts, not whether the notes join.",
+  "scoreText": "Slur = legato: hold each note until the next one sounds.",
   "metre": "4/4",
   "tempoBpm": 60,
   "key": {
@@ -17,7 +17,8 @@
     "fifths": 0
   },
   "claims": {
-    "introduces": ["slur"]
+    "introduces": [],
+    "practice": true
   },
   "bars": [
     {

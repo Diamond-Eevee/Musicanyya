@@ -3010,11 +3010,11 @@
           "soundingKey": 60
         },
         {
-          "id": "n-p0-s1-m1-v1-o2-k60",
+          "id": "n-p0-s1-m1-v1-o2-k62",
           "measureIndex": 1,
           "onsetInMeasure": 1920,
           "durationTicks": 1920,
-          "soundingKey": 60
+          "soundingKey": 62
         },
         {
           "id": "n-p0-s1-m2-v1-o0-k64",
@@ -3090,8 +3090,15 @@
           "id": "n-p0-s1-m5-v1-o0-k60",
           "measureIndex": 5,
           "onsetInMeasure": 0,
-          "durationTicks": 1920,
+          "durationTicks": 960,
           "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1-k62",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
         },
         {
           "id": "n-p0-s1-m5-v1-o2-k64",
@@ -3136,7 +3143,7 @@
           "soundingKey": 60
         }
       ],
-      "scheduleDigest": "49c7e4169b0000e43c7626e2c63d57cc600c84adefa003d05c8f59b03fe78d2a"
+      "scheduleDigest": "63e9a79478d82507aa9a104a4967993089a9f18c477ba1a228635ba3364700ed"
     },
     {
       "file": "basics/three-four-time.musicxml",
@@ -3465,7 +3472,14 @@
           "id": "n-p0-s1-m1-v1-o2-k64",
           "measureIndex": 1,
           "onsetInMeasure": 1920,
-          "durationTicks": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o3-k64",
+          "measureIndex": 1,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
           "soundingKey": 64
         },
         {
@@ -3500,7 +3514,14 @@
           "id": "n-p0-s1-m3-v1-o2-k60",
           "measureIndex": 3,
           "onsetInMeasure": 1920,
-          "durationTicks": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o3-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
           "soundingKey": 60
         },
         {
@@ -3581,7 +3602,7 @@
           "soundingKey": 60
         }
       ],
-      "scheduleDigest": "e7b5e3d74c7ab855f7785ff583623730a6901a6b302dbd895acb10c9f089e3ba"
+      "scheduleDigest": "6f1fef2c1fe72d47bdfe0d82fa56133761613943aa28560da9cc259927caf8cf"
     },
     {
       "file": "basics/ties-in-a-bar.musicxml",
@@ -3674,14 +3695,28 @@
           "id": "n-p0-s1-m4-v1-o0-k60",
           "measureIndex": 4,
           "onsetInMeasure": 0,
-          "durationTicks": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
           "soundingKey": 60
         },
         {
           "id": "n-p0-s1-m4-v1-o2-k60",
           "measureIndex": 4,
           "onsetInMeasure": 1920,
-          "durationTicks": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
           "soundingKey": 60
         },
         {
@@ -3734,7 +3769,7 @@
           "soundingKey": 60
         }
       ],
-      "scheduleDigest": "df90d5a47c7e4998c6a4e6469d35b6b652e2cec6da29e603799fefa679679acf"
+      "scheduleDigest": "5fbd882065b64e375bbe0dedb835f682997aa62b045142b78a3e69f9aec8ef25"
     },
     {
       "file": "basics/whole-notes.musicxml",

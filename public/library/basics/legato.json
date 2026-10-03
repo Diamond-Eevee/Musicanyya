@@ -4,7 +4,7 @@
   "kind": "exercise",
   "level": "introduction",
   "tags": ["articulation"],
-  "trains": "Legato means connected. Under a slur, hold each key until the next one goes down, so the notes join with no gap, like singing in one breath; lift the hand only at the end of the curve. The app checks that each note starts on time.",
+  "trains": "Legato means connected. Under a slur, hold each key until the next one goes down, so the notes join with no gap, like singing in one breath; lift the hand only at the end of the curve. The app checks when each note starts, not whether the notes join.",
   "hands": "right",
   "provenance": {
     "origin": "authored",

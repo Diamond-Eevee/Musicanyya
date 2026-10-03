@@ -20,10 +20,14 @@ The record's check carries `claims: { introduces: string[], singlePitch?: boolea
 
 ## `chord-lessons-v1` (`tools/library/fidelity/chord-lessons.ts`)
 
+The record's check carries `claims: { commonTones?: [{ bar, beat, pitch }], omit?: [{ bar, beat, tones }] }` (beat
+counted in quarter notes from 1).
+
 Name grammar: research R4. At each chord symbol until the next (or the end):
 
-1. `chord-tones` - the pitch classes struck at the symbol's onset across both staves are not exactly the named
-   chord's (letter arithmetic; `omit` in the claim honoured for named chords only).
+1. `chord-tones` - the notes sounding at the symbol's onset across both staves (struck there, or held into it) do
+   not spell exactly the named chord (letter arithmetic, spelled tones; `omit` in the claim - `[{ bar, beat, tones }]`,
+   the chord named at that bar and beat leaves those tones out - is honoured for named chords only).
 2. `bass` - the lowest note is not the slash bass (or the root without a slash).
 3. `common-tone` - a claimed common tone (`claims.commonTones`) is not held or re-struck on the same key.
 4. `stray-note` - a note under the symbol's span that is not a chord tone.

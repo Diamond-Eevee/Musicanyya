@@ -36,6 +36,8 @@ export interface LessonClaims {
   practice?: boolean;
   /** A chord switch keeps this key down, or strikes it again, from the previous chord. */
   commonTones?: { bar: number; beat: number; pitch: string }[];
+  /** The chord named at this bar and beat leaves these tones out (a seventh without its fifth, research R5). */
+  omit?: { bar: number; beat: number; tones: string[] }[];
 }
 
 export interface LessonBarDefinition {
@@ -135,7 +137,7 @@ const TOP_FIELDS = [
 ];
 const KEY_FIELDS = ['tonic', 'mode', 'fifths'];
 const TRANSPOSITION_FIELDS = ['slug', 'tonic', 'mode', 'fifths', 'interval'];
-const CLAIM_FIELDS = ['introduces', 'singlePitch', 'practice', 'commonTones'];
+const CLAIM_FIELDS = ['introduces', 'singlePitch', 'practice', 'commonTones', 'omit'];
 const BAR_FIELDS = ['rh', 'lh', 'barline'];
 const ID = /^(basics|learning\/chord-lessons\/(single-chords|switches|progressions))\/[a-z0-9{}-]+$/;
 const METRE = /^(\d+)\/(2|4|8)$/;
@@ -219,6 +221,20 @@ export function validateLessonDefinition(json: unknown): LessonDefinition {
       if (!Number.isInteger(tone.bar)) fail(`claims.commonTones[${i}].bar must be an integer`);
       if (typeof tone.beat !== 'number' || tone.beat < 1) fail(`claims.commonTones[${i}].beat must be 1 or more`);
       string(tone.pitch, `claims.commonTones[${i}].pitch`, fail, 4);
+    });
+  }
+  if (claims.omit !== undefined) {
+    if (!Array.isArray(claims.omit)) fail('claims.omit must be a list');
+    (claims.omit as unknown[]).forEach((raw, i) => {
+      const omit = object(raw, `claims.omit[${i}]`, fail);
+      known(omit, ['bar', 'beat', 'tones'], `claims.omit[${i}]`, fail);
+      if (!Number.isInteger(omit.bar)) fail(`claims.omit[${i}].bar must be an integer`);
+      if (typeof omit.beat !== 'number' || omit.beat < 1) fail(`claims.omit[${i}].beat must be 1 or more`);
+      if (
+        !Array.isArray(omit.tones) ||
+        !(omit.tones as unknown[]).every((t) => ['1', '3', '5', '7'].includes(t as string))
+      )
+        fail(`claims.omit[${i}].tones must list degrees 1, 3, 5 or 7`);
     });
   }
   const introduces = (claims.introduces as unknown[] | undefined) ?? [];

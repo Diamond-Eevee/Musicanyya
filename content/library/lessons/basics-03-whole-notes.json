@@ -7,7 +7,7 @@
   "level": "introduction",
   "hands": "right",
   "tags": ["note-values"],
-  "trains": "A whole note is a hollow head with no stem. It fills a whole bar of 4/4: play it on beat 1 and hold it while you count 2, 3, 4. The app listens for when each note starts, not for how long you hold it.",
+  "trains": "A whole note is a hollow head with no stem. It fills a whole bar of 4/4: play it on beat 1 and hold it while you count 2, 3, 4. The app checks when each note starts, not how long you hold it.",
   "scoreText": "Whole note = 4 beats: play on 1, hold to 4.",
   "metre": "4/4",
   "tempoBpm": 60,

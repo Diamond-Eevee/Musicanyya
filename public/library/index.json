@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-03T11:04:09.434Z",
+  "generated": "2026-10-03T11:18:18.275Z",
   "sections": [
     {
       "id": "basics",
@@ -430,7 +430,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The lower staff has the bass clef, for the left hand. Its two dots sit either side of the F line. Put your left little finger (5) on the C below middle C and your thumb on G: the same five-finger position, mirrored.",
+        "trains": "The lower staff has the bass clef, for the left hand. Its two dots sit either side of the line for the F below middle C. Put your left little finger (5) on the C below middle C and your thumb on G: the same five-finger position, mirrored.",
         "hands": "left",
         "stepOrder": 110
       },
@@ -512,7 +512,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "A dot after a note makes it half as long again. A half note lasts two beats, so a dotted half note lasts three: a whole bar of 3/4. Play on 1 and hold through 2 and 3. The app listens for when each note starts, not for how long you hold it.",
+        "trains": "A dot after a note head adds half the note's length. A half note lasts two beats, so a dotted half note lasts three: a whole bar of 3/4. Play on 1 and hold through 2 and 3. The app checks when each note starts, not how long you hold it.",
         "hands": "right",
         "stepOrder": 80
       },
@@ -594,7 +594,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "A dotted quarter lasts a beat and a half; the eighth after it takes the last half beat, so the two fill two beats. Count \"1 and 2 and\": play on 1, hold through its \"and\" and beat 2, play the eighth on the \"and\" of 2.",
+        "trains": "A dotted quarter lasts a beat and a half; the eighth after it takes the last half beat, so the two fill two beats. Count \"1 and 2 and\": play on 1, hold through its \"and\" and beat 2, play the eighth on the \"and\" of 2. The app checks only when notes start.",
         "hands": "right",
         "stepOrder": 150
       },
@@ -922,7 +922,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "A half note has a hollow head and a stem. It lasts two beats: play it on one beat and keep the key down through the next. Count out loud. The app listens for when each note starts, not for how long you hold it.",
+        "trains": "A half note has a hollow head and a stem. It lasts two beats: play it on one beat and keep the key down through the next. Count out loud. The app checks when each note starts, not how long you hold it.",
         "hands": "right",
         "stepOrder": 20
       },
@@ -1149,8 +1149,8 @@
       "id": "basics/legato",
       "section": "basics",
       "file": "basics/legato.musicxml",
-      "bytes": 7428,
-      "hash": "f9325d1a2272a690f9518a3982e0a89f54e3d8968fbce1acbe17ea86950910a9",
+      "bytes": 7435,
+      "hash": "0d9df0e2a9a0db3cd56e3de73da42f479a091b6a027f675fc0ef809f75f8febd",
       "meta": {
         "version": 1,
         "title": "Legato: connected notes",
@@ -1168,7 +1168,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "Legato means connected. Under a slur, hold each key until the next one goes down, so the notes join with no gap, like singing in one breath; lift the hand only at the end of the curve. The app checks that each note starts on time.",
+        "trains": "Legato means connected. Under a slur, hold each key until the next one goes down, so the notes join with no gap, like singing in one breath; lift the hand only at the end of the curve. The app checks when each note starts, not whether the notes join.",
         "hands": "right",
         "stepOrder": 190
       },
@@ -1231,8 +1231,8 @@
       "id": "basics/legato-and-staccato",
       "section": "basics",
       "file": "basics/legato-and-staccato.musicxml",
-      "bytes": 8334,
-      "hash": "4fb48a4ffc7bfbcd8f07fe9abaec93b79763ad04d64548d41dbab16e363749f4",
+      "bytes": 8333,
+      "hash": "c01852ad7f57a1090d3e2df6f005a0877b9c3d4a25ceab9933abf174943cc009",
       "meta": {
         "version": 1,
         "title": "Legato and staccato",
@@ -1250,7 +1250,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "Both touches in one piece: smooth, connected notes under the slurs and short, detached notes where the dots are. Listen once, then play. The change of touch is what you practise here; the app checks the notes and when they start.",
+        "trains": "Both touches in one piece: smooth, connected notes under the slurs and short, detached notes where the dots are. Listen once, then play. The change of touch is the exercise here; the app checks the notes and when they start.",
         "hands": "right",
         "stepOrder": 210
       },
@@ -1333,7 +1333,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "Middle C is the C in the middle of the keyboard; on the music it sits on a short line just below the five lines. Play it with your right thumb (finger 1) on every beat. Each quarter note is one beat, four beats in each bar.",
+        "trains": "The five lines are the staff; the treble clef starts it. Middle C, the C nearest the middle of the keyboard, sits on a short line below it: play it with your right thumb (finger 1). A quarter note (filled head, stem) is one beat; 4/4 means four beats per bar.",
         "hands": "right",
         "stepOrder": 10
       },
@@ -1415,7 +1415,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "No new sign here: whole, half and quarter notes mixed, all on middle C. Keep counting 1 2 3 4 in every bar and let each note last its full value before the next one starts.",
+        "trains": "No new sign here: whole, half and quarter notes mixed, all on middle C. Keep counting 1 2 3 4 in every bar and hold each note for its full value. The app checks when each note starts, not how long you hold it.",
         "hands": "right",
         "stepOrder": 40
       },
@@ -1661,7 +1661,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "Two dots before a thick double bar line are a repeat sign: go back to the start, or to the facing sign, and play that part again, then go on. The app follows the repeat: it plays and expects those bars twice.",
+        "trains": "Two dots before a double bar line (one thin, one thick line) are a repeat sign: go back to the beginning and play those bars again, then go on. The app follows the repeat: it plays and expects those bars twice. Without the dots, that line ends the piece.",
         "hands": "right",
         "stepOrder": 230
       },
@@ -1743,7 +1743,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "In 6/8 a bar holds six eighth notes, felt as two beats of three: ONE two three FOUR five six. Each beat is a dotted quarter; the metronome mark at the start counts dotted quarters.",
+        "trains": "In 6/8 a bar holds six eighth notes, felt as two beats of three: ONE two three FOUR five six. Each beat is a dotted quarter; the metronome mark counts dotted quarters. A quarter plus an eighth also fills a beat: play on ONE and three.",
         "hands": "right",
         "stepOrder": 240
       },
@@ -1806,8 +1806,8 @@
       "id": "basics/staccato",
       "section": "basics",
       "file": "basics/staccato.musicxml",
-      "bytes": 9011,
-      "hash": "ca12cfbacdfd35c36b35615769ecea6f848e708a28bef99648b0caf99fb3b8c8",
+      "bytes": 9021,
+      "hash": "f046cb94abab92bddb29c4c448ce03dbd2c8968f45b44d074abfe24e58ef8b71",
       "meta": {
         "version": 1,
         "title": "Staccato: short notes",
@@ -1825,7 +1825,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "A dot above or below a note head means staccato: play the note short and spring off the key, leaving a little silence before the next note. Listen first: the notes sound short. The app checks when each note starts, not how short you play it.",
+        "trains": "A dot above or below a note head means staccato: play it short and spring off the key. (A dot after the head makes a note longer.) Listen first: the notes sound short. The app checks when each note starts, not how short you play it.",
         "hands": "right",
         "stepOrder": 200
       },
@@ -1888,8 +1888,8 @@
       "id": "basics/steps-c-d-e",
       "section": "basics",
       "file": "basics/steps-c-d-e.musicxml",
-      "bytes": 7376,
-      "hash": "59d182bf4529c713a595d1f05db5eb7c23878e3bd3895823599a326a3c17617a",
+      "bytes": 7588,
+      "hash": "9d3d4516aae6d1a8b697645c999caebbd9ff169473f527fe89b63dc177110584",
       "meta": {
         "version": 1,
         "title": "Steps: C, D, E",
@@ -1907,13 +1907,13 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "Moving to the key right beside it is a step. On the staff the note moves from a line to the next space, or from a space to the next line. Thumb on C, finger 2 on D, finger 3 on E: each step up is the next finger.",
+        "trains": "Moving to the next white key, up or down, is a step. On the staff the note moves from a line to the next space, or from a space to the next line. Thumb on C, finger 2 on D, finger 3 on E: each step up is the next finger.",
         "hands": "right",
         "stepOrder": 90
       },
       "facts": {
         "measures": 8,
-        "notes": 23,
+        "notes": 24,
         "durationSeconds": 32,
         "keys": [
           "C major"
@@ -1931,7 +1931,7 @@
         "handIndependenceFraction": 0,
         "chordChangesPerBar": 0,
         "shortestDivision": 4,
-        "notesPerBeat": 0.71875,
+        "notesPerBeat": 0.75,
         "accidentals": 0,
         "hasTies": false,
         "hasTuplets": false,
@@ -1943,9 +1943,9 @@
         "notices": [],
         "parts": 1,
         "tempoChanges": 0,
-        "maxLeapSemitones": 4,
+        "maxLeapSemitones": 2,
         "longestRunAtShortestValue": 0,
-        "attackCount": 23,
+        "attackCount": 24,
         "peakNotesPerSecond": 1.5,
         "accidentalMarkCount": 0,
         "minorScaleAccidentalCount": 0,
@@ -1989,7 +1989,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The time signature at the start says how many beats each bar holds. 3/4 means three quarter-note beats in a bar, the swing of a waltz. Count 1 2 3 and lean a little on beat 1.",
+        "trains": "The time signature at the start says how many beats each bar holds. 3/4 means three quarter-note beats in a bar, the feel of a waltz. Count 1 2 3 and lean a little on beat 1.",
         "hands": "right",
         "stepOrder": 70
       },
@@ -2134,8 +2134,8 @@
       "id": "basics/ties-and-slurs",
       "section": "basics",
       "file": "basics/ties-and-slurs.musicxml",
-      "bytes": 7439,
-      "hash": "aaea4d980f6d88ad634d4f636adcae5ce1b5238d6d621f9798e07e163b54ebf5",
+      "bytes": 7856,
+      "hash": "658467046ff12633260e4ff848f4adf77ad2aa0c9e664f5a9117072bef7060f8",
       "meta": {
         "version": 1,
         "title": "Tie or slur?",
@@ -2154,13 +2154,13 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "Ties and slurs are both curves. A tie joins two notes of the same pitch: play once and hold. A slur joins different notes: play every one of them, smoothly connected. The app expects every note under a slur, but only the first of a tie.",
+        "trains": "Ties and slurs are both curves. A tie joins two notes of the same pitch: play once and hold. A slur joins different notes: play every one, smoothly connected. The app expects every note under a slur, only the first of a tie; it does not check how long you hold.",
         "hands": "right",
         "stepOrder": 180
       },
       "facts": {
         "measures": 8,
-        "notes": 21,
+        "notes": 23,
         "durationSeconds": 32,
         "keys": [
           "C major"
@@ -2178,7 +2178,7 @@
         "handIndependenceFraction": 0,
         "chordChangesPerBar": 0,
         "shortestDivision": 4,
-        "notesPerBeat": 0.65625,
+        "notesPerBeat": 0.71875,
         "accidentals": 0,
         "hasTies": true,
         "hasTuplets": false,
@@ -2192,7 +2192,7 @@
         "tempoChanges": 0,
         "maxLeapSemitones": 4,
         "longestRunAtShortestValue": 0,
-        "attackCount": 21,
+        "attackCount": 23,
         "peakNotesPerSecond": 1.5,
         "accidentalMarkCount": 0,
         "minorScaleAccidentalCount": 0,
@@ -2217,8 +2217,8 @@
       "id": "basics/ties-in-a-bar",
       "section": "basics",
       "file": "basics/ties-in-a-bar.musicxml",
-      "bytes": 7362,
-      "hash": "03ce2135619322f9993fa205df1ee88c94bfa1b48d0f8109277f31486b8f5b25",
+      "bytes": 7850,
+      "hash": "e4d137836aa79014d956f0c89c2d72135d764446875817f7490adfab744f3c5b",
       "meta": {
         "version": 1,
         "title": "Ties: hold, don't play again",
@@ -2242,7 +2242,7 @@
       },
       "facts": {
         "measures": 8,
-        "notes": 21,
+        "notes": 23,
         "durationSeconds": 32,
         "keys": [
           "C major"
@@ -2260,7 +2260,7 @@
         "handIndependenceFraction": 0,
         "chordChangesPerBar": 0,
         "shortestDivision": 4,
-        "notesPerBeat": 0.65625,
+        "notesPerBeat": 0.71875,
         "accidentals": 0,
         "hasTies": true,
         "hasTuplets": false,
@@ -2274,7 +2274,7 @@
         "tempoChanges": 0,
         "maxLeapSemitones": 0,
         "longestRunAtShortestValue": 0,
-        "attackCount": 21,
+        "attackCount": 23,
         "peakNotesPerSecond": 1.5,
         "accidentalMarkCount": 0,
         "minorScaleAccidentalCount": 0,
@@ -2318,7 +2318,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "A whole note is a hollow head with no stem. It fills a whole bar of 4/4: play it on beat 1 and hold it while you count 2, 3, 4. The app listens for when each note starts, not for how long you hold it.",
+        "trains": "A whole note is a hollow head with no stem. It fills a whole bar of 4/4: play it on beat 1 and hold it while you count 2, 3, 4. The app checks when each note starts, not how long you hold it.",
         "hands": "right",
         "stepOrder": 30
       },

@@ -4,7 +4,7 @@
   "kind": "exercise",
   "level": "introduction",
   "tags": ["ties", "articulation"],
-  "trains": "Ties and slurs are both curves. A tie joins two notes of the same pitch: play once and hold. A slur joins different notes: play every one of them, smoothly connected. The app expects every note under a slur, but only the first of a tie.",
+  "trains": "Ties and slurs are both curves. A tie joins two notes of the same pitch: play once and hold. A slur joins different notes: play every one, smoothly connected. The app expects every note under a slur, only the first of a tie; it does not check how long you hold.",
   "hands": "right",
   "provenance": {
     "origin": "authored",

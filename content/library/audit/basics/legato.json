@@ -9,7 +9,8 @@
       "ruleSet": "lesson-claims-v1",
       "expectedDifferences": 0,
       "claims": {
-        "introduces": ["slur"]
+        "introduces": [],
+        "practice": true
       },
       "teachingOrder": 190
     }

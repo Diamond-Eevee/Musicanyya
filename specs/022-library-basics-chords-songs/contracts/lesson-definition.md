@@ -42,7 +42,11 @@ A lesson item = authored notes (CC0) for one Basics lesson or one chord lesson, 
         "practice":    { "type": "boolean", "description": "basics: the lesson only combines earlier ideas; introduces may be empty" },
         "commonTones": { "type": "array", "items": { "type": "object", "required": ["bar", "beat", "pitch"],
                          "properties": { "bar": { "type": "integer" }, "beat": { "type": "number" }, "pitch": { "type": "string" } } },
-                         "description": "a switch keeps this key down (or strikes it again) from the previous chord" }
+                         "description": "a switch keeps this key down (or strikes it again) from the previous chord" },
+        "omit":        { "type": "array", "items": { "type": "object", "required": ["bar", "beat", "tones"],
+                         "properties": { "bar": { "type": "integer" }, "beat": { "type": "number" },
+                                         "tones": { "type": "array", "items": { "enum": ["1", "3", "5", "7"] } } } },
+                         "description": "the chord named at this bar and beat leaves these tones out (e.g. a seventh without its fifth, research R5)" }
       }
     },
     "simplifies":  { "type": "string", "description": "the item id (after {key} resolution) this lesson simplifies" },

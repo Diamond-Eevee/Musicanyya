@@ -4,7 +4,7 @@
   "kind": "exercise",
   "level": "introduction",
   "tags": ["note-values"],
-  "trains": "No new sign here: whole, half and quarter notes mixed, all on middle C. Keep counting 1 2 3 4 in every bar and let each note last its full value before the next one starts.",
+  "trains": "No new sign here: whole, half and quarter notes mixed, all on middle C. Keep counting 1 2 3 4 in every bar and hold each note for its full value. The app checks when each note starts, not how long you hold it.",
   "hands": "right",
   "provenance": {
     "origin": "authored",

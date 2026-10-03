@@ -86,3 +86,42 @@
   `pnpm test:e2e:smoke` `9 passed`, `pnpm library:fidelity --check` "187 records, 0 failed; docs/library-audit.md is up
   to date".
 - Handoff: next = US1 T028-T031 (tests), then authoring T032-T035.
+
+## 2026-10-03 23:30 - claude-opus-5.5 (implement: US1 Basics checkpoint)
+- Done: T028-T039, new T075 (the browser detail pane shows `meta.trains`, labelled "Trains": nothing rendered it since
+  feature 013, so FR-013's description had no place on screen; test first in rail-list-detail.test.ts).
+- Tests first: basics.test.ts, perfect-run.test.ts, basics-ties practice test and the two library e2e tests all failed
+  for "no Basics content"; green after authoring.
+- Authoring (T032-T035): 24 definitions `content/library/lessons/basics-NN-<slug>.json`, all Introduction, tempo 60
+  (6/8: dotted quarter 48 = 72 qpm), 8 bars (pickup 9, repeat 8 written / 12 played), mean density 0.41-1.06
+  attacks/s, at most one focus feature (eighths, dotted rhythm, ties x3, pickup, repeat, 6/8). `pnpm library:lessons`
+  "Wrote 24 lesson item(s)"; `pnpm library:index` 210 items, every Basics levelCheck pass.
+- Audit (T037): 24 records `content/library/audit/basics/<slug>.json` (lesson-claims-v1), `pnpm library:fidelity`
+  0 failed; planted check: half-notes record vs the eighth-notes file -> 2 differences (eighth, whole not introduced).
+  The library fidelity test now passes every record to the run context, as the cli does; the planted sweep is scoped
+  to the generated exercises (lessons have their own rule sets).
+- Guards for "items added later" (no expectation loosened): out-of-scope-hashes.json and the identity golden record
+  the 48 Basics files; tempo-beat.test.ts lists basics/six-eight-time (prints a dotted-quarter mark).
+- Music review (T038, music-domain-expert sub-agent): 2 BLOCKING, 9 SHOULD, 5 NIT, 2 for the owner. Fixed: steps lesson
+  had skips (bars 2 and 6 now steps only); lessons 4, 15, 18 now say the app checks note starts, not held length; lesson
+  19 legato is practice (no new sign; data-model §4 updated, also the 6/8 mark 48); clearer texts for lessons 1
+  (staff, clef, quarter, 4/4), 9 (white key), 11 (F line), 20 (staccato dot vs dot after the head), 21 ("Slurs" not
+  "Curves"), 23 (thin-thick double bar, back to the beginning), 24 (quarter + eighth in a beat), 8, 7; NITs: lesson 16
+  bar 5 and lesson 18 bars 2/4 rewritten so a tie is not just a whole note; one honesty sentence everywhere.
+  Verdict after fixes: music sound, fingering correct.
+- Screenshots (T039): looked at all 24 `test-results/screenshots/basics/<slug>.png` (and again the 7 changed ones):
+  explanation line readable above bar 1, never on the tempo mark or the notes; ties, slurs, staccato dots, rests,
+  pickup, repeat sign and the 6/8 dotted-quarter mark engraved. Fingers print on every note (build-index requires
+  full fingering on exercises).
+- Checkpoint gate: `pnpm lint` 0 errors; `pnpm typecheck` exit 0; `pnpm test` `Tests 6 failed | 7913 passed` - the 6
+  failures are all tests/library/chord-lessons.test.ts (US2, T041, written first, no chord lessons yet);
+  `pnpm test:e2e:smoke` 9 passed; `tests/e2e/library.spec.ts --project=chromium` 11 passed, 1 skipped, 1 failed - the
+  US2 Chords test (T042, no content yet). Quickstart US1 1-7: shelf order, teaching order and Trains text (e2e), Listen
+  (e2e), tie waits (basics-ties.test.ts), staccato half length (timeline test), perfect Play (perfect-run.test.ts),
+  screenshots.
+- Problems / open questions: needs owner (from the review, spec wording only, nothing built changes):
+  (1) spec US1 lists steps/five-finger/left hand/hands together last, data-model §4 (built) puts them at 9-13 before
+  eighth notes - recommend amending the spec text to the built order; (2) FR-013 says "one or two sentences", most
+  explanations have 3-4 because of the how-to-play and "the app checks" sentences the Edge Cases require - recommend
+  amending FR-013 to "one or two sentences, plus how to play it and what the app checks".
+- Handoff: next = US2: T043 done-in-progress (chord-lessons-v1 implemented, T040 tests green), author T044-T046.

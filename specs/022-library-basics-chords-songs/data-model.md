@@ -106,14 +106,14 @@ position change.
 | 16 | `ties-in-a-bar` | Ties: hold, don't play again | tie within a bar | yes | right |
 | 17 | `ties-across-the-bar-line` | Ties across the bar line | tie across a bar line | yes | right |
 | 18 | `ties-and-slurs` | Tie or slur? | slur (different pitches) vs tie | no | right |
-| 19 | `legato` | Legato: connected notes | slur / legato phrase | no | right |
+| 19 | `legato` | Legato: connected notes | (none new: the slur of 18 as a legato phrase; practice) | no | right |
 | 20 | `staccato` | Staccato: short notes | staccato | no | right |
 | 21 | `legato-and-staccato` | Legato and staccato | (combines 19-20) | no | right |
 | 22 | `pickup` | Starting before the bar: the pickup | pickup (upbeat) | no | right |
 | 23 | `repeat-signs` | Repeat signs | repeat barlines | no | right |
-| 24 | `six-eight-time` | Six-eight time | 6/8 (dotted-quarter beat), tempo = dotted quarter 50 | yes | right |
+| 24 | `six-eight-time` | Six-eight time | 6/8 (dotted-quarter beat), tempo = dotted quarter 48 (72 qpm, Introduction's limit) | yes | right |
 
-Lessons 4 and 21 set `claims.practice: true` (no new idea). A staff that holds only whole-bar rests (with its
+Lessons 4, 19 and 21 set `claims.practice: true` (no new idea; 19 after the music review of T038). A staff that holds only whole-bar rests (with its
 clef) is not counted as notation the lesson uses - every lesson has a grand staff (criterion 27), so lessons 1-10
 show a bass clef and whole rests in the unused staff before lessons 5, 6 and 11 introduce them (analyze M1).
 Lessons 18 and 21 combine ideas already introduced; criterion 29 still counts features, so lesson 21 (slurs and

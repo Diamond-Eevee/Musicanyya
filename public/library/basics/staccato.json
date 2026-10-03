@@ -4,7 +4,7 @@
   "kind": "exercise",
   "level": "introduction",
   "tags": ["articulation"],
-  "trains": "A dot above or below a note head means staccato: play the note short and spring off the key, leaving a little silence before the next note. Listen first: the notes sound short. The app checks when each note starts, not how short you play it.",
+  "trains": "A dot above or below a note head means staccato: play it short and spring off the key. (A dot after the head makes a note longer.) Listen first: the notes sound short. The app checks when each note starts, not how short you play it.",
   "hands": "right",
   "provenance": {
     "origin": "authored",

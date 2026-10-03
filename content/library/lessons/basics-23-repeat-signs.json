@@ -7,7 +7,7 @@
   "level": "introduction",
   "hands": "right",
   "tags": ["repeats"],
-  "trains": "Two dots before a thick double bar line are a repeat sign: go back to the start, or to the facing sign, and play that part again, then go on. The app follows the repeat: it plays and expects those bars twice.",
+  "trains": "Two dots before a double bar line (one thin, one thick line) are a repeat sign: go back to the beginning and play those bars again, then go on. The app follows the repeat: it plays and expects those bars twice. Without the dots, that line ends the piece.",
   "scoreText": "Repeat sign: go back and play those bars again.",
   "metre": "4/4",
   "tempoBpm": 60,
