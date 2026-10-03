@@ -29,6 +29,13 @@ Orchestra parts are explicitly deferred to a later feature, but sources are chos
   from easy to hard.
 - Q: How does a Basics lesson show its explanation? -> A: In the item's description **and** as one short line
   printed on the score above the first bar, so it is visible while playing.
+- Q (during planning: the level check bans eighth notes, ties, repeats and 6/8 at Introduction, so the Basics lessons
+  could not be Introduction): change the restrictions? -> A: Yes. **No level bans any notation** (note values, ties,
+  repeats, time signatures, tuplets, grace notes, ornaments, pedal, key signatures, accidentals, key, metre and tempo
+  changes). Levels differ only by **hand reach** (how far apart the notes are) and by **pace**: tempo, length,
+  density, and how independent the hands are. Every Score must still be playable by human hands (constitution VII).
+  Follow-up: Introduction means **one focus**: eighth notes are fine on their own (to show what they are), but an
+  Introduction item never combines two harder things (e.g. eighth notes *and* ties).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -185,6 +192,17 @@ available: yes (where) / no".
 - **FR-003**: New songs MUST be listed with the existing songs and MUST be findable by level, key and tags as every
   item is today.
 - **FR-004**: Existing items, shelves, ids, saved progress and remembered filters MUST NOT change meaning or break.
+- **FR-005**: The level check MUST NOT forbid any notation at any level: note values, ties, repeats and voltas, time
+  signatures and their changes, tuplets, grace notes, ornaments, pedal, key signatures, accidentals, key and tempo
+  changes. A level MUST be decided only by hand reach (pitch range, the widest chord in one hand, the widest leap),
+  pace (tempo, length in bars and seconds, notes per second), hand independence and voices per hand, together with
+  the existing playability tiers.
+- **FR-007**: An Introduction item MUST contain at most one of these harder features: notes shorter than a beat,
+  dotted rhythms shorter than a dotted half, ties, repeats or voltas, a pickup, a metre other than 2/4, 3/4 or 4/4,
+  tuplets, grace notes or ornaments, accidentals outside the key signature, pedal, key, metre or tempo changes.
+  Other levels have no such limit.
+- **FR-006**: Every existing item MUST keep its current level; an item whose measured level falls below it after
+  FR-005 MUST record why it sits higher (e.g. "a key change in the middle", "6/8 with a pickup").
 
 **Basics lessons**
 
@@ -197,7 +215,8 @@ available: yes (where) / no".
   lesson introduced.
 - **FR-013**: Each Basics lesson MUST explain its idea in plain words (one or two sentences, no unexplained jargon)
   in its description, and MUST print one short line of that explanation on the score above the first bar.
-- **FR-014**: Basics lessons MUST be at the Introduction level and pass the existing level check for it.
+- **FR-014**: Basics lessons MUST be at the Introduction level and pass the level check for it (FR-005), which their
+  tempo and pace are chosen to fit.
 
 **Chord lessons**
 
@@ -270,7 +289,8 @@ available: yes (where) / no".
   and the audit report stays fresh.
 - **SC-005**: Playing any new item perfectly in Play mode (a synthetic perfect performance) gives 100 % correct, and
   grading it twice gives identical Grades.
-- **SC-006**: 100 % of existing item ids, saved progress records and existing library tests are unchanged.
+- **SC-006**: 100 % of existing item ids, levels and saved progress records are unchanged, and every existing item
+  passes the changed level check (FR-005, FR-006).
 - **SC-007**: Every new song has a recorded answer to "multi-part source available?" (FR-034).
 
 ## Assumptions
@@ -289,7 +309,7 @@ available: yes (where) / no".
 - **Greensleeves already exists** (Repertoire > Beginner and a song in A minor); "like Greensleeves" means more tunes
   of that kind, not another Greensleeves.
 - **Levels**: Basics lessons are Introduction; chord lessons range from Beginner to Intermediate; new songs from
-  Introduction to Intermediate.
+  Beginner (simplified) to Intermediate. Level is about reach and pace only (FR-005).
 - **Language**: item titles and texts are English like the rest of the library.
 - **Shells**: browser and Electron; no new audio or MIDI behaviour.
 
@@ -297,7 +317,8 @@ available: yes (where) / no".
 
 - Orchestra parts for any item (a later feature; only the multi-part source list is prepared here).
 - Grading of note length, release time, legato or staccato.
-- New notation support, new grading or Practice rules, new UI screens beyond listing the new shelf.
+- New notation support, new grading or Practice rules, new UI screens beyond listing the new shelf (the level-check
+  change of FR-005 is the one rule change).
 - Advanced-level chord voicings (more than three keys in one hand, spans beyond an octave).
 - Simplified versions of the existing 21 Repertoire pieces and 10 songs (only new items get one here).
 - Copyrighted songs or sources with a licence the library does not accept.

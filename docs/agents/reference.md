@@ -389,12 +389,22 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
   (`AudioEngine.prepare()`); `localStorage` key `musicanyya.audio.v1`. Electron e2e specs open real MIDI ports at
   start-up. MIDI access is requested only from the top-bar popover's Connect button, never at start-up (owner decision
   2026-10-03: the start-up request froze the Windows MIDI service, which then made desktop apps hang asking for or closing MIDI).
+- Feature 022: no new runtime technology and no new dependency. Dev-only: a lesson-definition format
+  (`content/library/lessons/*.json`, contract lesson-definition 1.0.0) and builder `pnpm library:lessons`
+  (`tools/library/build-lessons.ts`, `tools/library/lessons/`), independent checks `lesson-claims-v1`,
+  `chord-lessons-v1`, `song-chords-v2`; song definitions gain `leftHand.pattern` and `simplifies`. The level check
+  keeps only reach and pace criteria plus Introduction "one focus" (criterion 29); `Note.staccato` shortens playback
+  (`STACCATO_SOUNDING_FRACTION`).
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-10-03: Feature 022 planned (library Basics, chord lessons, more songs): a top-level Basics shelf (24 one-idea
+  lessons), Learning > Chords (single chords, switches, progressions, with simplified versions), 10 public-domain songs
+  as full + simplified pairs (sources need owner approval); the level check no longer bans notation (owner decision),
+  Introduction keeps one focus; staccato is heard in playback (owner confirmation pending). No new dependency.
 - 2026-10-02: Feature 021 implemented (live piano and audio setup): keys sound from start-up in every mode (one live router;
   desktop without a click, browser after the first click), a working Latency popup and calibration on the audio clock,
   the MIDI keyboard in the top bar, icon transport buttons, and output-device choice in the desktop app (the desktop
@@ -405,9 +415,4 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
   0-based; Clavinet) on a free channel, governed by the
   Orchestra level (the Levels slider is no longer disabled there). One core change in `compilePlaySchedule`; no engine,
   worklet, setting or dependency change.
-- 2026-10-01: Feature 019 planned (Metronome and Orchestra levels, Morning Mood with an Orchestra): a Levels popover
-  next to the Volume slider sets the Metronome click (0-100 %) and the Orchestra (hidden accompaniment instruments,
-  0-100 %), remembered across restarts; Orchestra parts sound in every mode but are never printed, expected or graded;
-  the library gains Grieg's own piano arrangement of Morning Mood (Schirmer 1899, owner approval pending), transcribed
-  twice and compared, with a generated flute/oboe/strings/cello/horn Orchestra. No new dependency.
 <!-- RECENT-CHANGES:END -->

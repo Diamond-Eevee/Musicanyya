@@ -41,3 +41,5 @@
 - Iteration 1: two implementation leaks and two awkward MUST phrasings fixed. Iteration 2: all items pass except the
   three clarification markers. Iteration 3 (after the owner's answers): markers resolved, FR-022 rewritten as
   two-chord switches, FR-035 (simplified versions) added; all items pass.
+- Iteration 4 (plan step, 2026-10-03): owner decision OD-1 added FR-005 - FR-007 (no notation bans; Introduction one
+  focus) and reworded FR-014 and SC-006; re-validated - all items pass, no markers.
